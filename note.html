@@ -99,26 +99,17 @@
             display: block;
         }
         
-        /* 笔记特殊样式 */
-        .note-card {
-            background-color: rgba(217, 185, 155, 0.1);
-            border-left: 4px solid #d9b99b;
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 0 0.5rem 0.5rem 0;
-        }
-        
         /* 章节列表项动画 */
         .chapter-item {
             transition: all 0.2s ease;
         }
         
         .chapter-item:hover {
-            background-color: rgba(123, 166, 185, 0.1);
+            background-color: rgba(109, 174, 141, 0.1);
         }
         
         .chapter-item.active {
-            background-color: rgba(123, 166, 185, 0.2);
+            background-color: rgba(109, 174, 141, 0.2);
             font-weight: bold;
         }
     </style>
@@ -128,7 +119,7 @@
     <!-- 左侧导航边栏 -->
     <div class="fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-40 transform transition-transform duration-300 md:translate-x-0 -translate-x-full" id="main-sidebar">
         <div class="p-5 border-b">
-            <h2 class="text-xl font-bold text-secondary">导航菜单</h2>
+            <h2 class="text-xl font-bold text-primary">导航菜单</h2>
         </div>
         
         <div class="p-4">
@@ -142,7 +133,7 @@
                 <span>茗沐大陆记事簿</span>
             </a>
             
-            <a href="note.html" class="flex items-center p-3 rounded-xl bg-secondary bg-opacity-20 text-secondary mb-2 transition-all">
+            <a href="note.html" class="flex items-center p-3 rounded-xl bg-primary bg-opacity-20 text-primary mb-2 transition-all">
                 <i class="fa fa-sticky-note w-8 text-center"></i>
                 <span><strong>蘿嵐随记簿</strong></span>
             </a>
@@ -165,9 +156,9 @@
         <header class="sticky top-0 bg-white bg-opacity-90 backdrop-blur-sm shadow-sm z-30 p-4 flex justify-between items-center">
             <div class="flex items-center">
                 <button id="sidebar-toggle" class="mr-4 p-2 rounded-full hover:bg-gray-100 control-btn">
-                    <i class="fa fa-bars text-secondary"></i>
+                    <i class="fa fa-bars text-primary"></i>
                 </button>
-                <h1 class="text-xl md:text-2xl font-bold text-secondary">蘿嵐随记簿</h1>
+                <h1 class="text-xl md:text-2xl font-bold text-primary">蘿嵐随记簿</h1>
             </div>
             
             <div class="flex items-center space-x-2">
@@ -294,6 +285,31 @@
     <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
 
     <script>
+        // 配置对象，类似passage.html的配置方式
+        const config = {
+            loadFromGithub: false, // 是否从GitHub加载文件
+            github: {
+                owner: 'Whitemiaoqwq',
+                repo: 'Roran-personal-blog',
+                branch: 'main',
+                path: 'static/notes/'
+            },
+            localPath: 'static/notes/'
+        };
+        
+        // 生成文件URL的函数
+        function getFileUrl(filename) {
+            if (config.loadFromGithub) {
+                // 从GitHub加载文件的URL格式
+                return `https://raw.githubusercontent.com/${config.github.owner}/${config.github.repo}/${config.github.branch}/${config.github.path}${filename}`;
+            } else {
+                // 从本地加载文件
+                return `${config.localPath}${filename}`;
+            }
+        }
+    </script>
+    
+    <script>
         // 全局变量
         let notes = [];              // 笔记列表
         let currentNoteIndex = 0;    // 当前笔记索引
@@ -336,48 +352,104 @@
             loadSettings();
         });
         
-        // 加载笔记列表
-        function loadNotes() {
-            // 实际应用中，这里应该通过AJAX请求服务器获取static/note目录下的.md文件列表
-            // 这里使用模拟数据
-            notes = [
-                { id: 1, title: "魔法学院的第一天", date: "2023年9月1日", file: "note1.md" },
-                { id: 2, title: "认识了新的朋友", date: "2023年9月5日", file: "note2.md" },
-                { id: 3, title: "第一次成功施展魔法", date: "2023年9月10日", file: "note3.md" },
-                { id: 4, title: "学院图书馆探险", date: "2023年9月15日", file: "note4.md" },
-                { id: 5, title: "周末的森林散步", date: "2023年9月20日", file: "note5.md" }
-            ];
-            
-            // 渲染笔记列表
-            renderNoteList();
-        }
-        
         // 渲染笔记列表
         function renderNoteList() {
+            // 清空笔记列表
             chapterList.innerHTML = '';
             
-            // 根据排序方式处理笔记列表
-            const sortedNotes = [...notes].sort((a, b) => {
-                return sortOrder === 'asc' ? a.id - b.id : b.id - a.id;
-            });
+            // 根据排序方式对笔记进行排序
+            let sortedNotes = [...notes];
+            if (sortOrder === 'asc') {
+                sortedNotes.sort((a, b) => a.id - b.id);
+            } else {
+                sortedNotes.sort((a, b) => b.id - a.id);
+            }
             
-            // 创建笔记列表项
+            // 渲染每个笔记
             sortedNotes.forEach((note, index) => {
                 const noteItem = document.createElement('div');
-                noteItem.className = `chapter-item p-3 rounded-xl cursor-pointer ${currentNoteIndex === note.id - 1 ? 'active' : ''}`;
+                noteItem.className = `chapter-item p-3 cursor-pointer transition-all duration-200 ${
+                    currentNoteIndex === notes.findIndex(c => c.id === note.id) ? 'bg-primary/10 text-primary border-l-4 border-primary' : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                }`;
                 noteItem.innerHTML = `
-                    <div class="font-medium">${note.title}</div>
-                    <div class="text-xs text-gray-500 mt-1">${note.date}</div>
+                    <div class="chapter-number text-xs text-gray-500 mb-1">第${note.id}篇</div>
+                    <div class="chapter-title">${note.title}</div>
                 `;
                 
-                // 点击笔记项加载对应笔记
+                // 绑定点击事件
                 noteItem.addEventListener('click', () => {
-                    loadNote(note.id - 1);
-                    chapterSidebar.classList.remove('active');
+                    // 找到原始笔记数组中的索引
+                    const originalIndex = notes.findIndex(c => c.id === note.id);
+                    loadNote(originalIndex);
+                    
+                    // 在移动设备上，点击笔记后关闭侧边栏
+                    if (window.innerWidth < 768) {
+                        chapterSidebar.classList.remove('active');
+                    }
                 });
                 
                 chapterList.appendChild(noteItem);
             });
+        }
+        
+        // 加载笔记列表
+        function loadNotes() {
+            // 显示加载状态
+            chapterList.innerHTML = `
+                <div class="flex justify-center items-center h-64">
+                    <i class="fa fa-spinner fa-spin text-secondary"></i>
+                    <span class="ml-2">加载笔记列表中...</span>
+                </div>
+            `;
+            
+            try {
+                console.log('开始加载笔记列表...');
+                
+                // 根据项目结构，从仓库读取笔记文件
+                // 目前仓库中只有note1.md文件
+                notes = [
+                    {
+                        id: 1,
+                        title: "一个简单的日记",
+                        date: "20XX年9月27日",
+                        file: "note1.md"
+                    }
+                ];
+                
+                console.log("笔记列表加载成功，共" + notes.length + "篇笔记", notes);
+                
+                // 渲染笔记列表
+                renderNoteList();
+                
+                // 默认加载第一篇笔记
+                if (notes.length > 0) {
+                    loadNote(0);
+                }
+            } catch (error) {
+                console.error("加载笔记列表时出错:", error);
+                
+                // 显示错误信息
+                chapterList.innerHTML = `
+                    <div class="flex flex-col justify-center items-center h-64 text-red-500">
+                        <i class="fa fa-exclamation-circle text-4xl mb-3"></i>
+                        <p>无法加载笔记列表</p>
+                        <p class="text-sm mt-2">错误: ${error.message}</p>
+                    </div>
+                `;
+                
+                // 回退到模拟数据
+                notes = [
+                    {
+                        id: 1,
+                        title: "清晨的微光",
+                        date: "2023年9月1日",
+                        file: "note1.md"
+                    }
+                ];
+                
+                renderNoteList();
+                loadNote(0);
+            }
         }
         
         // 加载笔记内容
@@ -399,106 +471,47 @@
                 </div>
             `;
             
-            // 实际应用中，这里应该通过AJAX请求加载对应的.md文件内容
-            // 这里使用模拟内容
-            setTimeout(() => {
-                // 不同笔记的模拟内容
-                let mockContent = '';
-                
-                if (index === 0) {
-                    mockContent = `
-# 魔法学院的第一天
-
-今天是我来到茗沐魔法学院的第一天，心情既紧张又兴奋！🐾
-
-学院比我想象的还要大，古老的城堡式建筑被茂密的森林环绕，空气中都弥漫着奇妙的气息。
-
-## 报到过程
-
-早上9点，我准时来到了学院的主塔楼报到。负责接待的猫头鹰教授非常和蔼，给了我一本厚厚的校规和一张校园地图。
-
-> "记住，在茗沐学院，好奇心是最宝贵的品质，但也要懂得敬畏魔法。" —— 猫头鹰教授
-
-## 我的宿舍
-
-我被分配到了橡木宿舍，室友是一只叫可可的小松鼠，她看起来很友善。宿舍虽然不大，但布置得很温馨，还有一个可以看到森林的小窗户。
-
-### 今日小记
-
-- 认识了3位新同学
-- 领到了第一本魔法书《基础元素操控》
-- 不小心差点把休息室的盆栽变成了兔子（还好及时制止了）
-
-明天就要开始正式上课了，希望能有好的表现！
-                `;
-                } else if (index === 1) {
-                    mockContent = `
-# 认识了新的朋友
-
-今天在草药课上认识了几位新朋友，真是开心的一天！😊
-
-## 草药课的奇遇
-
-草药课在温室里进行，我们学习了如何辨识和采集魔法植物。我因为太专注于观察一株发光的蘑菇，不小心踩到了藤蔓，差点摔倒。
-
-幸好一只叫灰灰的小狼及时扶住了我。
-
-> "小心点，这种藤蔓会缠住移动的东西哦。" —— 灰灰
-
-## 午餐时光
-
-课后，灰灰带我认识了他的朋友：一只叫铃铃的小鹿和一只叫跳跳的兔子。我们一起在学院的花园里吃了午餐。
-
-铃铃带来了她妈妈做的坚果饼干，非常美味！跳跳则分享了他收集的各种有趣的石头。
-
-### 今日小记
-
-- 认识了灰灰、铃铃和跳跳
-- 学会了辨识3种魔法植物
-- 被温室里的含羞草"咬"了一口（有点痒）
-
-明天我们约好一起去图书馆自习，期待！
-                `;
-                } else {
-                    // 其他笔记的通用模板
-                    mockContent = `
-# ${notes[index].title}
-
-今天发生了很多有趣的事情，我想把它们记录下来。
-
-这是我在茗沐魔法学院的第${index * 5}天，已经慢慢适应了这里的生活。
-
-<div class="note-card">
-<strong>今日感悟：</strong>
-魔法不仅仅是咒语和魔杖，更重要的是内心的平静和善良。
-</div>
-
-## 日常点滴
-
-今天的课程很有趣，我学到了很多新知识。下午和朋友们一起在校园里散步，聊了很多关于未来的梦想。
-
-### 今日小记
-
-- 完成了老师布置的作业
-- 和朋友们分享了零食
-- 傍晚看到了美丽的晚霞
-
-期待明天的到来！
-                `;
-                }
-                
-                // 使用marked库将Markdown转换为HTML
-                readingArea.innerHTML = marked.parse(mockContent);
-                
-                // 更新笔记列表选中状态
-                renderNoteList();
-                
-                // 更新导航按钮状态
-                updateNavButtons();
-                
-                // 滚动到顶部
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }, 800);
+            // 使用配置的URL请求笔记文件
+            const filePath = getFileUrl(notes[index].file);
+            
+            console.log(`尝试加载笔记文件: ${filePath}`);
+            
+            fetch(filePath)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`无法加载文件: ${response.status} ${response.statusText}`);
+                    }
+                    return response.text();
+                })
+                .then(content => {
+                    console.log(`笔记文件加载成功，内容长度: ${content.length}字符`);
+                    
+                    // 使用marked库将Markdown转换为HTML
+                    readingArea.innerHTML = marked.parse(content);
+                    
+                    // 更新笔记列表选中状态
+                    renderNoteList();
+                    
+                    // 更新导航按钮状态
+                    updateNavButtons();
+                    
+                    // 滚动到顶部
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                })
+                .catch(error => {
+                    console.error("加载笔记内容时出错:", error);
+                    
+                    // 显示错误信息
+                    readingArea.innerHTML = `
+                        <div class="flex flex-col justify-center items-center h-64 text-center p-8">
+                            <i class="fa fa-exclamation-circle text-4xl text-red-500 mb-4"></i>
+                            <p class="text-gray-500 mb-2">无法加载笔记内容</p>
+                            <p class="text-sm text-gray-400">错误信息: ${error.message}</p>
+                            <p class="text-sm text-gray-400">文件路径: ${filePath}</p>
+                            <p class="text-sm text-gray-400 mt-2">提示: 请使用本地服务器运行项目以避免跨域问题</p>
+                        </div>
+                    `;
+                });
         }
         
         // 更新导航按钮状态
