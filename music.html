@@ -406,82 +406,46 @@
             startEqAnimation();
         });
         
-        // 加载音乐列表
-        function loadMusicList() {
-            // 实际应用中，这里应该通过AJAX请求服务器获取static/music目录下的音乐文件
-            // 这里使用模拟数据
-            musicList = [
-                {
-                    id: 1,
-                    title: "森林的低语",
-                    artist: "猫之都乐团",
-                    album: "自然之声",
-                    file: "forest_whisper.mp3",
-                    duration: "3:45",
-                    cover: "https://picsum.photos/300/300?random=1"
-                },
-                {
-                    id: 2,
-                    title: "魔法学院的黄昏",
-                    artist: "蘿嵐",
-                    album: "校园时光",
-                    file: "magic_sunset.flac",
-                    duration: "4:12",
-                    cover: "https://picsum.photos/300/300?random=2"
-                },
-                {
-                    id: 3,
-                    title: "星空下的舞蹈",
-                    artist: "猫之都乐团",
-                    album: "夜晚的旋律",
-                    file: "star_dance.mp3",
-                    duration: "3:58",
-                    cover: "https://picsum.photos/300/300?random=3"
-                },
-                {
-                    id: 4,
-                    title: "雨后的森林",
-                    artist: "森林之声",
-                    album: "自然之声",
-                    file: "rain_forest.flac",
-                    duration: "5:20",
-                    cover: "https://picsum.photos/300/300?random=4"
-                },
-                {
-                    id: 5,
-                    title: "猫咪的午睡",
-                    artist: "蘿嵐",
-                    album: "慵懒时光",
-                    file: "cat_nap.mp3",
-                    duration: "2:55",
-                    cover: "https://picsum.photos/300/300?random=5"
-                },
-                {
-                    id: 6,
-                    title: "魔法药水",
-                    artist: "魔法师乐队",
-                    album: "魔法世界",
-                    file: "magic_potion.flac",
-                    duration: "4:30",
-                    cover: "https://picsum.photos/300/300?random=6"
-                },
-                {
-                    id: 7,
-                    title: "林间小径",
-                    artist: "森林之声",
-                    album: "自然之声",
-                    file: "forest_path.mp3",
-                    duration: "3:25",
-                    cover: "https://picsum.photos/300/300?random=7"
-                }
-            ];
-            
-            // 更新总歌曲数
-            totalSongsElement.textContent = `${musicList.length}首歌曲`;
-            
-            // 渲染音乐列表
-            renderMusicList();
+
+    function loadMusicList() {
+    // 使用项目中实际存在的音乐文件
+    musicList = [
+        {
+            id: 1,
+            title: "hanabi",
+            artist: "未知艺术家",
+            album: "音乐收藏",
+            file: "hanabi.flac",
+            duration: "00:00", // 实际播放时会自动更新
+            cover: "https://picsum.photos/300/300?random=1"
+        },
+        {
+            id: 2,
+            title: "大大世界小小猫（最终重混音伴奏）",
+            artist: "未知艺术家",
+            album: "音乐收藏",
+            file: "大大世界小小猫（最终重混音伴奏）.flac",
+            duration: "00:00", // 实际播放时会自动更新
+            cover: "https://picsum.photos/300/300?random=2"
+        },
+        {
+            id: 3,
+            title: "时年",
+            artist: "未知艺术家",
+            album: "音乐收藏",
+            file: "时年.flac",
+            duration: "00:00", // 实际播放时会自动更新
+            cover: "https://picsum.photos/300/300?random=3"
         }
+    ];
+    
+    // 更新总歌曲数
+    totalSongsElement.textContent = `${musicList.length}首歌曲`;
+    
+    // 渲染音乐列表
+    renderMusicList();
+}
+
         
         // 渲染音乐列表
         function renderMusicList(filter = '') {
@@ -658,3 +622,4 @@
             
             const progress = (audio.currentTime / audio.duration) * 100;
             progressFill.style.width = `${progress}%`;
+        }
