@@ -15,15 +15,17 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#6366f1', // 主色调：靛蓝色，代表创造力和个性
-                        secondary: '#8b5cf6', // 辅助色：紫色
-                        accent: '#ec4899', // 强调色：粉色
-                        dark: '#1e293b', // 深色
-                        light: '#f8fafc' // 浅色
+                        // 主色调：低饱和绿色和蓝色
+                        primary: '#6dae8d',
+                        secondary: '#7ba6b9',
+                        // 辅助色
+                        accent: '#d9b99b',
+                        light: '#f5f5f0',
+                        dark: '#4a5559'
                     },
                     fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                    },
+                        cute: ['"Comic Sans MS"', '"Marker Felt"', 'sans-serif']
+                    }
                 }
             }
         }
@@ -36,387 +38,272 @@
                 content-visibility: auto;
             }
             .sidebar-shadow {
-                box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
             }
-            .text-shadow {
-                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            .card-hover {
+                transition: all 0.3s ease;
             }
-            .bg-gradient {
-                background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            .card-hover:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
             }
         }
     </style>
     
     <style>
-        /* 基础动画定义 */
-        .fade-in {
-            animation: fadeIn 0.5s ease-in-out;
+        /* 全局样式 */
+        body {
+            background-color: #f5f5f0;
+            background-image: 
+                radial-gradient(#6dae8d10 1px, transparent 1px),
+                radial-gradient(#7ba6b910 1px, transparent 1px);
+            background-size: 50px 50px;
+            background-position: 0 0, 25px 25px;
+            overflow-x: hidden;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        /* 侧边栏动画 */
+        .sidebar {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(-85%);
         }
         
-        .slide-in {
-            animation: slideIn 0.3s ease-out;
+        .sidebar:hover {
+            transform: translateX(0);
         }
         
-        @keyframes slideIn {
-            from { transform: translateX(-100%); }
-            to { transform: translateX(0); }
+        /* 音乐控制按钮动画 */
+        .music-btn {
+            transition: all 0.3s ease;
         }
         
-        .slide-out {
-            animation: slideOut 0.3s ease-in;
+        .music-btn:hover {
+            transform: scale(1.1);
         }
         
-        @keyframes slideOut {
-            from { transform: translateX(0); }
-            to { transform: translateX(-100%); }
+        /* 社交图标动画 */
+        .social-icon {
+            transition: all 0.3s ease;
         }
         
-        /* 平滑滚动 */
-        html {
-            scroll-behavior: smooth;
+        .social-icon:hover {
+            transform: translateY(-3px) scale(1.1);
         }
         
-        /* 自定义滚动条 */
-        ::-webkit-scrollbar {
-            width: 8px;
+        /* 板块卡片动画 */
+        .section-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
+        .section-card:hover {
+            transform: translateY(-8px) scale(1.02);
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans antialiased min-h-screen flex overflow-x-hidden">
-    <!-- 侧边栏 - 可自动隐藏 -->
-    <aside id="sidebar" class="fixed h-full w-64 bg-white sidebar-shadow z-30 transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0">
-        <!-- 侧边栏头部 -->
-        <div class="p-6 border-b border-gray-100">
-            <h2 class="text-xl font-bold text-primary" data-i18n="sidebar.title">导航菜单</h2>
+
+<body class="font-cute text-dark">
+    <!-- 音乐控制按钮 - 左下角 -->
+    <div id="music-control" class="fixed bottom-6 left-6 z-50 bg-white bg-opacity-80 p-3 rounded-full shadow-lg music-btn cursor-pointer">
+        <i id="music-icon" class="fa fa-music text-primary text-xl"></i>
+    </div>
+    
+    <!-- 背景音乐 -->
+    <audio id="background-music" loop autoplay>
+        <source src="static/music/hanabi.flac" type="audio/flac">
+        您的浏览器不支持音频播放
+    </audio>
+    
+    <!-- 左侧侧边栏 - 可自动隐藏 -->
+    <div class="sidebar fixed top-0 left-0 h-full w-64 bg-white bg-opacity-90 rounded-r-3xl sidebar-shadow z-40 flex flex-col">
+        <div class="p-6 text-center border-b border-gray-100">
+            <h2 class="text-xl font-bold text-primary">导航菜单</h2>
         </div>
         
-        <!-- 侧边栏导航链接 -->
-        <nav class="p-4">
-            <ul class="space-y-2">
-                <!-- 首页链接 -->
-                <li>
-                    <a href="index.html" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors duration-200 text-gray-700 hover:text-primary">
-                        <i class="fa fa-home w-5 mr-3"></i>
-                        <span data-i18n="sidebar.home">首页</span>
-                    </a>
-                </li>
-                
-                <!-- 博客板块链接 (名称暂空，使用占位符) -->
-                <li>
-                    <a href="blog.html" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors duration-200 text-gray-700 hover:text-primary">
-                        <i class="fa fa-pencil w-5 mr-3"></i>
-                        <span data-i18n="sidebar.blog">博客</span>
-                    </a>
-                </li>
-                
-                <!-- 作品板块链接 (名称暂空，使用占位符) -->
-                <li>
-                    <a href="https://www.bilibili.com/opus/1096398974801150024?from=search&spm_id_from=333.337.0.0" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors duration-200 text-gray-700 hover:text-primary">
-                        <i class="fa fa-briefcase w-5 mr-3"></i>
-                        <span data-i18n="sidebar.works">作品</span>
-                    </a>
-                </li>
-                
-                <!-- 关于板块链接 (名称暂空，使用占位符) -->
-                <li>
-                    <a href="reader.html" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors duration-200 text-gray-700 hover:text-primary">
-                        <i class="fa fa-user w-5 mr-3"></i>
-                        <span data-i18n="sidebar.about">关于</span>
-                    </a>
-                </li>
-                
-                <!-- 联系板块链接 (名称暂空，使用占位符) -->
-                <li>
-                    <a href="contact.html" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors duration-200 text-gray-700 hover:text-primary">
-                        <i class="fa fa-envelope w-5 mr-3"></i>
-                        <span data-i18n="sidebar.contact">联系</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-        
-        <!-- 侧边栏底部 - 音乐播放器 -->
-        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100 bg-white">
-            <h3 class="text-sm font-medium text-gray-500 mb-2" data-i18n="sidebar.music">背景音乐</h3>
-            <!-- 音乐播放器 -->
-            <audio controls class="w-full bg-gray-50 p-2 rounded-lg">
-                <!-- 音乐文件路径：static/music/[文件名]，目前留空 -->
-                <source src="static/music/hanabi.flac" type="audio/mpeg">
-                <!-- 浏览器不支持音频播放时显示 -->
-                <span data-i18n="sidebar.audio-not-supported">您的浏览器不支持音频播放</span>
-            </audio>
+        <div class="flex-1 overflow-y-auto py-4 px-2">
+            <!-- 导航链接 -->
+            <a href="index.html" class="flex items-center p-3 m-2 rounded-2xl bg-primary bg-opacity-20 text-primary hover:bg-opacity-30 transition-all">
+                <i class="fa fa-home w-8 text-center"></i>
+                <span>首页</span>
+            </a>
+            
+            <a href="passage.html" class="flex items-center p-3 m-2 rounded-2xl hover:bg-gray-100 transition-all">
+                <i class="fa fa-book w-8 text-center"></i>
+                <span>茗沐大陆记事簿</span>
+            </a>
+            
+            <a href="note.html" class="flex items-center p-3 m-2 rounded-2xl hover:bg-gray-100 transition-all">
+                <i class="fa fa-sticky-note w-8 text-center"></i>
+                <span>蘿嵐随记簿</span>
+            </a>
+            
+            <a href="music.html" class="flex items-center p-3 m-2 rounded-2xl hover:bg-gray-100 transition-all">
+                <i class="fa fa-headphones w-8 text-center"></i>
+                <span>猫之都音乐馆</span>
+            </a>
+            
+            <a href="photos.html" class="flex items-center p-3 m-2 rounded-2xl hover:bg-gray-100 transition-all">
+                <i class="fa fa-camera w-8 text-center"></i>
+                <span>蘿嵐摄影集</span>
+            </a>
         </div>
-    </aside>
+        
+        <div class="p-4 border-t border-gray-100">
+            <p class="text-sm text-center text-gray-500">滑动或点击收起</p>
+        </div>
+    </div>
 
     <!-- 主内容区 -->
-    <main class="flex-1 lg:ml-64 transition-all duration-300">
-        <!-- 顶部导航栏 -->
-        <header class="sticky top-0 z-20 bg-white/80 backdrop-blur-md shadow-sm">
-            <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-                <!-- 移动端菜单按钮 -->
-                <button id="menu-toggle" class="lg:hidden text-gray-700 hover:text-primary transition-colors">
-                    <i class="fa fa-bars text-xl"></i>
-                </button>
-                
-                <!-- 网站标题 (仅在桌面端显示) -->
-                <h1 class="hidden lg:block text-xl font-bold text-primary" data-i18n="header.title">蘿嵐的个人博客</h1>
-                
-                <!-- 右侧语言切换 -->
-                <div class="flex items-center space-x-4">
-                    <button id="lang-zh" class="text-gray-700 hover:text-primary transition-colors font-medium">中文</button>
-                    <button id="lang-en" class="text-gray-700 hover:text-primary transition-colors font-medium">English</button>
-                </div>
-            </div>
-        </header>
-        
-        <!-- 主要内容 -->
-        <div class="container mx-auto px-4 py-8 md:py-16">
-            <div class="max-w-3xl mx-auto">
-                <!-- 个人信息卡片 -->
-                <div class="bg-white rounded-2xl shadow-xl overflow-hidden mb-10 transform hover:scale-[1.01] transition-transform duration-300">
-                    <!-- 卡片头部背景 -->
-                    <div class="bg-gradient h-32"></div>
-                    
-                    <!-- 头像部分 - 定位在背景下方 -->
-                    <div class="flex justify-center -mt-16 mb-6">
-                        <div class="w-32 h-32 rounded-full border-4 border-white overflow-hidden shadow-lg">
-                            <img src="static/imgs/owo.jpg" alt="蘿嵐的头像" class="w-full h-full object-cover">
-                        </div>
-                    </div>
-                    
-                    <!-- 个人信息 -->
-                    <div class="text-center p-6">
-                        <h2 class="text-3xl font-bold mb-2 text-dark text-shadow" data-i18n="profile.name">蘿嵐</h2>
-                        <p class="text-gray-600 text-lg mb-6" data-i18n="profile.intro">是一只茗沐大地上的森林猫。</p>
-                        
-                        <!-- 社交媒体链接 -->
-                        <div class="flex justify-center space-x-6 mb-6">
-                            <!-- B站链接 -->
-                            <a href="https://space.bilibili.com/3546633423816937?spm_id_from=333.1369.opus.module_author_avatar.click" target="_blank" rel="noopener noreferrer" 
-                               class="text-gray-500 hover:text-[#FB7299] transition-colors duration-300 transform hover:scale-110">
-                                <i class="fa fa-play-circle text-2xl"></i>
-                                <span class="ml-1 hidden sm:inline" data-i18n="social.bilibili">B站</span>
-                            </a>
-                            
-                            <!-- 抖音链接 (暂时留空) -->
-                            <a href="https://v.douyin.com/fASQmaFAqOY/ 9@9.com" class="text-gray-500 hover:text-[#000000] transition-colors duration-300 transform hover:scale-110">
-                                <i class="fa fa-music text-2xl"></i>
-                                <span class="ml-1 hidden sm:inline" data-i18n="social.douyin">抖音</span>
-                            </a>
-                        </div>
+    <main class="min-h-screen pt-16 pb-20 px-4 md:px-8 lg:px-16 transition-all duration-300">
+        <!-- 个人信息卡片 -->
+        <div class="max-w-4xl mx-auto bg-white rounded-3xl shadow-lg overflow-hidden mb-12">
+            <div class="md:flex">
+                <!-- 头像区域 -->
+                <div class="md:w-1/3 p-8 flex justify-center items-center bg-primary bg-opacity-10">
+                    <div class="relative">
+                        <div class="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-full blur-md opacity-50"></div>
+                        <img src="static/imgs/owo.jpg" alt="蘿嵐的头像" class="relative z-10 w-48 h-48 md:w-64 md:h-64 object-cover rounded-full border-4 border-white">
                     </div>
                 </div>
                 
-                <!-- 博客简介部分 -->
-                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10">
-                    <h3 class="text-2xl font-bold mb-4 text-primary" data-i18n="section.welcome">欢迎来到我的博客</h3>
-                    <div class="prose max-w-none text-gray-700">
-                        <p data-i18n="content.intro1">这里是我的个人空间，记录我的生活、想法和创作。</p>
-                        <p data-i18n="content.intro2">作为一只生活在茗沐大地上的森林猫，我喜欢探索周围的世界，分享我的发现和感悟。</p>
-                        <p data-i18n="content.intro3">希望你能在这里找到感兴趣的内容，也欢迎通过社交媒体与我交流。</p>
-                    </div>
-                </div>
-                
-                <!-- 最新动态/文章预览区 (占位) -->
-                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
-                    <h3 class="text-2xl font-bold mb-6 text-primary" data-i18n="section.latest">最新动态</h3>
+                <!-- 个人简介区域 -->
+                <div class="md:w-2/3 p-8 md:p-10">
+                    <h1 class="text-3xl md:text-4xl font-bold text-primary mb-4">蘿嵐</h1>
+                    <p class="text-lg mb-6 leading-relaxed">
+                        是一只茗沐大地上的森林猫，目前是茗沐魔法学院大一新生喵~
+                    </p>
                     
-                    <div class="space-y-6">
-                        <!-- 动态预览1 -->
-                        <div class="border-b border-gray-100 pb-6 hover:bg-gray-50 p-3 -m-3 rounded-lg transition-colors">
-                            <h4 class="text-xl font-semibold mb-2" data-i18n="posts.post1.title">初次见面</h4>
-                            <p class="text-gray-600 mb-3" data-i18n="posts.post1.excerpt">欢迎来到我的个人博客，这是我发布的第一篇文章...</p>
-                            <a href="blog.html#first-post" class="inline-flex items-center text-primary hover:text-secondary transition-colors">
-                                <span data-i18n="common.read-more">阅读更多</span>
-                                <i class="fa fa-arrow-right ml-2"></i>
-                            </a>
-                        </div>
-                        
-                        <!-- 动态预览2 -->
-                        <div class="hover:bg-gray-50 p-3 -m-3 rounded-lg transition-colors">
-                            <h4 class="text-xl font-semibold mb-2" data-i18n="posts.post2.title">茗沐大地的风景</h4>
-                            <p class="text-gray-600 mb-3" data-i18n="posts.post2.excerpt">分享一些我在茗沐大地上拍摄的美丽风景照片...</p>
-                            <a href="blog.html#scenery-post" class="inline-flex items-center text-primary hover:text-secondary transition-colors">
-                                <span data-i18n="common.read-more">阅读更多</span>
-                                <i class="fa fa-arrow-right ml-2"></i>
-                            </a>
-                        </div>
+                    <!-- 社交媒体链接 -->
+                    <div class="flex space-x-4 mt-8">
+                        <a href="https://space.bilibili.com/3546633423816937?spm_id_from=333.1369.opus.module_author_avatar.click" target="_blank" class="social-icon bg-[#FB7299] text-white p-3 rounded-full shadow-md">
+                            <i class="fa fa-play-circle"></i> <!-- B站小电视图标 -->
+                        </a>
+                        <a href="https://v.douyin.com/fASQmaFAqOY/ 9@9.com" target="_blank" class="social-icon bg-[#000000] text-white p-3 rounded-full shadow-md">
+                            <i class="fa fa-music"></i> <!-- 抖音音符图标 -->
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- 页脚 -->
-        <footer class="bg-dark text-white py-10 mt-16">
-            <div class="container mx-auto px-4">
-                <div class="text-center">
-                    <p data-i18n="footer.copyright">© 2025 蘿嵐的个人博客. 保留所有权利.</p>
-                    <p class="mt-2 text-gray-400 text-sm" data-i18n="footer.made-with">用 ❤️ 制作</p>
-                </div>
+        <!-- 板块导航卡片 -->
+        <div class="max-w-5xl mx-auto">
+            <h2 class="text-2xl font-bold text-center mb-10 text-dark">探索我的小世界</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 茗沐大陆记事簿 -->
+                <a href="passage.html" class="section-card block bg-white rounded-3xl shadow-md overflow-hidden">
+                    <div class="h-48 bg-primary bg-opacity-20 flex items-center justify-center">
+                        <i class="fa fa-book text-6xl text-primary"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 text-dark">茗沐大陆记事簿</h3>
+                        <p class="text-gray-600">探索茗沐大陆的奇妙故事与传说</p>
+                    </div>
+                </a>
+                
+                <!-- 蘿嵐随记簿 -->
+                <a href="note.html" class="section-card block bg-white rounded-3xl shadow-md overflow-hidden">
+                    <div class="h-48 bg-secondary bg-opacity-20 flex items-center justify-center">
+                        <i class="fa fa-sticky-note text-6xl text-secondary"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 text-dark">蘿嵐随记簿</h3>
+                        <p class="text-gray-600">记录日常的点滴思绪与感悟</p>
+                    </div>
+                </a>
+                
+                <!-- 猫之都音乐馆 -->
+                <a href="music.html" class="section-card block bg-white rounded-3xl shadow-md overflow-hidden">
+                    <div class="h-48 bg-accent bg-opacity-20 flex items-center justify-center">
+                        <i class="fa fa-headphones text-6xl text-accent"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 text-dark">猫之都音乐馆</h3>
+                        <p class="text-gray-600">聆听来自猫之都的动人旋律</p>
+                    </div>
+                </a>
+                
+                <!-- 蘿嵐摄影集 -->
+                <a href="photos.html" class="section-card block bg-white rounded-3xl shadow-md overflow-hidden">
+                    <div class="h-48 bg-primary bg-opacity-20 flex items-center justify-center">
+                        <i class="fa fa-camera text-6xl text-primary"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 text-dark">蘿嵐摄影集</h3>
+                        <p class="text-gray-600">捕捉生活中美好的瞬间与风景</p>
+                    </div>
+                </a>
             </div>
-        </footer>
+        </div>
     </main>
     
-    <!-- 遮罩层 - 侧边栏展开时显示 -->
-    <div id="overlay" class="fixed inset-0 bg-black/50 z-20 hidden lg:hidden"></div>
+    <!-- 页脚 -->
+    <footer class="bg-white bg-opacity-80 py-6 rounded-t-3xl shadow-inner">
+        <div class="text-center text-gray-500 text-sm">
+            <p>© 2023 蘿嵐的个人博客 | 用爱心制作</p>
+        </div>
+    </footer>
 
-    <!-- JavaScript 功能实现 -->
     <script>
-        // 语言切换功能
-        const translations = {
-            // 中文翻译
-            zh: {
-                "sidebar.title": "导航菜单",
-                "sidebar.home": "首页",
-                "sidebar.blog": "博客",
-                "sidebar.works": "作品",
-                "sidebar.about": "关于",
-                "sidebar.contact": "联系",
-                "sidebar.music": "背景音乐",
-                "sidebar.audio-not-supported": "您的浏览器不支持音频播放",
-                "header.title": "蘿嵐的个人博客",
-                "profile.name": "蘿嵐",
-                "profile.intro": "是一只茗沐大地上的森林猫。",
-                "social.bilibili": "B站",
-                "social.douyin": "抖音",
-                "section.welcome": "欢迎来到我的博客",
-                "content.intro1": "这里是我的个人空间，记录我的生活、想法和创作。",
-                "content.intro2": "作为一只生活在茗沐大地上的森林猫，我喜欢探索周围的世界，分享我的发现和感悟。",
-                "content.intro3": "希望你能在这里找到感兴趣的内容，也欢迎通过社交媒体与我交流。",
-                "section.latest": "最新动态",
-                "posts.post1.title": "初次见面",
-                "posts.post1.excerpt": "欢迎来到我的个人博客，这是我发布的第一篇文章...",
-                "posts.post2.title": "茗沐大地的风景",
-                "posts.post2.excerpt": "分享一些我在茗沐大地上拍摄的美丽风景照片...",
-                "common.read-more": "阅读更多",
-                "footer.copyright": "© 2023 蘿嵐的个人博客. 保留所有权利.",
-                "footer.made-with": "用 ❤️ 制作"
-            },
-            // 英文翻译
-            en: {
-                "sidebar.title": "Navigation",
-                "sidebar.home": "Home",
-                "sidebar.blog": "Blog",
-                "sidebar.works": "Works",
-                "sidebar.about": "About",
-                "sidebar.contact": "Contact",
-                "sidebar.music": "Background Music",
-                "sidebar.audio-not-supported": "Your browser does not support audio playback",
-                "header.title": "Luolan's Personal Blog",
-                "profile.name": "Luolan",
-                "profile.intro": "A forest cat living on the Mingmu land.",
-                "social.bilibili": "Bilibili",
-                "social.douyin": "Douyin",
-                "section.welcome": "Welcome to My Blog",
-                "content.intro1": "This is my personal space to record my life, thoughts and creations.",
-                "content.intro2": "As a forest cat living on the Mingmu land, I enjoy exploring the world around me and sharing my discoveries and insights.",
-                "content.intro3": "I hope you find something interesting here, and feel free to connect with me through social media.",
-                "section.latest": "Latest Updates",
-                "posts.post1.title": "First Meeting",
-                "posts.post1.excerpt": "Welcome to my personal blog, this is my first post...",
-                "posts.post2.title": "Scenery of Mingmu Land",
-                "posts.post2.excerpt": "Sharing some beautiful scenery photos I took on Mingmu land...",
-                "common.read-more": "Read more",
-                "footer.copyright": "© 2023 Luolan's Personal Blog. All rights reserved.",
-                "footer.made-with": "Made with ❤️"
-            }
-        };
+        // 音乐控制功能
+        const musicControl = document.getElementById('music-control');
+        const backgroundMusic = document.getElementById('background-music');
+        const musicIcon = document.getElementById('music-icon');
         
-        // 切换语言函数
-        function setLanguage(lang) {
-            // 遍历所有带有data-i18n属性的元素并更新内容
-            document.querySelectorAll('[data-i18n]').forEach(element => {
-                const key = element.getAttribute('data-i18n');
-                if (translations[lang][key]) {
-                    element.textContent = translations[lang][key];
-                }
-            });
-            
-            // 保存用户语言偏好到本地存储
-            localStorage.setItem('preferredLanguage', lang);
-        }
-        
-        // 初始化语言 - 使用用户上次选择的语言或默认中文
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedLang = localStorage.getItem('preferredLanguage') || 'zh';
-            setLanguage(savedLang);
-            
-            // 绑定语言切换事件
-            document.getElementById('lang-zh').addEventListener('click', () => setLanguage('zh'));
-            document.getElementById('lang-en').addEventListener('click', () => setLanguage('en'));
-            
-            // 侧边栏切换功能
-            const sidebar = document.getElementById('sidebar');
-            const menuToggle = document.getElementById('menu-toggle');
-            const overlay = document.getElementById('overlay');
-            
-            // 打开侧边栏
-            function openSidebar() {
-                sidebar.classList.remove('-translate-x-full', 'slide-out');
-                sidebar.classList.add('slide-in');
-                overlay.classList.remove('hidden');
-                document.body.style.overflow = 'hidden'; // 防止背景滚动
-            }
-            
-            // 关闭侧边栏
-            function closeSidebar() {
-                sidebar.classList.remove('slide-in');
-                sidebar.classList.add('slide-out');
-                setTimeout(() => {
-                    sidebar.classList.add('-translate-x-full');
-                }, 300);
-                overlay.classList.add('hidden');
-                document.body.style.overflow = ''; // 恢复背景滚动
-            }
-            
-            // 绑定侧边栏切换事件
-            menuToggle.addEventListener('click', openSidebar);
-            overlay.addEventListener('click', closeSidebar);
-            
-            // 在移动设备上，点击侧边栏链接后自动关闭侧边栏
-            const sidebarLinks = sidebar.querySelectorAll('a');
-            sidebarLinks.forEach(link => {
-                link.addEventListener('click', () => {
-                    if (window.innerWidth < 1024) { // lg断点
-                        closeSidebar();
-                    }
-                });
-            });
-            
-            // 窗口大小改变时处理侧边栏状态
-            window.addEventListener('resize', () => {
-                if (window.innerWidth >= 1024) { // lg断点
-                    sidebar.classList.remove('-translate-x-full', 'slide-in', 'slide-out');
-                    overlay.classList.add('hidden');
-                    document.body.style.overflow = '';
-                } else if (!sidebar.classList.contains('-translate-x-full') && 
-                          !sidebar.classList.contains('slide-out')) {
-                    // 保持打开状态
-                    overlay.classList.remove('hidden');
-                }
-            });
-            
-            // 为页面添加淡入动画
-            document.body.classList.add('fade-in');
+        // 尝试自动播放音乐（部分浏览器可能阻止自动播放）
+        backgroundMusic.play().catch(e => {
+            console.log('自动播放失败，需要用户交互后才能播放:', e);
+            musicIcon.classList.remove('fa-music');
+            musicIcon.classList.add('fa-play');
         });
+        
+        // 音乐控制按钮点击事件
+        musicControl.addEventListener('click', () => {
+            if (backgroundMusic.paused) {
+                backgroundMusic.play();
+                musicIcon.classList.remove('fa-play');
+                musicIcon.classList.add('fa-pause');
+            } else {
+                backgroundMusic.pause();
+                musicIcon.classList.remove('fa-pause');
+                musicIcon.classList.add('fa-play');
+            }
+        });
+        
+        // 监听音乐播放状态变化
+        backgroundMusic.addEventListener('play', () => {
+            musicIcon.classList.remove('fa-play', 'fa-music');
+            musicIcon.classList.add('fa-pause');
+        });
+        
+        backgroundMusic.addEventListener('pause', () => {
+            musicIcon.classList.remove('fa-pause', 'fa-music');
+            musicIcon.classList.add('fa-play');
+        });
+        
+        // 侧边栏交互优化
+        const sidebar = document.querySelector('.sidebar');
+        
+        // 在移动设备上点击空白处收起侧边栏
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth < 768 && 
+                !sidebar.contains(e.target) && 
+                sidebar.style.transform === 'translateX(0px)') {
+                sidebar.style.transform = 'translateX(-85%)';
+            }
+        });
+        
+        // 移动端适配 - 点击显示侧边栏
+        if (window.innerWidth < 768) {
+            const menuToggle = document.createElement('div');
+            menuToggle.className = 'fixed top-6 left-6 z-30 bg-white p-3 rounded-full shadow-lg cursor-pointer';
+            menuToggle.innerHTML = '<i class="fa fa-bars text-primary"></i>';
+            document.body.appendChild(menuToggle);
+            
+            menuToggle.addEventListener('click', () => {
+                sidebar.style.transform = sidebar.style.transform === 'translateX(0px)' ? 'translateX(-85%)' : 'translateX(0)';
+            });
+        }
     </script>
 </body>
 </html>

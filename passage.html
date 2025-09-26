@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>茗沐大陆记事簿 - 蘿嵐的个人博客</title>
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome图标库 -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 引入Markdown解析库 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <!-- 配置Tailwind自定义颜色和字体 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6dae8d',
+                        secondary: '#7ba6b9',
+                        accent: '#d9b99b',
+                        light: '#f5f5f0',
+                        dark: '#4a5559',
+                        // 阅读模式颜色
+                        day: {
+                            bg: '#ffffff',
+                            text: '#333333'
+                        },
+                        eye: {
+                            bg: '#eaf5e9',
+                            text: '#2d4829'
+                        },
+                        night: {
+                            bg: '#2c3e50',
+                            text: '#ecf0f1'
+                        }
+                    },
+                    fontFamily: {
+                        cute: ['"Comic Sans MS"', '"Marker Felt"', 'sans-serif'],
+                        reading: ['"Noto Serif SC"', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+            }
+            .chapter-transition {
+                transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            }
+        }
+    </style>
+    
+    <style>
+        /* 基础样式 */
+        body {
+            transition: background-color 0.3s ease;
+        }
+        
+        /* 章节侧边栏动画 */
+        .chapter-sidebar {
+            transition: transform 0.4s ease-in-out;
+            transform: translateX(100%);
+        }
+        
+        .chapter-sidebar.active {
+            transform: translateX(0);
+        }
+        
+        /* 阅读区域样式 */
+        .reading-content {
+            transition: all 0.3s ease;
+        }
+        
+        /* 按钮动画 */
+        .control-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .control-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        /* 图片样式 */
+        .reading-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            margin: 1rem auto;
+            display: block;
+        }
+        
+        /* 章节列表项动画 */
+        .chapter-item {
+            transition: all 0.2s ease;
+        }
+        
+        .chapter-item:hover {
+            background-color: rgba(109, 174, 141, 0.1);
+        }
+        
+        .chapter-item.active {
+            background-color: rgba(109, 174, 141, 0.2);
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body class="font-reading bg-day-bg text-day-text">
+    <!-- 左侧导航边栏 -->
+    <div class="fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-40 transform transition-transform duration-300 md:translate-x-0 -translate-x-full" id="main-sidebar">
+        <div class="p-5 border-b">
+            <h2 class="text-xl font-bold text-primary">导航菜单</h2>
+        </div>
+        
+        <div class="p-4">
+            <a href="index.html" class="flex items-center p-3 rounded-xl hover:bg-gray-100 mb-2 transition-all">
+                <i class="fa fa-home w-8 text-center"></i>
+                <span>首页</span>
+            </a>
+            
+            <a href="passage.html" class="flex items-center p-3 rounded-xl bg-primary bg-opacity-20 text-primary mb-2 transition-all">
+                <i class="fa fa-book w-8 text-center"></i>
+                <span><strong>茗沐大陆记事簿</strong></span>
+            </a>
+            
+            <a href="note.html" class="flex items-center p-3 rounded-xl hover:bg-gray-100 mb-2 transition-all">
+                <i class="fa fa-sticky-note w-8 text-center"></i>
+                <span>蘿嵐随记簿</span>
+            </a>
+            
+            <a href="music.html" class="flex items-center p-3 rounded-xl hover:bg-gray-100 mb-2 transition-all">
+                <i class="fa fa-headphones w-8 text-center"></i>
+                <span>猫之都音乐馆</span>
+            </a>
+            
+            <a href="photos.html" class="flex items-center p-3 rounded-xl hover:bg-gray-100 transition-all">
+                <i class="fa fa-camera w-8 text-center"></i>
+                <span>蘿嵐摄影集</span>
+            </a>
+        </div>
+    </div>
+    
+    <!-- 主内容区 -->
+    <div class="min-h-screen transition-all duration-300 md:ml-64" id="main-content">
+        <!-- 顶部工具栏 -->
+        <header class="sticky top-0 bg-white bg-opacity-90 backdrop-blur-sm shadow-sm z-30 p-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <button id="sidebar-toggle" class="mr-4 p-2 rounded-full hover:bg-gray-100 control-btn">
+                    <i class="fa fa-bars text-primary"></i>
+                </button>
+                <h1 class="text-xl md:text-2xl font-bold text-primary">茗沐大陆记事簿</h1>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+                <!-- 字体大小调节 -->
+                <div class="flex items-center bg-gray-100 rounded-full p-1">
+                    <button id="font-smaller" class="p-2 rounded-full hover:bg-white control-btn">
+                        <i class="fa fa-text-height text-sm text-dark"></i>
+                    </button>
+                    <button id="font-larger" class="p-2 rounded-full hover:bg-white control-btn">
+                        <i class="fa fa-text-height text-lg text-dark"></i>
+                    </button>
+                </div>
+                
+                <!-- 主题切换 -->
+                <div class="flex items-center bg-gray-100 rounded-full p-1">
+                    <button id="theme-day" class="p-2 rounded-full hover:bg-white control-btn" title="日间模式">
+                        <i class="fa fa-sun-o text-yellow-500"></i>
+                    </button>
+                    <button id="theme-eye" class="p-2 rounded-full hover:bg-white control-btn" title="护眼模式">
+                        <i class="fa fa-leaf text-green-600"></i>
+                    </button>
+                    <button id="theme-night" class="p-2 rounded-full hover:bg-white control-btn" title="夜间模式">
+                        <i class="fa fa-moon-o text-blue-800"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <!-- 阅读区域 -->
+        <div class="max-w-4xl mx-auto p-4 md:p-8 py-8">
+            <!-- 章节控制 -->
+            <div class="mb-8 flex justify-between items-center">
+                <button id="prev-chapter" class="flex items-center space-x-2 bg-primary bg-opacity-10 hover:bg-opacity-20 text-primary px-4 py-2 rounded-full control-btn disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fa fa-arrow-left"></i>
+                    <span>上一章</span>
+                </button>
+                
+                <button id="chapter-toggle" class="bg-secondary bg-opacity-10 hover:bg-opacity-20 text-secondary px-4 py-2 rounded-full control-btn">
+                    <i class="fa fa-list-ul mr-2"></i>
+                    <span>章节列表</span>
+                </button>
+                
+                <button id="next-chapter" class="flex items-center space-x-2 bg-primary bg-opacity-10 hover:bg-opacity-20 text-primary px-4 py-2 rounded-full control-btn disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span>下一章</span>
+                    <i class="fa fa-arrow-right"></i>
+                </button>
+            </div>
+            
+            <!-- 文章标题 -->
+            <div class="text-center mb-10">
+                <h2 id="chapter-title" class="text-2xl md:text-3xl font-bold mb-2 text-primary text-shadow"></h2>
+                <div class="w-24 h-1 bg-primary bg-opacity-50 mx-auto rounded-full"></div>
+            </div>
+            
+            <!-- 阅读内容区 -->
+            <div id="reading-area" class="reading-content leading-relaxed text-lg mb-16 min-h-[50vh]">
+                <!-- 内容将通过JavaScript动态加载 -->
+                <div class="flex justify-center items-center h-64">
+                    <div class="text-center">
+                        <i class="fa fa-book text-5xl text-primary opacity-30 mb-4"></i>
+                        <p class="text-gray-500">点击章节列表选择要阅读的章节</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 底部章节控制 -->
+            <div class="mt-8 flex justify-between items-center">
+                <button id="prev-chapter-bottom" class="flex items-center space-x-2 bg-primary bg-opacity-10 hover:bg-opacity-20 text-primary px-4 py-2 rounded-full control-btn disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fa fa-arrow-left"></i>
+                    <span>上一章</span>
+                </button>
+                
+                <button id="chapter-toggle-bottom" class="bg-secondary bg-opacity-10 hover:bg-opacity-20 text-secondary px-4 py-2 rounded-full control-btn">
+                    <i class="fa fa-list-ul mr-2"></i>
+                    <span>章节列表</span>
+                </button>
+                
+                <button id="next-chapter-bottom" class="flex items-center space-x-2 bg-primary bg-opacity-10 hover:bg-opacity-20 text-primary px-4 py-2 rounded-full control-btn disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span>下一章</span>
+                    <i class="fa fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 章节侧边栏 -->
+    <div class="chapter-sidebar fixed top-0 right-0 h-full w-80 bg-white shadow-xl z-50 overflow-y-auto">
+        <div class="p-5 border-b flex justify-between items-center">
+            <h3 class="text-xl font-bold text-primary">章节列表</h3>
+            <button id="close-chapter" class="p-2 rounded-full hover:bg-gray-100 control-btn">
+                <i class="fa fa-times text-dark"></i>
+            </button>
+        </div>
+        
+        <div class="p-4">
+            <!-- 章节排序控制 -->
+            <div class="flex items-center justify-between mb-4 p-2 bg-gray-100 rounded-lg">
+                <span class="text-sm">排序方式:</span>
+                <div class="flex items-center space-x-2">
+                    <button id="order-asc" class="p-1 rounded hover:bg-white text-sm control-btn active">
+                        <i class="fa fa-sort-amount-asc text-primary"></i>
+                        <span>正序</span>
+                    </button>
+                    <button id="order-desc" class="p-1 rounded hover:bg-white text-sm control-btn">
+                        <i class="fa fa-sort-amount-desc text-dark"></i>
+                        <span>逆序</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 章节列表 -->
+            <div id="chapter-list" class="space-y-1">
+                <!-- 章节将通过JavaScript动态加载 -->
+                <div class="flex justify-center p-8">
+                    <i class="fa fa-spinner fa-spin text-primary"></i>
+                    <span class="ml-2">加载章节中...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 点击遮罩层 - 用于在移动设备上点击空白处关闭侧边栏 -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
+
+    <script>
+        // 全局变量
+        let chapters = [];           // 章节列表
+        let currentChapterIndex = 0; // 当前章节索引
+        let sortOrder = 'asc';       // 排序方式：asc正序，desc逆序
+        let fontSize = 100;          // 字体大小百分比
+        
+        // DOM元素
+        const mainSidebar = document.getElementById('main-sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const overlay = document.getElementById('overlay');
+        const chapterSidebar = document.querySelector('.chapter-sidebar');
+        const chapterToggle = document.getElementById('chapter-toggle');
+        const chapterToggleBottom = document.getElementById('chapter-toggle-bottom');
+        const closeChapter = document.getElementById('close-chapter');
+        const chapterList = document.getElementById('chapter-list');
+        const chapterTitle = document.getElementById('chapter-title');
+        const readingArea = document.getElementById('reading-area');
+        const prevChapter = document.getElementById('prev-chapter');
+        const nextChapter = document.getElementById('next-chapter');
+        const prevChapterBottom = document.getElementById('prev-chapter-bottom');
+        const nextChapterBottom = document.getElementById('next-chapter-bottom');
+        const orderAsc = document.getElementById('order-asc');
+        const orderDesc = document.getElementById('order-desc');
+        const fontSmaller = document.getElementById('font-smaller');
+        const fontLarger = document.getElementById('font-larger');
+        const themeDay = document.getElementById('theme-day');
+        const themeEye = document.getElementById('theme-eye');
+        const themeNight = document.getElementById('theme-night');
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 加载章节列表
+            loadChapters();
+            
+            // 绑定事件监听
+            bindEvents();
+            
+            // 检查本地存储的设置
+            loadSettings();
+        });
+        
+        // 加载章节列表
+        function loadChapters() {
+            // 实际应用中，这里应该通过AJAX请求服务器获取static/passage目录下的.md文件列表
+            // 这里使用模拟数据
+            chapters = [
+                { id: 1, title: "第一章：茗沐大陆的传说", file: "chapter1.md" },
+                { id: 2, title: "第二章：森林猫的诞生", file: "chapter2.md" },
+                { id: 3, title: "第三章：魔法学院的入学考试", file: "chapter3.md" },
+                { id: 4, title: "第四章：第一个魔法咒语", file: "chapter4.md" },
+                { id: 5, title: "第五章：遇见新朋友", file: "chapter5.md" }
+            ];
+            
+            // 渲染章节列表
+            renderChapterList();
+        }
+        
+        // 渲染章节列表
+        function renderChapterList() {
+            chapterList.innerHTML = '';
+            
+            // 根据排序方式处理章节列表
+            const sortedChapters = [...chapters].sort((a, b) => {
+                return sortOrder === 'asc' ? a.id - b.id : b.id - a.id;
+            });
+            
+            // 创建章节列表项
+            sortedChapters.forEach((chapter, index) => {
+                const chapterItem = document.createElement('div');
+                chapterItem.className = `chapter-item p-3 rounded-xl cursor-pointer ${currentChapterIndex === chapter.id - 1 ? 'active' : ''}`;
+                chapterItem.innerHTML = `
+                    <span class="text-primary mr-2">${chapter.id}</span>
+                    <span>${chapter.title}</span>
+                `;
+                
+                // 点击章节项加载对应章节
+                chapterItem.addEventListener('click', () => {
+                    loadChapter(chapter.id - 1);
+                    chapterSidebar.classList.remove('active');
+                });
+                
+                chapterList.appendChild(chapterItem);
+            });
+        }
+        
+        // 加载章节内容
+        function loadChapter(index) {
+            if (index < 0 || index >= chapters.length) return;
+            
+            // 更新当前章节索引
+            currentChapterIndex = index;
+            
+            // 更新章节标题
+            chapterTitle.textContent = chapters[index].title;
+            
+            // 显示加载状态
+            readingArea.innerHTML = `
+                <div class="flex justify-center items-center h-64">
+                    <i class="fa fa-spinner fa-spin text-primary"></i>
+                    <span class="ml-2">加载中...</span>
+                </div>
+            `;
+            
+            // 实际应用中，这里应该通过AJAX请求加载对应的.md文件内容
+            // 这里使用模拟内容
+            setTimeout(() => {
+                // 模拟Markdown内容
+                const mockContent = `
+# ${chapters[index].title}
+
+这是茗沐大陆记事簿的第${index + 1}章内容。
+
+在一个阳光明媚的早晨，小猫咪蘿嵐第一次踏入了茗沐魔法学院的大门。学院的建筑宏伟而古老，墙壁上爬满了绿色的藤蔓，空气中弥漫着魔法草药的清香。
+
+> "欢迎来到茗沐魔法学院，年轻的学徒。" 一位戴着尖顶帽的教授微笑着说。
+
+## 魔法学院的第一天
+
+蘿嵐的心情既兴奋又紧张，她的小爪子紧紧抓着背包带，尾巴不自觉地摇摆着。周围有许多来自不同种族的新生：有会飞的小精灵，有高大的树人，还有和她一样的猫族。
+
+### 课程安排
+
+1. 基础魔法理论
+2. 元素控制入门
+3. 魔法植物学
+4. 大陆历史与传说
+
+茗沐大陆有着悠久的历史，每一个角落都充满了神秘的传说和等待探索的秘密。蘿嵐知道，她的冒险才刚刚开始...
+                `;
+                
+                // 使用marked库将Markdown转换为HTML
+                readingArea.innerHTML = marked.parse(mockContent);
+                
+                // 更新章节列表选中状态
+                renderChapterList();
+                
+                // 更新导航按钮状态
+                updateNavButtons();
+                
+                // 滚动到顶部
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 800);
+        }
+        
+        // 更新导航按钮状态
+        function updateNavButtons() {
+            // 上一章按钮
+            if (currentChapterIndex <= 0) {
+                prevChapter.disabled = true;
+                prevChapterBottom.disabled = true;
+            } else {
+                prevChapter.disabled = false;
+                prevChapterBottom.disabled = false;
+            }
+            
+            // 下一章按钮
+            if (currentChapterIndex >= chapters.length - 1) {
+                nextChapter.disabled = true;
+                nextChapterBottom.disabled = true;
+            } else {
+                nextChapter.disabled = false;
+                nextChapterBottom.disabled = false;
+            }
+        }
+        
+        // 绑定事件监听
+        function bindEvents() {
+            // 侧边栏切换
+            sidebarToggle.addEventListener('click', () => {
+                mainSidebar.classList.toggle('-translate-x-full');
+                overlay.classList.toggle('hidden');
+            });
+            
+            // 点击遮罩层关闭侧边栏
+            overlay.addEventListener('click', () => {
+                mainSidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            });
+            
+            // 章节侧边栏切换
+            chapterToggle.addEventListener('click', () => {
+                chapterSidebar.classList.add('active');
+            });
+            
+            chapterToggleBottom.addEventListener('click', () => {
+                chapterSidebar.classList.add('active');
+            });
+            
+            closeChapter.addEventListener('click', () => {
+                chapterSidebar.classList.remove('active');
+            });
+            
+            // 点击阅读区域中间位置打开章节列表
+            readingArea.addEventListener('click', (e) => {
+                // 检查点击位置是否在阅读区域中间
+                const rect = readingArea.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                const clickX = e.clientX;
+                const clickY = e.clientY;
+                
+                // 如果点击位置在中心区域（100px范围内）
+                if (Math.abs(clickX - centerX) < 100 && Math.abs(clickY - centerY) < 100) {
+                    chapterSidebar.classList.toggle('active');
+                }
+            });
+            
+            // 章节导航
+            prevChapter.addEventListener('click', () => {
+                if (currentChapterIndex > 0) {
+                    loadChapter(currentChapterIndex - 1);
+                }
+            });
+            
+            nextChapter.addEventListener('click', () => {
+                if (currentChapterIndex < chapters.length - 1) {
+                    loadChapter(currentChapterIndex + 1);
+                }
+            });
+            
+            prevChapterBottom.addEventListener('click', () => {
+                if (currentChapterIndex > 0) {
+                    loadChapter(currentChapterIndex - 1);
+                }
+            });
+            
+            nextChapterBottom.addEventListener('click', () => {
+                if (currentChapterIndex < chapters.length - 1) {
+                    loadChapter(currentChapterIndex + 1);
+                }
+            });
+            
+            // 排序方式切换
+            orderAsc.addEventListener('click', () => {
+                sortOrder = 'asc';
+                orderAsc.classList.add('text-primary');
+                orderAsc.classList.remove('text-dark');
+                orderDesc.classList.add('text-dark');
+                orderDesc.classList.remove('text-primary');
+                renderChapterList();
+            });
+            
+            orderDesc.addEventListener('click', () => {
+                sortOrder = 'desc';
+                orderDesc.classList.add('text-primary');
+                orderDesc.classList.remove('text-dark');
+                orderAsc.classList.add('text-dark');
+                orderAsc.classList.remove('text-primary');
+                renderChapterList();
+            });
+            
+            // 字体大小调节
+            fontSmaller.addEventListener('click', () => {
+                if (fontSize > 70) {
+                    fontSize -= 10;
+                    updateFontSize();
+                    saveSettings();
+                }
+            });
+            
+            fontLarger.addEventListener('click', () => {
+                if (fontSize < 150) {
+                    fontSize += 10;
+                    updateFontSize();
+                    saveSettings();
+                }
+            });
+            
+            // 主题切换
+            themeDay.addEventListener('click', () => {
+                setTheme('day');
+                saveSettings();
+            });
+            
+            themeEye.addEventListener('click', () => {
+                setTheme('eye');
+                saveSettings();
+            });
+            
+            themeNight.addEventListener('click', () => {
+                setTheme('night');
+                saveSettings();
+            });
+        }
+        
+        // 更新字体大小
+        function updateFontSize() {
+            readingArea.style.fontSize = `${fontSize}%`;
+        }
+        
+        // 设置主题
+        function setTheme(theme) {
+            // 移除所有主题类
+            document.body.classList.remove('bg-day-bg', 'text-day-text');
+            document.body.classList.remove('bg-eye-bg', 'text-eye-text');
+            document.body.classList.remove('bg-night-bg', 'text-night-text');
+            
+            // 添加当前主题类
+            document.body.classList.add(`bg-${theme}-bg`, `text-${theme}-text`);
+            
+            // 更新按钮样式
+            themeDay.classList.remove('bg-day-bg', 'text-day-text');
+            themeEye.classList.remove('bg-eye-bg', 'text-eye-text');
+            themeNight.classList.remove('bg-night-bg', 'text-night-text');
+            
+            if (theme === 'day') {
+                themeDay.classList.add('bg-day-bg', 'text-day-text');
+            } else if (theme === 'eye') {
+                themeEye.classList.add('bg-eye-bg', 'text-eye-text');
+            } else if (theme === 'night') {
+                themeNight.classList.add('bg-night-bg', 'text-night-text');
+            }
+        }
+        
+        // 保存设置到本地存储
+        function saveSettings() {
+            const settings = {
+                theme: document.body.classList.contains('bg-day-bg') ? 'day' : 
+                       document.body.classList.contains('bg-eye-bg') ? 'eye' : 'night',
+                fontSize: fontSize,
+                sortOrder: sortOrder
+            };
+            
+            localStorage.setItem('readingSettings', JSON.stringify(settings));
+        }
+        
+        // 从本地存储加载设置
+        function loadSettings() {
+            const savedSettings = localStorage.getItem('readingSettings');
+            if (savedSettings) {
+                const settings = JSON.parse(savedSettings);
+                
+                // 应用主题设置
+                setTheme(settings.theme);
+                
+                // 应用字体大小设置
+                fontSize = settings.fontSize;
+                updateFontSize();
+                
+                // 应用排序设置
+                sortOrder = settings.sortOrder;
+                if (sortOrder === 'asc') {
+                    orderAsc.classList.add('text-primary');
+                    orderAsc.classList.remove('text-dark');
+                    orderDesc.classList.add('text-dark');
+                    orderDesc.classList.remove('text-primary');
+                } else {
+                    orderDesc.classList.add('text-primary');
+                    orderDesc.classList.remove('text-dark');
+                    orderAsc.classList.add('text-dark');
+                    orderAsc.classList.remove('text-primary');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

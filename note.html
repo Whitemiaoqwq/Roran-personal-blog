@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蘿嵐随记簿 - 蘿嵐的个人博客</title>
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome图标库 -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 引入Markdown解析库 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <!-- 配置Tailwind自定义颜色和字体 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6dae8d',
+                        secondary: '#7ba6b9',
+                        accent: '#d9b99b',
+                        light: '#f5f5f0',
+                        dark: '#4a5559',
+                        // 阅读模式颜色
+                        day: {
+                            bg: '#ffffff',
+                            text: '#333333'
+                        },
+                        eye: {
+                            bg: '#eaf5e9',
+                            text: '#2d4829'
+                        },
+                        night: {
+                            bg: '#2c3e50',
+                            text: '#ecf0f1'
+                        }
+                    },
+                    fontFamily: {
+                        cute: ['"Comic Sans MS"', '"Marker Felt"', 'sans-serif'],
+                        reading: ['"Noto Serif SC"', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+            }
+            .chapter-transition {
+                transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            }
+        }
+    </style>
+    
+    <style>
+        /* 基础样式 */
+        body {
+            transition: background-color 0.3s ease;
+        }
+        
+        /* 章节侧边栏动画 */
+        .chapter-sidebar {
+            transition: transform 0.4s ease-in-out;
+            transform: translateX(100%);
+        }
+        
+        .chapter-sidebar.active {
+            transform: translateX(0);
+        }
+        
+        /* 阅读区域样式 */
+        .reading-content {
+            transition: all 0.3s ease;
+        }
+        
+        /* 按钮动画 */
+        .control-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .control-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        /* 图片样式 */
+        .reading-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            margin: 1rem auto;
+            display: block;
+        }
+        
+        /* 笔记特殊样式 */
+        .note-card {
+            background-color: rgba(217, 185, 155, 0.1);
+            border-left: 4px solid #d9b99b;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 0.5rem 0.5rem 0;
+        }
+        
+        /* 章节列表项动画 */
+        .chapter-item {
+            transition: all 0.2s ease;
+        }
+        
+        .chapter-item:hover {
+            background-color: rgba(123, 166, 185, 0.1);
+        }
+        
+        .chapter-item.active {
+            background-color: rgba(123, 166, 185, 0.2);
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body class="font-reading bg-day-bg text-day-text">
+    <!-- 左侧导航边栏 -->
+    <div class="fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-40 transform transition-transform duration-300 md:translate-x-0 -translate-x-full" id="main-sidebar">
+        <div class="p-5 border-b">
+            <h2 class="text-xl font-bold text-secondary">导航菜单</h2>
+        </div>
+        
+        <div class="p-4">
+            <a href="index.html" class="flex items-center p-3 rounded-xl hover:bg-gray-100 mb-2 transition-all">
+                <i class="fa fa-home w-8 text-center"></i>
+                <span>首页</span>
+            </a>
+            
+            <a href="passage.html" class="flex items-center p-3 rounded-xl hover:bg-gray-100 mb-2 transition-all">
+                <i class="fa fa-book w-8 text-center"></i>
+                <span>茗沐大陆记事簿</span>
+            </a>
+            
+            <a href="note.html" class="flex items-center p-3 rounded-xl bg-secondary bg-opacity-20 text-secondary mb-2 transition-all">
+                <i class="fa fa-sticky-note w-8 text-center"></i>
+                <span><strong>蘿嵐随记簿</strong></span>
+            </a>
+            
+            <a href="music.html" class="flex items-center p-3 rounded-xl hover:bg-gray-100 mb-2 transition-all">
+                <i class="fa fa-headphones w-8 text-center"></i>
+                <span>猫之都音乐馆</span>
+            </a>
+            
+            <a href="photos.html" class="flex items-center p-3 rounded-xl hover:bg-gray-100 transition-all">
+                <i class="fa fa-camera w-8 text-center"></i>
+                <span>蘿嵐摄影集</span>
+            </a>
+        </div>
+    </div>
+    
+    <!-- 主内容区 -->
+    <div class="min-h-screen transition-all duration-300 md:ml-64" id="main-content">
+        <!-- 顶部工具栏 -->
+        <header class="sticky top-0 bg-white bg-opacity-90 backdrop-blur-sm shadow-sm z-30 p-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <button id="sidebar-toggle" class="mr-4 p-2 rounded-full hover:bg-gray-100 control-btn">
+                    <i class="fa fa-bars text-secondary"></i>
+                </button>
+                <h1 class="text-xl md:text-2xl font-bold text-secondary">蘿嵐随记簿</h1>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+                <!-- 字体大小调节 -->
+                <div class="flex items-center bg-gray-100 rounded-full p-1">
+                    <button id="font-smaller" class="p-2 rounded-full hover:bg-white control-btn">
+                        <i class="fa fa-text-height text-sm text-dark"></i>
+                    </button>
+                    <button id="font-larger" class="p-2 rounded-full hover:bg-white control-btn">
+                        <i class="fa fa-text-height text-lg text-dark"></i>
+                    </button>
+                </div>
+                
+                <!-- 主题切换 -->
+                <div class="flex items-center bg-gray-100 rounded-full p-1">
+                    <button id="theme-day" class="p-2 rounded-full hover:bg-white control-btn" title="日间模式">
+                        <i class="fa fa-sun-o text-yellow-500"></i>
+                    </button>
+                    <button id="theme-eye" class="p-2 rounded-full hover:bg-white control-btn" title="护眼模式">
+                        <i class="fa fa-leaf text-green-600"></i>
+                    </button>
+                    <button id="theme-night" class="p-2 rounded-full hover:bg-white control-btn" title="夜间模式">
+                        <i class="fa fa-moon-o text-blue-800"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <!-- 阅读区域 -->
+        <div class="max-w-4xl mx-auto p-4 md:p-8 py-8">
+            <!-- 章节控制 -->
+            <div class="mb-8 flex justify-between items-center">
+                <button id="prev-chapter" class="flex items-center space-x-2 bg-secondary bg-opacity-10 hover:bg-opacity-20 text-secondary px-4 py-2 rounded-full control-btn disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fa fa-arrow-left"></i>
+                    <span>上一篇</span>
+                </button>
+                
+                <button id="chapter-toggle" class="bg-primary bg-opacity-10 hover:bg-opacity-20 text-primary px-4 py-2 rounded-full control-btn">
+                    <i class="fa fa-list-ul mr-2"></i>
+                    <span>笔记列表</span>
+                </button>
+                
+                <button id="next-chapter" class="flex items-center space-x-2 bg-secondary bg-opacity-10 hover:bg-opacity-20 text-secondary px-4 py-2 rounded-full control-btn disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span>下一篇</span>
+                    <i class="fa fa-arrow-right"></i>
+                </button>
+            </div>
+            
+            <!-- 文章标题 -->
+            <div class="text-center mb-10">
+                <h2 id="chapter-title" class="text-2xl md:text-3xl font-bold mb-2 text-secondary text-shadow"></h2>
+                <div class="text-sm text-gray-500 mb-4" id="note-date">2023年9月1日</div>
+                <div class="w-24 h-1 bg-secondary bg-opacity-50 mx-auto rounded-full"></div>
+            </div>
+            
+            <!-- 阅读内容区 -->
+            <div id="reading-area" class="reading-content leading-relaxed text-lg mb-16 min-h-[50vh]">
+                <!-- 内容将通过JavaScript动态加载 -->
+                <div class="flex justify-center items-center h-64">
+                    <div class="text-center">
+                        <i class="fa fa-sticky-note text-5xl text-secondary opacity-30 mb-4"></i>
+                        <p class="text-gray-500">点击笔记列表选择要阅读的笔记</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 底部章节控制 -->
+            <div class="mt-8 flex justify-between items-center">
+                <button id="prev-chapter-bottom" class="flex items-center space-x-2 bg-secondary bg-opacity-10 hover:bg-opacity-20 text-secondary px-4 py-2 rounded-full control-btn disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fa fa-arrow-left"></i>
+                    <span>上一篇</span>
+                </button>
+                
+                <button id="chapter-toggle-bottom" class="bg-primary bg-opacity-10 hover:bg-opacity-20 text-primary px-4 py-2 rounded-full control-btn">
+                    <i class="fa fa-list-ul mr-2"></i>
+                    <span>笔记列表</span>
+                </button>
+                
+                <button id="next-chapter-bottom" class="flex items-center space-x-2 bg-secondary bg-opacity-10 hover:bg-opacity-20 text-secondary px-4 py-2 rounded-full control-btn disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span>下一篇</span>
+                    <i class="fa fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 章节侧边栏 -->
+    <div class="chapter-sidebar fixed top-0 right-0 h-full w-80 bg-white shadow-xl z-50 overflow-y-auto">
+        <div class="p-5 border-b flex justify-between items-center">
+            <h3 class="text-xl font-bold text-secondary">笔记列表</h3>
+            <button id="close-chapter" class="p-2 rounded-full hover:bg-gray-100 control-btn">
+                <i class="fa fa-times text-dark"></i>
+            </button>
+        </div>
+        
+        <div class="p-4">
+            <!-- 章节排序控制 -->
+            <div class="flex items-center justify-between mb-4 p-2 bg-gray-100 rounded-lg">
+                <span class="text-sm">排序方式:</span>
+                <div class="flex items-center space-x-2">
+                    <button id="order-asc" class="p-1 rounded hover:bg-white text-sm control-btn active">
+                        <i class="fa fa-sort-amount-asc text-secondary"></i>
+                        <span>正序</span>
+                    </button>
+                    <button id="order-desc" class="p-1 rounded hover:bg-white text-sm control-btn">
+                        <i class="fa fa-sort-amount-desc text-dark"></i>
+                        <span>逆序</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 章节列表 -->
+            <div id="chapter-list" class="space-y-1">
+                <!-- 章节将通过JavaScript动态加载 -->
+                <div class="flex justify-center p-8">
+                    <i class="fa fa-spinner fa-spin text-secondary"></i>
+                    <span class="ml-2">加载笔记中...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 点击遮罩层 - 用于在移动设备上点击空白处关闭侧边栏 -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
+
+    <script>
+        // 全局变量
+        let notes = [];              // 笔记列表
+        let currentNoteIndex = 0;    // 当前笔记索引
+        let sortOrder = 'asc';       // 排序方式：asc正序，desc逆序
+        let fontSize = 100;          // 字体大小百分比
+        
+        // DOM元素
+        const mainSidebar = document.getElementById('main-sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const overlay = document.getElementById('overlay');
+        const chapterSidebar = document.querySelector('.chapter-sidebar');
+        const chapterToggle = document.getElementById('chapter-toggle');
+        const chapterToggleBottom = document.getElementById('chapter-toggle-bottom');
+        const closeChapter = document.getElementById('close-chapter');
+        const chapterList = document.getElementById('chapter-list');
+        const chapterTitle = document.getElementById('chapter-title');
+        const noteDate = document.getElementById('note-date');
+        const readingArea = document.getElementById('reading-area');
+        const prevChapter = document.getElementById('prev-chapter');
+        const nextChapter = document.getElementById('next-chapter');
+        const prevChapterBottom = document.getElementById('prev-chapter-bottom');
+        const nextChapterBottom = document.getElementById('next-chapter-bottom');
+        const orderAsc = document.getElementById('order-asc');
+        const orderDesc = document.getElementById('order-desc');
+        const fontSmaller = document.getElementById('font-smaller');
+        const fontLarger = document.getElementById('font-larger');
+        const themeDay = document.getElementById('theme-day');
+        const themeEye = document.getElementById('theme-eye');
+        const themeNight = document.getElementById('theme-night');
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 加载笔记列表
+            loadNotes();
+            
+            // 绑定事件监听
+            bindEvents();
+            
+            // 检查本地存储的设置
+            loadSettings();
+        });
+        
+        // 加载笔记列表
+        function loadNotes() {
+            // 实际应用中，这里应该通过AJAX请求服务器获取static/note目录下的.md文件列表
+            // 这里使用模拟数据
+            notes = [
+                { id: 1, title: "魔法学院的第一天", date: "2023年9月1日", file: "note1.md" },
+                { id: 2, title: "认识了新的朋友", date: "2023年9月5日", file: "note2.md" },
+                { id: 3, title: "第一次成功施展魔法", date: "2023年9月10日", file: "note3.md" },
+                { id: 4, title: "学院图书馆探险", date: "2023年9月15日", file: "note4.md" },
+                { id: 5, title: "周末的森林散步", date: "2023年9月20日", file: "note5.md" }
+            ];
+            
+            // 渲染笔记列表
+            renderNoteList();
+        }
+        
+        // 渲染笔记列表
+        function renderNoteList() {
+            chapterList.innerHTML = '';
+            
+            // 根据排序方式处理笔记列表
+            const sortedNotes = [...notes].sort((a, b) => {
+                return sortOrder === 'asc' ? a.id - b.id : b.id - a.id;
+            });
+            
+            // 创建笔记列表项
+            sortedNotes.forEach((note, index) => {
+                const noteItem = document.createElement('div');
+                noteItem.className = `chapter-item p-3 rounded-xl cursor-pointer ${currentNoteIndex === note.id - 1 ? 'active' : ''}`;
+                noteItem.innerHTML = `
+                    <div class="font-medium">${note.title}</div>
+                    <div class="text-xs text-gray-500 mt-1">${note.date}</div>
+                `;
+                
+                // 点击笔记项加载对应笔记
+                noteItem.addEventListener('click', () => {
+                    loadNote(note.id - 1);
+                    chapterSidebar.classList.remove('active');
+                });
+                
+                chapterList.appendChild(noteItem);
+            });
+        }
+        
+        // 加载笔记内容
+        function loadNote(index) {
+            if (index < 0 || index >= notes.length) return;
+            
+            // 更新当前笔记索引
+            currentNoteIndex = index;
+            
+            // 更新笔记标题和日期
+            chapterTitle.textContent = notes[index].title;
+            noteDate.textContent = notes[index].date;
+            
+            // 显示加载状态
+            readingArea.innerHTML = `
+                <div class="flex justify-center items-center h-64">
+                    <i class="fa fa-spinner fa-spin text-secondary"></i>
+                    <span class="ml-2">加载中...</span>
+                </div>
+            `;
+            
+            // 实际应用中，这里应该通过AJAX请求加载对应的.md文件内容
+            // 这里使用模拟内容
+            setTimeout(() => {
+                // 不同笔记的模拟内容
+                let mockContent = '';
+                
+                if (index === 0) {
+                    mockContent = `
+# 魔法学院的第一天
+
+今天是我来到茗沐魔法学院的第一天，心情既紧张又兴奋！🐾
+
+学院比我想象的还要大，古老的城堡式建筑被茂密的森林环绕，空气中都弥漫着奇妙的气息。
+
+## 报到过程
+
+早上9点，我准时来到了学院的主塔楼报到。负责接待的猫头鹰教授非常和蔼，给了我一本厚厚的校规和一张校园地图。
+
+> "记住，在茗沐学院，好奇心是最宝贵的品质，但也要懂得敬畏魔法。" —— 猫头鹰教授
+
+## 我的宿舍
+
+我被分配到了橡木宿舍，室友是一只叫可可的小松鼠，她看起来很友善。宿舍虽然不大，但布置得很温馨，还有一个可以看到森林的小窗户。
+
+### 今日小记
+
+- 认识了3位新同学
+- 领到了第一本魔法书《基础元素操控》
+- 不小心差点把休息室的盆栽变成了兔子（还好及时制止了）
+
+明天就要开始正式上课了，希望能有好的表现！
+                `;
+                } else if (index === 1) {
+                    mockContent = `
+# 认识了新的朋友
+
+今天在草药课上认识了几位新朋友，真是开心的一天！😊
+
+## 草药课的奇遇
+
+草药课在温室里进行，我们学习了如何辨识和采集魔法植物。我因为太专注于观察一株发光的蘑菇，不小心踩到了藤蔓，差点摔倒。
+
+幸好一只叫灰灰的小狼及时扶住了我。
+
+> "小心点，这种藤蔓会缠住移动的东西哦。" —— 灰灰
+
+## 午餐时光
+
+课后，灰灰带我认识了他的朋友：一只叫铃铃的小鹿和一只叫跳跳的兔子。我们一起在学院的花园里吃了午餐。
+
+铃铃带来了她妈妈做的坚果饼干，非常美味！跳跳则分享了他收集的各种有趣的石头。
+
+### 今日小记
+
+- 认识了灰灰、铃铃和跳跳
+- 学会了辨识3种魔法植物
+- 被温室里的含羞草"咬"了一口（有点痒）
+
+明天我们约好一起去图书馆自习，期待！
+                `;
+                } else {
+                    // 其他笔记的通用模板
+                    mockContent = `
+# ${notes[index].title}
+
+今天发生了很多有趣的事情，我想把它们记录下来。
+
+这是我在茗沐魔法学院的第${index * 5}天，已经慢慢适应了这里的生活。
+
+<div class="note-card">
+<strong>今日感悟：</strong>
+魔法不仅仅是咒语和魔杖，更重要的是内心的平静和善良。
+</div>
+
+## 日常点滴
+
+今天的课程很有趣，我学到了很多新知识。下午和朋友们一起在校园里散步，聊了很多关于未来的梦想。
+
+### 今日小记
+
+- 完成了老师布置的作业
+- 和朋友们分享了零食
+- 傍晚看到了美丽的晚霞
+
+期待明天的到来！
+                `;
+                }
+                
+                // 使用marked库将Markdown转换为HTML
+                readingArea.innerHTML = marked.parse(mockContent);
+                
+                // 更新笔记列表选中状态
+                renderNoteList();
+                
+                // 更新导航按钮状态
+                updateNavButtons();
+                
+                // 滚动到顶部
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 800);
+        }
+        
+        // 更新导航按钮状态
+        function updateNavButtons() {
+            // 上一篇按钮
+            if (currentNoteIndex <= 0) {
+                prevChapter.disabled = true;
+                prevChapterBottom.disabled = true;
+            } else {
+                prevChapter.disabled = false;
+                prevChapterBottom.disabled = false;
+            }
+            
+            // 下一篇按钮
+            if (currentNoteIndex >= notes.length - 1) {
+                nextChapter.disabled = true;
+                nextChapterBottom.disabled = true;
+            } else {
+                nextChapter.disabled = false;
+                nextChapterBottom.disabled = false;
+            }
+        }
+        
+        // 绑定事件监听
+        function bindEvents() {
+            // 侧边栏切换
+            sidebarToggle.addEventListener('click', () => {
+                mainSidebar.classList.toggle('-translate-x-full');
+                overlay.classList.toggle('hidden');
+            });
+            
+            // 点击遮罩层关闭侧边栏
+            overlay.addEventListener('click', () => {
+                mainSidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            });
+            
+            // 笔记侧边栏切换
+            chapterToggle.addEventListener('click', () => {
+                chapterSidebar.classList.add('active');
+            });
+            
+            chapterToggleBottom.addEventListener('click', () => {
+                chapterSidebar.classList.add('active');
+            });
+            
+            closeChapter.addEventListener('click', () => {
+                chapterSidebar.classList.remove('active');
+            });
+            
+            // 点击阅读区域中间位置打开笔记列表
+            readingArea.addEventListener('click', (e) => {
+                // 检查点击位置是否在阅读区域中间
+                const rect = readingArea.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                const clickX = e.clientX;
+                const clickY = e.clientY;
+                
+                // 如果点击位置在中心区域（100px范围内）
+                if (Math.abs(clickX - centerX) < 100 && Math.abs(clickY - centerY) < 100) {
+                    chapterSidebar.classList.toggle('active');
+                }
+            });
+            
+            // 笔记导航
+            prevChapter.addEventListener('click', () => {
+                if (currentNoteIndex > 0) {
+                    loadNote(currentNoteIndex - 1);
+                }
+            });
+            
+            nextChapter.addEventListener('click', () => {
+                if (currentNoteIndex < notes.length - 1) {
+                    loadNote(currentNoteIndex + 1);
+                }
+            });
+            
+            prevChapterBottom.addEventListener('click', () => {
+                if (currentNoteIndex > 0) {
+                    loadNote(currentNoteIndex - 1);
+                }
+            });
+            
+            nextChapterBottom.addEventListener('click', () => {
+                if (currentNoteIndex < notes.length - 1) {
+                    loadNote(currentNoteIndex + 1);
+                }
+            });
+            
+            // 排序方式切换
+            orderAsc.addEventListener('click', () => {
+                sortOrder = 'asc';
+                orderAsc.classList.add('text-secondary');
+                orderAsc.classList.remove('text-dark');
+                orderDesc.classList.add('text-dark');
+                orderDesc.classList.remove('text-secondary');
+                renderNoteList();
+            });
+            
+            orderDesc.addEventListener('click', () => {
+                sortOrder = 'desc';
+                orderDesc.classList.add('text-secondary');
+                orderDesc.classList.remove('text-dark');
+                orderAsc.classList.add('text-dark');
+                orderAsc.classList.remove('text-secondary');
+                renderNoteList();
+            });
+            
+            // 字体大小调节
+            fontSmaller.addEventListener('click', () => {
+                if (fontSize > 70) {
+                    fontSize -= 10;
+                    updateFontSize();
+                    saveSettings();
+                }
+            });
+            
+            fontLarger.addEventListener('click', () => {
+                if (fontSize < 150) {
+                    fontSize += 10;
+                    updateFontSize();
+                    saveSettings();
+                }
+            });
+            
+            // 主题切换
+            themeDay.addEventListener('click', () => {
+                setTheme('day');
+                saveSettings();
+            });
+            
+            themeEye.addEventListener('click', () => {
+                setTheme('eye');
+                saveSettings();
+            });
+            
+            themeNight.addEventListener('click', () => {
+                setTheme('night');
+                saveSettings();
+            });
+        }
+        
+        // 更新字体大小
+        function updateFontSize() {
+            readingArea.style.fontSize = `${fontSize}%`;
+        }
+        
+        // 设置主题
+        function setTheme(theme) {
+            // 移除所有主题类
+            document.body.classList.remove('bg-day-bg', 'text-day-text');
+            document.body.classList.remove('bg-eye-bg', 'text-eye-text');
+            document.body.classList.remove('bg-night-bg', 'text-night-text');
+            
+            // 添加当前主题类
+            document.body.classList.add(`bg-${theme}-bg`, `text-${theme}-text`);
+            
+            // 更新按钮样式
+            themeDay.classList.remove('bg-day-bg', 'text-day-text');
+            themeEye.classList.remove('bg-eye-bg', 'text-eye-text');
+            themeNight.classList.remove('bg-night-bg', 'text-night-text');
+            
+            if (theme === 'day') {
+                themeDay.classList.add('bg-day-bg', 'text-day-text');
+            } else if (theme === 'eye') {
+                themeEye.classList.add('bg-eye-bg', 'text-eye-text');
+            } else if (theme === 'night') {
+                themeNight.classList.add('bg-night-bg', 'text-night-text');
+            }
+        }
+        
+        // 保存设置到本地存储
+        function saveSettings() {
+            const settings = {
+                theme: document.body.classList.contains('bg-day-bg') ? 'day' : 
+                       document.body.classList.contains('bg-eye-bg') ? 'eye' : 'night',
+                fontSize: fontSize,
+                sortOrder: sortOrder
+            };
+            
+            localStorage.setItem('noteSettings', JSON.stringify(settings));
+        }
+        
+        // 从本地存储加载设置
+        function loadSettings() {
+            const savedSettings = localStorage.getItem('noteSettings');
+            if (savedSettings) {
+                const settings = JSON.parse(savedSettings);
+                
+                // 应用主题设置
+                setTheme(settings.theme);
+                
+                // 应用字体大小设置
+                fontSize = settings.fontSize;
+                updateFontSize();
+                
+                // 应用排序设置
+                sortOrder = settings.sortOrder;
+                if (sortOrder === 'asc') {
+                    orderAsc.classList.add('text-secondary');
+                    orderAsc.classList.remove('text-dark');
+                    orderDesc.classList.add('text-dark');
+                    orderDesc.classList.remove('text-secondary');
+                } else {
+                    orderDesc.classList.add('text-secondary');
+                    orderDesc.classList.remove('text-dark');
+                    orderAsc.classList.add('text-dark');
+                    orderAsc.classList.remove('text-secondary');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

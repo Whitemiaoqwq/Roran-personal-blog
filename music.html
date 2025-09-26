@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猫之都音乐馆 - 蘿嵐的个人博客</title>
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome图标库 -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- 配置Tailwind自定义颜色（马卡龙色系） -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // 马卡龙色系
+                        macaron: {
+                            pink: '#f8cad5',
+                            blue: '#b9d8e0',
+                            green: '#bcebcb',
+                            yellow: '#fff3ba',
+                            purple: '#d8b9e0',
+                            orange: '#ffd6ba'
+                        },
+                        primary: '#6dae8d',
+                        secondary: '#7ba6b9',
+                        dark: '#4a5559'
+                    },
+                    fontFamily: {
+                        cute: ['"Comic Sans MS"', '"Marker Felt"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .music-shadow {
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            }
+            .vinyl-spin {
+                animation: spin 20s linear infinite;
+            }
+            .pulse-light {
+                animation: pulse-light 2s infinite;
+            }
+            .eq-bar {
+                transition: height 0.2s ease;
+            }
+        }
+    </style>
+    
+    <style>
+        /* 动画效果 */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes pulse-light {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+        
+        /* 进度条样式 */
+        .progress-bar {
+            height: 6px;
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: #6dae8d;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        
+        /* 音量条样式 */
+        .volume-bar {
+            height: 4px;
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .volume-fill {
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.3);
+            width: 80%;
+        }
+        
+        /* 音乐列表项悬停效果 */
+        .music-item {
+            transition: all 0.2s ease;
+        }
+        
+        .music-item:hover {
+            background-color: rgba(185, 216, 224, 0.3);
+        }
+        
+        .music-item.active {
+            background-color: rgba(185, 216, 224, 0.5);
+            font-weight: bold;
+        }
+        
+        /* 按钮动画 */
+        .music-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .music-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        /* 均衡器样式 */
+        .eq-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            height: 40px;
+        }
+        
+        /* 专辑封面悬停效果 */
+        .album-cover {
+            transition: transform 0.3s ease;
+        }
+        
+        .album-cover:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+
+<body class="font-cute bg-gray-50 text-dark min-h-screen">
+    <!-- 左侧导航边栏 -->
+    <div class="fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-40 transform transition-transform duration-300 md:translate-x-0 -translate-x-full" id="main-sidebar">
+        <div class="p-5 border-b">
+            <h2 class="text-xl font-bold text-macaron-purple">导航菜单</h2>
+        </div>
+        
+        <div class="p-4">
+            <a href="index.html" class="flex items-center p-3 rounded-xl hover:bg-gray-100 mb-2 transition-all">
+                <i class="fa fa-home w-8 text-center"></i>
+                <span>首页</span>
+            </a>
+            
+            <a href="passage.html" class="flex items-center p-3 rounded-xl hover:bg-gray-100 mb-2 transition-all">
+                <i class="fa fa-book w-8 text-center"></i>
+                <span>茗沐大陆记事簿</span>
+            </a>
+            
+            <a href="note.html" class="flex items-center p-3 rounded-xl hover:bg-gray-100 mb-2 transition-all">
+                <i class="fa fa-sticky-note w-8 text-center"></i>
+                <span>蘿嵐随记簿</span>
+            </a>
+            
+            <a href="music.html" class="flex items-center p-3 rounded-xl bg-macaron-purple bg-opacity-20 text-macaron-purple mb-2 transition-all">
+                <i class="fa fa-headphones w-8 text-center"></i>
+                <span><strong>猫之都音乐馆</strong></span>
+            </a>
+            
+            <a href="photos.html" class="flex items-center p-3 rounded-xl hover:bg-gray-100 transition-all">
+                <i class="fa fa-camera w-8 text-center"></i>
+                <span>蘿嵐摄影集</span>
+            </a>
+        </div>
+    </div>
+    
+    <!-- 主内容区 -->
+    <div class="min-h-screen transition-all duration-300 md:ml-64 p-4 md:p-6 lg:p-8">
+        <!-- 顶部工具栏 -->
+        <header class="sticky top-0 bg-white bg-opacity-90 backdrop-blur-sm shadow-sm z-30 p-4 rounded-2xl mb-6">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <button id="sidebar-toggle" class="mr-4 p-2 rounded-full hover:bg-gray-100 music-btn">
+                        <i class="fa fa-bars text-macaron-purple"></i>
+                    </button>
+                    <h1 class="text-xl md:text-2xl font-bold text-macaron-purple">猫之都音乐馆</h1>
+                </div>
+                
+                <div>
+                    <button id="shuffle-all" class="flex items-center space-x-2 bg-macaron-pink bg-opacity-20 hover:bg-opacity-30 text-dark px-4 py-2 rounded-full music-btn">
+                        <i class="fa fa-random"></i>
+                        <span>随机播放全部</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <!-- 音乐内容区 -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- 左侧：音乐列表 -->
+            <div class="lg:col-span-1 bg-white rounded-3xl shadow-md p-4 md:p-6 music-shadow">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-macaron-blue">音乐列表</h2>
+                    <span class="bg-macaron-blue bg-opacity-20 text-dark px-3 py-1 rounded-full text-sm" id="total-songs">0首歌曲</span>
+                </div>
+                
+                <!-- 搜索框 -->
+                <div class="relative mb-6">
+                    <input type="text" id="music-search" placeholder="搜索歌曲..." class="w-full px-4 py-2 pl-10 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-macaron-blue focus:border-transparent">
+                    <i class="fa fa-search absolute left-3 top-3 text-gray-400"></i>
+                </div>
+                
+                <!-- 音乐列表 -->
+                <div class="overflow-y-auto max-h-[calc(100vh-360px)] pr-2" id="music-list">
+                    <!-- 音乐列表将通过JavaScript动态加载 -->
+                    <div class="flex justify-center p-8">
+                        <i class="fa fa-spinner fa-spin text-macaron-blue"></i>
+                        <span class="ml-2">加载音乐中...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右侧：播放界面 -->
+            <div class="lg:col-span-2 flex flex-col">
+                <!-- 专辑封面和信息 -->
+                <div class="bg-white rounded-3xl shadow-md p-6 mb-6 flex flex-col md:flex-row items-center music-shadow">
+                    <!-- 专辑封面 -->
+                    <div class="relative album-cover mb-6 md:mb-0 md:mr-8">
+                        <div class="w-48 h-48 md:w-64 md:h-64 rounded-full bg-macaron-purple flex items-center justify-center overflow-hidden">
+                            <img src="https://picsum.photos/300/300?random=1" alt="专辑封面" class="w-full h-full object-cover">
+                            <!-- 黑胶唱片效果 -->
+                            <div class="absolute inset-0 rounded-full border-8 border-black border-opacity-80">
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <div class="w-16 h-16 rounded-full bg-macaron-yellow"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 歌曲信息 -->
+                    <div class="text-center md:text-left flex-1">
+                        <h2 id="current-song-title" class="text-2xl md:text-3xl font-bold mb-2 text-dark">未播放音乐</h2>
+                        <p id="current-song-artist" class="text-gray-600 mb-4">艺术家</p>
+                        <p id="current-song-album" class="text-gray-500 text-sm">专辑</p>
+                        
+                        <!-- 均衡器动画 -->
+                        <div class="mt-6 eq-container">
+                            <div class="eq-bar w-2 bg-macaron-pink rounded-t" style="height: 20%"></div>
+                            <div class="eq-bar w-2 bg-macaron-blue rounded-t" style="height: 60%"></div>
+                            <div class="eq-bar w-2 bg-macaron-green rounded-t" style="height: 40%"></div>
+                            <div class="eq-bar w-2 bg-macaron-yellow rounded-t" style="height: 80%"></div>
+                            <div class="eq-bar w-2 bg-macaron-purple rounded-t" style="height: 30%"></div>
+                            <div class="eq-bar w-2 bg-macaron-orange rounded-t" style="height: 70%"></div>
+                            <div class="eq-bar w-2 bg-macaron-pink rounded-t" style="height: 50%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 播放控制 -->
+                <div class="bg-white rounded-3xl shadow-md p-6 music-shadow flex-1">
+                    <h3 class="text-lg font-bold mb-6 text-macaron-green">播放控制</h3>
+                    
+                    <!-- 进度条和时间 -->
+                    <div class="mb-8">
+                        <div class="flex justify-between text-sm text-gray-500 mb-2">
+                            <span id="current-time">00:00</span>
+                            <span id="total-time">00:00</span>
+                        </div>
+                        <div class="progress-bar" id="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 控制按钮 -->
+                    <div class="flex justify-center items-center mb-8">
+                        <button id="repeat-mode" class="p-3 text-gray-600 music-btn" title="循环模式">
+                            <i class="fa fa-repeat text-xl"></i>
+                        </button>
+                        <button id="prev-song" class="p-4 ml-4 text-gray-700 music-btn" title="上一首">
+                            <i class="fa fa-step-backward text-2xl"></i>
+                        </button>
+                        <button id="play-pause" class="p-6 mx-6 bg-macaron-green rounded-full text-white music-btn" title="播放/暂停">
+                            <i class="fa fa-play text-3xl"></i>
+                        </button>
+                        <button id="next-song" class="p-4 mr-4 text-gray-700 music-btn" title="下一首">
+                            <i class="fa fa-step-forward text-2xl"></i>
+                        </button>
+                        <button id="shuffle" class="p-3 text-gray-600 music-btn" title="随机播放">
+                            <i class="fa fa-random text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- 音量控制 -->
+                    <div class="flex items-center justify-center mb-10">
+                        <button id="mute" class="mr-3 text-gray-600 music-btn" title="静音">
+                            <i class="fa fa-volume-up text-xl"></i>
+                        </button>
+                        <div class="volume-bar w-48 md:w-64">
+                            <div class="volume-fill" id="volume-fill"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- EQ设置 -->
+                    <div>
+                        <h4 class="text-md font-bold mb-4 text-macaron-orange">音效设置</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <button class="eq-preset bg-macaron-blue bg-opacity-20 hover:bg-opacity-30 py-2 rounded-xl text-sm music-btn active" data-preset="normal">标准</button>
+                            <button class="eq-preset bg-macaron-pink bg-opacity-20 hover:bg-opacity-30 py-2 rounded-xl text-sm music-btn" data-preset="pop">流行</button>
+                            <button class="eq-preset bg-macaron-green bg-opacity-20 hover:bg-opacity-30 py-2 rounded-xl text-sm music-btn" data-preset="rock">摇滚</button>
+                            <button class="eq-preset bg-macaron-purple bg-opacity-20 hover:bg-opacity-30 py-2 rounded-xl text-sm music-btn" data-preset="classical">古典</button>
+                            <button class="eq-preset bg-macaron-yellow bg-opacity-20 hover:bg-opacity-30 py-2 rounded-xl text-sm music-btn" data-preset="jazz">爵士</button>
+                            <button class="eq-preset bg-macaron-orange bg-opacity-20 hover:bg-opacity-30 py-2 rounded-xl text-sm music-btn" data-preset="bass">重低音</button>
+                            <button class="eq-preset bg-macaron-blue bg-opacity-20 hover:bg-opacity-30 py-2 rounded-xl text-sm music-btn" data-preset="vocal">人声</button>
+                            <button class="eq-preset bg-macaron-pink bg-opacity-20 hover:bg-opacity-30 py-2 rounded-xl text-sm music-btn" data-preset="electronic">电子</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 底部迷你播放器（仅在移动设备上显示） -->
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white bg-opacity-95 backdrop-blur-sm shadow-lg p-3 border-t z-40 hidden" id="mini-player">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <img src="https://picsum.photos/60/60?random=1" alt="当前播放" class="w-12 h-12 rounded-md mr-3">
+                <div>
+                    <h4 id="mini-song-title" class="text-sm font-bold truncate w-24">未播放音乐</h4>
+                    <p id="mini-song-artist" class="text-xs text-gray-500 truncate w-24">艺术家</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <button id="mini-prev" class="text-gray-600 music-btn">
+                    <i class="fa fa-step-backward"></i>
+                </button>
+                <button id="mini-play-pause" class="bg-macaron-green text-white p-2 rounded-full music-btn">
+                    <i class="fa fa-play"></i>
+                </button>
+                <button id="mini-next" class="text-gray-600 music-btn">
+                    <i class="fa fa-step-forward"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 点击遮罩层 - 用于在移动设备上点击空白处关闭侧边栏 -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
+
+    <script>
+        // 全局变量
+        let musicList = [];             // 音乐列表
+        let currentMusicIndex = -1;     // 当前播放索引
+        let audio = new Audio();        // 音频对象
+        let isPlaying = false;          // 是否正在播放
+        let repeatMode = 0;             // 循环模式：0-列表循环，1-单曲循环，2-随机播放
+        let volume = 0.8;               // 音量（0-1）
+        let isMuted = false;            // 是否静音
+        let originalVolume = volume;    // 静音前的音量
+        
+        // DOM元素
+        const mainSidebar = document.getElementById('main-sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const overlay = document.getElementById('overlay');
+        const musicListElement = document.getElementById('music-list');
+        const totalSongsElement = document.getElementById('total-songs');
+        const musicSearch = document.getElementById('music-search');
+        const currentSongTitle = document.getElementById('current-song-title');
+        const currentSongArtist = document.getElementById('current-song-artist');
+        const currentSongAlbum = document.getElementById('current-song-album');
+        const currentTimeElement = document.getElementById('current-time');
+        const totalTimeElement = document.getElementById('total-time');
+        const progressBar = document.getElementById('progress-bar');
+        const progressFill = document.getElementById('progress-fill');
+        const playPauseButton = document.getElementById('play-pause');
+        const prevButton = document.getElementById('prev-song');
+        const nextButton = document.getElementById('next-song');
+        const repeatButton = document.getElementById('repeat-mode');
+        const shuffleButton = document.getElementById('shuffle');
+        const muteButton = document.getElementById('mute');
+        const volumeFill = document.getElementById('volume-fill');
+        const shuffleAllButton = document.getElementById('shuffle-all');
+        const eqPresets = document.querySelectorAll('.eq-preset');
+        const miniPlayer = document.getElementById('mini-player');
+        const miniSongTitle = document.getElementById('mini-song-title');
+        const miniSongArtist = document.getElementById('mini-song-artist');
+        const miniPlayPause = document.getElementById('mini-play-pause');
+        const miniPrev = document.getElementById('mini-prev');
+        const miniNext = document.getElementById('mini-next');
+        const eqBars = document.querySelectorAll('.eq-bar');
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 加载音乐列表
+            loadMusicList();
+            
+            // 绑定事件监听
+            bindEvents();
+            
+            // 初始化音频对象
+            initAudio();
+            
+            // 启动均衡器动画
+            startEqAnimation();
+        });
+        
+        // 加载音乐列表
+        function loadMusicList() {
+            // 实际应用中，这里应该通过AJAX请求服务器获取static/music目录下的音乐文件
+            // 这里使用模拟数据
+            musicList = [
+                {
+                    id: 1,
+                    title: "森林的低语",
+                    artist: "猫之都乐团",
+                    album: "自然之声",
+                    file: "forest_whisper.mp3",
+                    duration: "3:45",
+                    cover: "https://picsum.photos/300/300?random=1"
+                },
+                {
+                    id: 2,
+                    title: "魔法学院的黄昏",
+                    artist: "蘿嵐",
+                    album: "校园时光",
+                    file: "magic_sunset.flac",
+                    duration: "4:12",
+                    cover: "https://picsum.photos/300/300?random=2"
+                },
+                {
+                    id: 3,
+                    title: "星空下的舞蹈",
+                    artist: "猫之都乐团",
+                    album: "夜晚的旋律",
+                    file: "star_dance.mp3",
+                    duration: "3:58",
+                    cover: "https://picsum.photos/300/300?random=3"
+                },
+                {
+                    id: 4,
+                    title: "雨后的森林",
+                    artist: "森林之声",
+                    album: "自然之声",
+                    file: "rain_forest.flac",
+                    duration: "5:20",
+                    cover: "https://picsum.photos/300/300?random=4"
+                },
+                {
+                    id: 5,
+                    title: "猫咪的午睡",
+                    artist: "蘿嵐",
+                    album: "慵懒时光",
+                    file: "cat_nap.mp3",
+                    duration: "2:55",
+                    cover: "https://picsum.photos/300/300?random=5"
+                },
+                {
+                    id: 6,
+                    title: "魔法药水",
+                    artist: "魔法师乐队",
+                    album: "魔法世界",
+                    file: "magic_potion.flac",
+                    duration: "4:30",
+                    cover: "https://picsum.photos/300/300?random=6"
+                },
+                {
+                    id: 7,
+                    title: "林间小径",
+                    artist: "森林之声",
+                    album: "自然之声",
+                    file: "forest_path.mp3",
+                    duration: "3:25",
+                    cover: "https://picsum.photos/300/300?random=7"
+                }
+            ];
+            
+            // 更新总歌曲数
+            totalSongsElement.textContent = `${musicList.length}首歌曲`;
+            
+            // 渲染音乐列表
+            renderMusicList();
+        }
+        
+        // 渲染音乐列表
+        function renderMusicList(filter = '') {
+            musicListElement.innerHTML = '';
+            
+            // 过滤音乐列表
+            const filteredList = filter 
+                ? musicList.filter(music => 
+                    music.title.toLowerCase().includes(filter.toLowerCase()) || 
+                    music.artist.toLowerCase().includes(filter.toLowerCase()))
+                : musicList;
+            
+            if (filteredList.length === 0) {
+                musicListElement.innerHTML = `
+                    <div class="text-center p-8 text-gray-500">
+                        <i class="fa fa-search text-2xl mb-2"></i>
+                        <p>没有找到匹配的歌曲</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // 创建音乐列表项
+            filteredList.forEach((music, index) => {
+                // 找到在原始列表中的索引
+                const originalIndex = musicList.indexOf(music);
+                const isActive = currentMusicIndex === originalIndex;
+                
+                const musicItem = document.createElement('div');
+                musicItem.className = `music-item p-3 rounded-xl flex justify-between items-center ${isActive ? 'active' : ''}`;
+                musicItem.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-full bg-macaron-blue bg-opacity-20 flex items-center justify-center mr-3">
+                            ${isActive ? '<i class="fa fa-music text-macaron-blue"></i>' : (originalIndex + 1)}
+                        </div>
+                        <div>
+                            <div class="font-medium text-sm md:text-base truncate w-40 md:w-56">${music.title}</div>
+                            <div class="text-xs text-gray-500 truncate w-40 md:w-56">${music.artist}</div>
+                        </div>
+                    </div>
+                    <div class="text-sm text-gray-500">${music.duration}</div>
+                `;
+                
+                // 点击播放音乐
+                musicItem.addEventListener('click', () => {
+                    playMusic(originalIndex);
+                });
+                
+                musicListElement.appendChild(musicItem);
+            });
+        }
+        
+        // 初始化音频对象
+        function initAudio() {
+            // 设置音频属性
+            audio.volume = volume;
+            
+            // 音频事件监听
+            audio.addEventListener('timeupdate', updateProgress);
+            audio.addEventListener('loadedmetadata', updateTotalTime);
+            audio.addEventListener('ended', handleAudioEnd);
+        }
+        
+        // 播放音乐
+        function playMusic(index) {
+            if (index < 0 || index >= musicList.length) return;
+            
+            // 更新当前播放索引
+            currentMusicIndex = index;
+            
+            // 获取当前音乐信息
+            const music = musicList[index];
+            
+            // 更新UI显示
+            currentSongTitle.textContent = music.title;
+            currentSongArtist.textContent = music.artist;
+            currentSongAlbum.textContent = music.album;
+            document.querySelector('.album-cover img').src = music.cover;
+            
+            // 更新迷你播放器
+            miniSongTitle.textContent = music.title;
+            miniSongArtist.textContent = music.artist;
+            document.querySelector('#mini-player img').src = music.cover;
+            miniPlayer.classList.remove('hidden');
+            
+            // 设置音频源并播放
+            audio.src = `static/music/${music.file}`;
+            audio.load();
+            audio.play();
+            
+            // 更新播放状态
+            isPlaying = true;
+            updatePlayPauseButton();
+            
+            // 更新音乐列表选中状态
+            renderMusicList(musicSearch.value);
+        }
+        
+        // 切换播放/暂停
+        function togglePlayPause() {
+            if (isPlaying) {
+                audio.pause();
+                isPlaying = false;
+            } else {
+                // 如果还没有选择音乐，默认播放第一首
+                if (currentMusicIndex === -1 && musicList.length > 0) {
+                    playMusic(0);
+                    return;
+                }
+                
+                audio.play();
+                isPlaying = true;
+            }
+            
+            updatePlayPauseButton();
+        }
+        
+        // 更新播放/暂停按钮
+        function updatePlayPauseButton() {
+            if (isPlaying) {
+                playPauseButton.innerHTML = '<i class="fa fa-pause text-3xl"></i>';
+                miniPlayPause.innerHTML = '<i class="fa fa-pause"></i>';
+            } else {
+                playPauseButton.innerHTML = '<i class="fa fa-play text-3xl"></i>';
+                miniPlayPause.innerHTML = '<i class="fa fa-play"></i>';
+            }
+        }
+        
+        // 播放上一首
+        function playPrevious() {
+            if (musicList.length === 0) return;
+            
+            let index = currentMusicIndex - 1;
+            if (index < 0) index = musicList.length - 1;
+            
+            playMusic(index);
+        }
+        
+        // 播放下一首
+        function playNext() {
+            if (musicList.length === 0) return;
+            
+            // 根据循环模式决定下一首
+            if (repeatMode === 2) {
+                // 随机播放
+                let randomIndex;
+                do {
+                    randomIndex = Math.floor(Math.random() * musicList.length);
+                } while (randomIndex === currentMusicIndex && musicList.length > 1);
+                playMusic(randomIndex);
+            } else {
+                // 顺序播放
+                let index = currentMusicIndex + 1;
+                if (index >= musicList.length) index = 0;
+                playMusic(index);
+            }
+        }
+        
+        // 处理音频播放结束
+        function handleAudioEnd() {
+            if (repeatMode === 1) {
+                // 单曲循环
+                audio.currentTime = 0;
+                audio.play();
+            } else {
+                // 播放下一首
+                playNext();
+            }
+        }
+        
+        // 更新进度条
+        function updateProgress() {
+            if (isNaN(audio.duration)) return;
+            
+            const progress = (audio.currentTime / audio.duration) * 100;
+            progressFill.style.width = `${progress}%`;
