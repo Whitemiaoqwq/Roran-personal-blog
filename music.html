@@ -406,220 +406,104 @@
             startEqAnimation();
         });
         
-
-    function loadMusicList() {
-    // 使用项目中实际存在的音乐文件
-    musicList = [
-        {
-            id: 1,
-            title: "hanabi",
-            artist: "未知艺术家",
-            album: "音乐收藏",
-            file: "hanabi.flac",
-            duration: "00:00", // 实际播放时会自动更新
-            cover: "https://picsum.photos/300/300?random=1"
-        },
-        {
-            id: 2,
-            title: "大大世界小小猫（最终重混音伴奏）",
-            artist: "未知艺术家",
-            album: "音乐收藏",
-            file: "大大世界小小猫（最终重混音伴奏）.flac",
-            duration: "00:00", // 实际播放时会自动更新
-            cover: "https://picsum.photos/300/300?random=2"
-        },
-        {
-            id: 3,
-            title: "时年",
-            artist: "未知艺术家",
-            album: "音乐收藏",
-            file: "时年.flac",
-            duration: "00:00", // 实际播放时会自动更新
-            cover: "https://picsum.photos/300/300?random=3"
-        }
-    ];
-    
-    // 更新总歌曲数
-    totalSongsElement.textContent = `${musicList.length}首歌曲`;
-    
-    // 渲染音乐列表
-    renderMusicList();
-}
-
-        
-        // 渲染音乐列表
-        function renderMusicList(filter = '') {
-            musicListElement.innerHTML = '';
-            
-            // 过滤音乐列表
-            const filteredList = filter 
-                ? musicList.filter(music => 
-                    music.title.toLowerCase().includes(filter.toLowerCase()) || 
-                    music.artist.toLowerCase().includes(filter.toLowerCase()))
-                : musicList;
-            
-            if (filteredList.length === 0) {
-                musicListElement.innerHTML = `
-                    <div class="text-center p-8 text-gray-500">
-                        <i class="fa fa-search text-2xl mb-2"></i>
-                        <p>没有找到匹配的歌曲</p>
-                    </div>
-                `;
-                return;
+        // 修复缩进问题，使loadMusicList()函数与其他函数格式一致
+        function loadMusicList() {
+            try {
+                // 使用项目中实际存在的音乐文件
+                musicList = [
+                    {
+                        id: 1,
+                        title: "hanabi",
+                        artist: "未知艺术家",
+                        album: "音乐收藏",
+                        file: "hanabi.flac",
+                        duration: "00:00", // 实际播放时会自动更新
+                        cover: "https://picsum.photos/300/300?random=1"
+                    },
+                    {
+                        id: 2,
+                        title: "大大世界小小猫（最终重混音伴奏）",
+                        artist: "未知艺术家",
+                        album: "音乐收藏",
+                        file: "大大世界小小猫（最终重混音伴奏）.flac",
+                        duration: "00:00", // 实际播放时会自动更新
+                        cover: "https://picsum.photos/300/300?random=2"
+                    },
+                    {
+                        id: 3,
+                        title: "时年",
+                        artist: "未知艺术家",
+                        album: "音乐收藏",
+                        file: "时年.flac",
+                        duration: "00:00", // 实际播放时会自动更新
+                        cover: "https://picsum.photos/300/300?random=3"
+                    }
+                ];
+                
+                console.log("音乐列表加载成功，共" + musicList.length + "首歌曲");
+                
+                // 更新总歌曲数
+                totalSongsElement.textContent = `${musicList.length}首歌曲`;
+                
+                // 渲染音乐列表
+                renderMusicList();
+            } catch (error) {
+                console.error("加载音乐列表时出错:", error);
+                alert("音乐列表加载失败，请刷新页面重试");
             }
-            
-            // 创建音乐列表项
-            filteredList.forEach((music, index) => {
-                // 找到在原始列表中的索引
-                const originalIndex = musicList.indexOf(music);
-                const isActive = currentMusicIndex === originalIndex;
-                
-                const musicItem = document.createElement('div');
-                musicItem.className = `music-item p-3 rounded-xl flex justify-between items-center ${isActive ? 'active' : ''}`;
-                musicItem.innerHTML = `
-                    <div class="flex items-center">
-                        <div class="w-8 h-8 rounded-full bg-macaron-blue bg-opacity-20 flex items-center justify-center mr-3">
-                            ${isActive ? '<i class="fa fa-music text-macaron-blue"></i>' : (originalIndex + 1)}
-                        </div>
-                        <div>
-                            <div class="font-medium text-sm md:text-base truncate w-40 md:w-56">${music.title}</div>
-                            <div class="text-xs text-gray-500 truncate w-40 md:w-56">${music.artist}</div>
-                        </div>
-                    </div>
-                    <div class="text-sm text-gray-500">${music.duration}</div>
-                `;
-                
-                // 点击播放音乐
-                musicItem.addEventListener('click', () => {
-                    playMusic(originalIndex);
-                });
-                
-                musicListElement.appendChild(musicItem);
-            });
-        }
-        
-        // 初始化音频对象
-        function initAudio() {
-            // 设置音频属性
-            audio.volume = volume;
-            
-            // 音频事件监听
-            audio.addEventListener('timeupdate', updateProgress);
-            audio.addEventListener('loadedmetadata', updateTotalTime);
-            audio.addEventListener('ended', handleAudioEnd);
         }
         
         // 播放音乐
         function playMusic(index) {
-            if (index < 0 || index >= musicList.length) return;
-            
-            // 更新当前播放索引
-            currentMusicIndex = index;
-            
-            // 获取当前音乐信息
-            const music = musicList[index];
-            
-            // 更新UI显示
-            currentSongTitle.textContent = music.title;
-            currentSongArtist.textContent = music.artist;
-            currentSongAlbum.textContent = music.album;
-            document.querySelector('.album-cover img').src = music.cover;
-            
-            // 更新迷你播放器
-            miniSongTitle.textContent = music.title;
-            miniSongArtist.textContent = music.artist;
-            document.querySelector('#mini-player img').src = music.cover;
-            miniPlayer.classList.remove('hidden');
-            
-            // 设置音频源并播放
-            audio.src = `static/music/${music.file}`;
-            audio.load();
-            audio.play();
-            
-            // 更新播放状态
-            isPlaying = true;
-            updatePlayPauseButton();
-            
-            // 更新音乐列表选中状态
-            renderMusicList(musicSearch.value);
-        }
-        
-        // 切换播放/暂停
-        function togglePlayPause() {
-            if (isPlaying) {
-                audio.pause();
-                isPlaying = false;
-            } else {
-                // 如果还没有选择音乐，默认播放第一首
-                if (currentMusicIndex === -1 && musicList.length > 0) {
-                    playMusic(0);
+            try {
+                if (index < 0 || index >= musicList.length) {
+                    console.warn("音乐索引超出范围");
                     return;
                 }
                 
-                audio.play();
+                // 更新当前播放索引
+                currentMusicIndex = index;
+                
+                // 获取当前音乐信息
+                const music = musicList[index];
+                
+                // 更新UI显示
+                currentSongTitle.textContent = music.title;
+                currentSongArtist.textContent = music.artist;
+                currentSongAlbum.textContent = music.album;
+                document.querySelector('.album-cover img').src = music.cover;
+                
+                // 更新迷你播放器
+                miniSongTitle.textContent = music.title;
+                miniSongArtist.textContent = music.artist;
+                document.querySelector('#mini-player img').src = music.cover;
+                miniPlayer.classList.remove('hidden');
+                
+                // 设置音频源并播放
+                audio.src = `static/music/${music.file}`;
+                
+                // 添加错误处理事件监听
+                audio.onerror = function(event) {
+                    console.error("加载音乐文件失败:", music.file, event);
+                    alert(`无法加载音乐文件: ${music.file}\n可能的原因：文件不存在或路径错误`);
+                };
+                
+                audio.load();
+                audio.play().catch(error => {
+                    console.error("播放音乐失败:", error);
+                    alert(`播放音乐失败: ${music.title}\n${error.message}`);
+                });
+                
+                // 更新播放状态
                 isPlaying = true;
-            }
-            
-            updatePlayPauseButton();
-        }
-        
-        // 更新播放/暂停按钮
-        function updatePlayPauseButton() {
-            if (isPlaying) {
-                playPauseButton.innerHTML = '<i class="fa fa-pause text-3xl"></i>';
-                miniPlayPause.innerHTML = '<i class="fa fa-pause"></i>';
-            } else {
-                playPauseButton.innerHTML = '<i class="fa fa-play text-3xl"></i>';
-                miniPlayPause.innerHTML = '<i class="fa fa-play"></i>';
+                updatePlayPauseButton();
+                
+                // 更新音乐列表选中状态
+                renderMusicList(musicSearch.value);
+            } catch (error) {
+                console.error("播放音乐时出错:", error);
+                alert(`播放音乐时发生错误：${error.message}`);
             }
         }
         
-        // 播放上一首
-        function playPrevious() {
-            if (musicList.length === 0) return;
-            
-            let index = currentMusicIndex - 1;
-            if (index < 0) index = musicList.length - 1;
-            
-            playMusic(index);
-        }
-        
-        // 播放下一首
-        function playNext() {
-            if (musicList.length === 0) return;
-            
-            // 根据循环模式决定下一首
-            if (repeatMode === 2) {
-                // 随机播放
-                let randomIndex;
-                do {
-                    randomIndex = Math.floor(Math.random() * musicList.length);
-                } while (randomIndex === currentMusicIndex && musicList.length > 1);
-                playMusic(randomIndex);
-            } else {
-                // 顺序播放
-                let index = currentMusicIndex + 1;
-                if (index >= musicList.length) index = 0;
-                playMusic(index);
-            }
-        }
-        
-        // 处理音频播放结束
-        function handleAudioEnd() {
-            if (repeatMode === 1) {
-                // 单曲循环
-                audio.currentTime = 0;
-                audio.play();
-            } else {
-                // 播放下一首
-                playNext();
-            }
-        }
-        
-        // 更新进度条
-        function updateProgress() {
-            if (isNaN(audio.duration)) return;
-            
-            const progress = (audio.currentTime / audio.duration) * 100;
-            progressFill.style.width = `${progress}%`;
-        }
+        // ... existing code ...
