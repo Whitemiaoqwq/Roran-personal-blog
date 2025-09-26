@@ -355,7 +355,44 @@
             loadSettings();
         });
         
-        // 加载章节列表
+        // 渲染章节列表
+        function renderChapterList() {
+            // 清空章节列表
+            chapterList.innerHTML = '';
+            
+            // 根据排序方式对章节进行排序
+            let sortedChapters = [...chapters];
+            if (sortOrder === 'asc') {
+                sortedChapters.sort((a, b) => a.id - b.id);
+            } else {
+                sortedChapters.sort((a, b) => b.id - a.id);
+            }
+            
+            // 渲染每个章节
+            sortedChapters.forEach((chapter, index) => {
+                const chapterItem = document.createElement('div');
+                chapterItem.className = `chapter-item p-3 cursor-pointer transition-all duration-200 ${currentChapterIndex === chapters.findIndex(c => c.id === chapter.id) ? 'bg-primary/10 text-primary border-l-4 border-primary' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`;
+                chapterItem.innerHTML = `
+                    <div class="chapter-number text-xs text-gray-500 mb-1">第${chapter.id}章</div>
+                    <div class="chapter-title">${chapter.title}</div>
+                `;
+                
+                // 绑定点击事件
+                chapterItem.addEventListener('click', () => {
+                    // 找到原始章节数组中的索引
+                    const originalIndex = chapters.findIndex(c => c.id === chapter.id);
+                    loadChapter(originalIndex);
+                    
+                    // 在移动设备上，点击章节后关闭侧边栏
+                    if (window.innerWidth < 768) {
+                        chapterSidebar.classList.remove('active');
+                    }
+                });
+                
+                chapterList.appendChild(chapterItem);
+            });
+        }
+        
         // 加载章节列表
         function loadChapters() {
             // 显示加载状态
