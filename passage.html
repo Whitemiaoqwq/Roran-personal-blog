@@ -327,49 +327,60 @@
         
         // 加载章节列表
         function loadChapters() {
-            // 实际应用中，这里应该通过AJAX请求服务器获取static/passage目录下的.md文件列表
-            // 这里使用模拟数据
-            chapters = [
-                { id: 1, title: "第一章：茗沐大陆的传说", file: "chapter1.md" },
-                { id: 2, title: "第二章：森林猫的诞生", file: "chapter2.md" },
-                { id: 3, title: "第三章：魔法学院的入学考试", file: "chapter3.md" },
-                { id: 4, title: "第四章：第一个魔法咒语", file: "chapter4.md" },
-                { id: 5, title: "第五章：遇见新朋友", file: "chapter5.md" }
-            ];
+            // 显示加载状态
+            chapterList.innerHTML = `
+                <div class="flex justify-center items-center h-64">
+                    <i class="fa fa-spinner fa-spin text-primary"></i>
+                    <span class="ml-2">加载章节列表中...</span>
+                </div>
+            `;
             
-            // 渲染章节列表
-            renderChapterList();
-        }
-        
-        // 渲染章节列表
-        function renderChapterList() {
-            chapterList.innerHTML = '';
-            
-            // 根据排序方式处理章节列表
-            const sortedChapters = [...chapters].sort((a, b) => {
-                return sortOrder === 'asc' ? a.id - b.id : b.id - a.id;
-            });
-            
-            // 创建章节列表项
-            sortedChapters.forEach((chapter, index) => {
-                const chapterItem = document.createElement('div');
-                chapterItem.className = `chapter-item p-3 rounded-xl cursor-pointer ${currentChapterIndex === chapter.id - 1 ? 'active' : ''}`;
-                chapterItem.innerHTML = `
-                    <span class="text-primary mr-2">${chapter.id}</span>
-                    <span>${chapter.title}</span>
-                `;
-                
-                // 点击章节项加载对应章节
-                chapterItem.addEventListener('click', () => {
-                    loadChapter(chapter.id - 1);
-                    chapterSidebar.classList.remove('active');
+            // 使用相对路径请求manifest.json文件
+            fetch('static/passage/manifest.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`无法加载章节清单: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    chapters = data;
+                    
+                    // 渲染章节列表
+                    renderChapterList();
+                    
+                    // 默认加载第一章
+                    if (chapters.length > 0) {
+                        loadChapter(0);
+                    }
+                })
+                .catch(error => {
+                    console.error('加载章节列表时出错:', error);
+                    
+                    // 显示更详细的错误信息
+                    chapterList.innerHTML = `
+                        <div class="flex flex-col justify-center items-center h-64 text-red-500">
+                            <i class="fa fa-exclamation-circle text-4xl mb-3"></i>
+                            <p>无法加载章节列表</p>
+                            <p class="text-sm mt-2">错误: ${error.message}</p>
+                        </div>
+                    `;
+                    
+                    // 回退到模拟数据
+                    chapters = [
+                        { id: 1, title: "第一章：茗沐大陆的传说", file: "chapter1.md" },
+                        { id: 2, title: "第二章：森林猫的诞生", file: "chapter2.md" },
+                        { id: 3, title: "第三章：魔法学院的入学考试", file: "chapter3.md" },
+                        { id: 4, title: "第四章：第一个魔法咒语", file: "chapter4.md" },
+                        { id: 5, title: "第五章：遇见新朋友", file: "chapter5.md" }
+                    ];
+                    
+                    renderChapterList();
+                    loadChapter(0);
                 });
-                
-                chapterList.appendChild(chapterItem);
-            });
         }
         
-        // 加载章节内容
+        // 加载章节内容 - 修改为使用相对路径
         function loadChapter(index) {
             if (index < 0 || index >= chapters.length) return;
             
@@ -387,45 +398,42 @@
                 </div>
             `;
             
-            // 实际应用中，这里应该通过AJAX请求加载对应的.md文件内容
-            // 这里使用模拟内容
-            setTimeout(() => {
-                // 模拟Markdown内容
-                const mockContent = `
-# ${chapters[index].title}
-
-这是茗沐大陆记事簿的第${index + 1}章内容。
-
-在一个阳光明媚的早晨，小猫咪蘿嵐第一次踏入了茗沐魔法学院的大门。学院的建筑宏伟而古老，墙壁上爬满了绿色的藤蔓，空气中弥漫着魔法草药的清香。
-
-> "欢迎来到茗沐魔法学院，年轻的学徒。" 一位戴着尖顶帽的教授微笑着说。
-
-## 魔法学院的第一天
-
-蘿嵐的心情既兴奋又紧张，她的小爪子紧紧抓着背包带，尾巴不自觉地摇摆着。周围有许多来自不同种族的新生：有会飞的小精灵，有高大的树人，还有和她一样的猫族。
-
-### 课程安排
-
-1. 基础魔法理论
-2. 元素控制入门
-3. 魔法植物学
-4. 大陆历史与传说
-
-茗沐大陆有着悠久的历史，每一个角落都充满了神秘的传说和等待探索的秘密。蘿嵐知道，她的冒险才刚刚开始...
-                `;
-                
-                // 使用marked库将Markdown转换为HTML
-                readingArea.innerHTML = marked.parse(mockContent);
-                
-                // 更新章节列表选中状态
-                renderChapterList();
-                
-                // 更新导航按钮状态
-                updateNavButtons();
-                
-                // 滚动到顶部
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }, 800);
+            // 使用相对路径请求章节文件
+            const filePath = `static/passage/${chapters[index].file}`;
+            
+            fetch(filePath)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`无法加载章节文件: ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then(content => {
+                    // 使用marked库将Markdown转换为HTML
+                    readingArea.innerHTML = marked.parse(content);
+                    
+                    // 更新章节列表选中状态
+                    renderChapterList();
+                    
+                    // 更新导航按钮状态
+                    updateNavButtons();
+                    
+                    // 滚动到顶部
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                })
+                .catch(error => {
+                    console.error('加载章节内容时出错:', error);
+                    
+                    // 显示错误信息
+                    readingArea.innerHTML = `
+                        <div class="flex flex-col justify-center items-center h-64 text-red-500">
+                            <i class="fa fa-exclamation-circle text-4xl mb-3"></i>
+                            <p>无法加载章节内容</p>
+                            <p class="text-sm mt-2">文件路径: ${filePath}</p>
+                            <p class="text-sm mt-1">错误: ${error.message}</p>
+                        </div>
+                    `;
+                });
         }
         
         // 更新导航按钮状态
