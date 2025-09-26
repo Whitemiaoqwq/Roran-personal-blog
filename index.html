@@ -9,19 +9,19 @@
     <!-- 引入Font Awesome图标库 -->
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     
-    <!-- 配置Tailwind自定义颜色和字体 -->
+    <!-- 配置Tailwind自定义颜色（莫兰迪色系）和字体 -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        // 主色调：低饱和绿色和蓝色
-                        primary: '#6dae8d',
-                        secondary: '#7ba6b9',
-                        // 辅助色
-                        accent: '#d9b99b',
-                        light: '#f5f5f0',
-                        dark: '#4a5559'
+                        // 莫兰迪色系
+                        primary: '#91A3B0', // 灰蓝色（主色调）
+                        secondary: '#A3B18A', // 灰绿色
+                        accent: '#C9A9A6', // 灰粉色
+                        tertiary: '#D4A373', // 灰黄色
+                        light: '#F5F5F0', // 米白色
+                        dark: '#585858' // 深灰色
                     },
                     fontFamily: {
                         cute: ['"Comic Sans MS"', '"Marker Felt"', 'sans-serif']
@@ -51,14 +51,14 @@
     </style>
     
     <style>
-        /* 全局样式 */
+        /* 全局样式 - 莫兰迪蓝色背景+白色圆点斜排列 */
         body {
-            background-color: #f5f5f0;
+            background-color: #91A3B0; /* 莫兰迪灰蓝色背景 */
             background-image: 
-                radial-gradient(#6dae8d10 1px, transparent 1px),
-                radial-gradient(#7ba6b910 1px, transparent 1px);
+                radial-gradient(#ffffff30 6px, transparent 6px),
+                radial-gradient(#ffffff30 6px, transparent 6px);
             background-size: 50px 50px;
-            background-position: 0 0, 25px 25px;
+            background-position: 0 0, 25px 25px; /* 斜向排列 */
             overflow-x: hidden;
         }
         
@@ -103,7 +103,7 @@
 
 <body class="font-cute text-dark">
     <!-- 音乐控制按钮 - 左下角 -->
-    <div id="music-control" class="fixed bottom-6 left-6 z-50 bg-white bg-opacity-80 p-3 rounded-full shadow-lg music-btn cursor-pointer">
+    <div id="music-control" class="fixed bottom-6 left-6 z-50 bg-white bg-opacity-80 p-3 rounded-full shadow-lg music-btn cursor-pointer w-14 h-14 flex items-center justify-center">
         <i id="music-icon" class="fa fa-music text-primary text-xl"></i>
     </div>
     
@@ -113,7 +113,7 @@
         您的浏览器不支持音频播放
     </audio>
     
-    <!-- 左侧侧边栏 - 可自动隐藏 -->
+    <!-- 左侧侧边栏 - 可自动隐藏（保持不变） -->
     <div class="sidebar fixed top-0 left-0 h-full w-64 bg-white bg-opacity-90 rounded-r-3xl sidebar-shadow z-40 flex flex-col">
         <div class="p-6 text-center border-b border-gray-100">
             <h2 class="text-xl font-bold text-primary">导航菜单</h2>
@@ -155,13 +155,13 @@
     <!-- 主内容区 -->
     <main class="min-h-screen pt-16 pb-20 px-4 md:px-8 lg:px-16 transition-all duration-300">
         <!-- 个人信息卡片 -->
-        <div class="max-w-4xl mx-auto bg-white rounded-3xl shadow-lg overflow-hidden mb-12">
+        <div class="max-w-4xl mx-auto bg-white rounded-3xl shadow-lg overflow-hidden mb-12 transform transition-all duration-500 hover:shadow-xl">
             <div class="md:flex">
-                <!-- 头像区域 -->
+                <!-- 头像区域 - 确保圆形为正圆 -->
                 <div class="md:w-1/3 p-8 flex justify-center items-center bg-primary bg-opacity-10">
-                    <div class="relative">
+                    <div class="relative w-64 h-64 flex items-center justify-center">
                         <div class="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-full blur-md opacity-50"></div>
-                        <img src="static/imgs/owo.jpg" alt="蘿嵐的头像" class="relative z-10 w-48 h-48 md:w-64 md:h-64 object-cover rounded-full border-4 border-white">
+                        <img src="static/imgs/owo.jpg" alt="蘿嵐的头像" class="relative z-10 w-48 h-48 object-cover rounded-full border-4 border-white">
                     </div>
                 </div>
                 
@@ -172,12 +172,12 @@
                         是一只茗沐大地上的森林猫，目前是茗沐魔法学院大一新生喵~
                     </p>
                     
-                    <!-- 社交媒体链接 -->
+                    <!-- 社交媒体链接 - 正圆形设计 -->
                     <div class="flex space-x-4 mt-8">
-                        <a href="https://space.bilibili.com/3546633423816937?spm_id_from=333.1369.opus.module_author_avatar.click" target="_blank" class="social-icon bg-[#FB7299] text-white p-3 rounded-full shadow-md">
+                        <a href="https://space.bilibili.com/3546633423816937?spm_id_from=333.1369.opus.module_author_avatar.click" target="_blank" class="social-icon bg-[#FB7299] text-white w-12 h-12 rounded-full shadow-md flex items-center justify-center">
                             <i class="fa fa-play-circle"></i> <!-- B站小电视图标 -->
                         </a>
-                        <a href="https://v.douyin.com/fASQmaFAqOY/ 9@9.com" target="_blank" class="social-icon bg-[#000000] text-white p-3 rounded-full shadow-md">
+                        <a href="https://v.douyin.com/fASQmaFAqOY/ 9@9.com" target="_blank" class="social-icon bg-[#000000] text-white w-12 h-12 rounded-full shadow-md flex items-center justify-center">
                             <i class="fa fa-music"></i> <!-- 抖音音符图标 -->
                         </a>
                     </div>
@@ -187,7 +187,7 @@
         
         <!-- 板块导航卡片 -->
         <div class="max-w-5xl mx-auto">
-            <h2 class="text-2xl font-bold text-center mb-10 text-dark">探索我的小世界</h2>
+            <h2 class="text-2xl font-bold text-center mb-10 text-white">探索我的小世界</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- 茗沐大陆记事簿 -->
@@ -225,8 +225,8 @@
                 
                 <!-- 蘿嵐摄影集 -->
                 <a href="photos.html" class="section-card block bg-white rounded-3xl shadow-md overflow-hidden">
-                    <div class="h-48 bg-primary bg-opacity-20 flex items-center justify-center">
-                        <i class="fa fa-camera text-6xl text-primary"></i>
+                    <div class="h-48 bg-tertiary bg-opacity-20 flex items-center justify-center">
+                        <i class="fa fa-camera text-6xl text-tertiary"></i>
                     </div>
                     <div class="p-6">
                         <h3 class="text-xl font-bold mb-2 text-dark">蘿嵐摄影集</h3>
@@ -296,7 +296,7 @@
         // 移动端适配 - 点击显示侧边栏
         if (window.innerWidth < 768) {
             const menuToggle = document.createElement('div');
-            menuToggle.className = 'fixed top-6 left-6 z-30 bg-white p-3 rounded-full shadow-lg cursor-pointer';
+            menuToggle.className = 'fixed top-6 left-6 z-30 bg-white p-3 rounded-full shadow-lg cursor-pointer w-12 h-12 flex items-center justify-center';
             menuToggle.innerHTML = '<i class="fa fa-bars text-primary"></i>';
             document.body.appendChild(menuToggle);
             
