@@ -3,48 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>蘿嵐随记簿 - 蘿嵐的个人博客</title>
+    <title>蘿嵐随记簿 - 个人日记</title>
     <!-- 引入Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 引入Font Awesome图标库 -->
+    <!-- 引入Font Awesome -->
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <!-- 引入Markdown解析库 -->
+    <!-- 引入marked库用于Markdown渲染 -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    
-    <!-- 配置Tailwind自定义颜色和字体 -->
+    <!-- 引入手写字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&family=ZCOOL+QingKe+HuangYou&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS 配置 -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
+                    // 莫兰迪色系配置
                     colors: {
-                        primary: '#6dae8d',
-                        secondary: '#7ba6b9',
-                        accent: '#d9b99b',
-                        light: '#f5f5f0',
-                        dark: '#4a5559',
-                        // 阅读模式颜色
-                        day: {
-                            bg: '#ffffff',
-                            text: '#333333'
-                        },
-                        eye: {
-                            bg: '#eaf5e9',
-                            text: '#2d4829'
-                        },
-                        night: {
-                            bg: '#2c3e50',
-                            text: '#ecf0f1'
-                        }
+                        // 主色调
+                        primary: '#A288E3', // 淡紫色
+                        secondary: '#B8A9C9', // 浅紫色
+                        // 背景色
+                        'diary-bg': '#F8F4E3', // 米黄色
+                        'diary-paper': '#FFF8E7', // 纸张色
+                        // 文字颜色
+                        'diary-text': '#5D4E6D', // 深紫色文字
+                        'diary-text-secondary': '#8D86C9', // 中紫色文字
+                        // 边框和分隔线
+                        'diary-border': '#D3C9C0', // 浅棕色边框
+                        // 强调色
+                        'accent-1': '#C9ADC6', // 灰紫色
+                        'accent-2': '#EAC7C7', // 淡粉色
+                        'accent-3': '#A0C3D2', // 淡蓝色
+                        'accent-4': '#B7C4CF', // 浅灰色
                     },
                     fontFamily: {
-                        cute: ['"Comic Sans MS"', '"Marker Felt"', 'sans-serif'],
-                        reading: ['"Noto Serif SC"', 'serif']
-                    }
-                }
+                        // 手写风格字体
+                        'handwriting': ['Ma Shan Zheng', 'cursive'],
+                        'diary': ['ZCOOL XiaoWei', 'serif'],
+                        'title': ['ZCOOL QingKe HuangYou', 'sans-serif'],
+                    },
+                },
             }
         }
     </script>
-    
+
     <!-- 自定义工具类 -->
     <style type="text/tailwindcss">
         @layer utilities {
@@ -52,269 +55,250 @@
                 content-visibility: auto;
             }
             .text-shadow {
-                text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+                text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
             }
-            .chapter-transition {
-                transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            .diary-shadow {
+                box-shadow: 0 4px 12px rgba(162, 136, 227, 0.15);
+            }
+            .paper-texture {
+                background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23a288e3' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+            }
+            .ribbon {
+                position: relative;
+            }
+            .ribbon::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                border-style: solid;
+                border-width: 20px 20px 0 0;
+                border-color: #C9ADC6 transparent transparent transparent;
+            }
+            .time-display {
+                border-bottom: 1px dashed #D3C9C0;
             }
         }
     </style>
-    
+
+    <!-- 全局样式 -->
     <style>
-        /* 基础样式 */
-        body {
-            transition: background-color 0.3s ease;
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(162, 136, 227, 0.1);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(162, 136, 227, 0.3);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(162, 136, 227, 0.5);
         }
         
-        /* 章节侧边栏动画 */
-        .chapter-sidebar {
-            transition: transform 0.4s ease-in-out;
-            transform: translateX(100%);
+        /* 笔记内容样式 */
+        .note-content {
+            line-height: 1.8;
         }
-        
-        .chapter-sidebar.active {
-            transform: translateX(0);
+        .note-content p {
+            margin-bottom: 1.2rem;
         }
-        
-        /* 阅读区域样式 */
-        .reading-content {
-            transition: all 0.3s ease;
+        .note-content h1, .note-content h2, .note-content h3 {
+            margin: 1.5rem 0 1rem 0;
+            font-weight: 600;
+            color: #5D4E6D;
         }
-        
-        /* 按钮动画 */
-        .control-btn {
-            transition: all 0.2s ease;
+        .note-content ul, .note-content ol {
+            margin: 1rem 0 1rem 1.5rem;
         }
-        
-        .control-btn:hover {
-            transform: scale(1.1);
+        .note-content li {
+            margin-bottom: 0.5rem;
         }
-        
-        /* 图片样式 */
-        .reading-content img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 0.5rem;
-            margin: 1rem auto;
-            display: block;
-        }
-        
-        /* 章节列表项动画 */
-        .chapter-item {
-            transition: all 0.2s ease;
-        }
-        
-        .chapter-item:hover {
-            background-color: rgba(109, 174, 141, 0.1);
-        }
-        
-        .chapter-item.active {
-            background-color: rgba(109, 174, 141, 0.2);
-            font-weight: bold;
+        .note-content blockquote {
+            border-left: 3px solid #C9ADC6;
+            padding-left: 1rem;
+            margin: 1rem 0;
+            color: #8D86C9;
         }
     </style>
 </head>
-
-<body class="font-reading bg-day-bg text-day-text">
+<body class="bg-diary-bg text-diary-text min-h-screen flex flex-col">
     <!-- 左侧导航边栏 -->
-    <div class="fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-40 transform transition-transform duration-300 md:translate-x-0 -translate-x-full" id="main-sidebar">
-        <div class="p-5 border-b">
-            <h2 class="text-xl font-bold text-primary">导航菜单</h2>
+    <aside id="main-sidebar" class="fixed left-0 top-0 h-full w-64 bg-diary-paper diary-shadow transform transition-transform duration-300 z-50 md:translate-x-0 -translate-x-full">
+        <div class="p-6 border-b border-diary-border">
+            <h1 class="text-3xl font-title text-primary text-shadow">蘿嵐随记簿</h1>
+            <p class="text-sm text-diary-text-secondary mt-2">记录生活中的点滴感悟</p>
         </div>
+        <nav class="p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="index.html" class="flex items-center p-3 rounded-lg transition-all duration-200 hover:bg-accent-4/20 text-diary-text-secondary">
+                        <i class="fa fa-home mr-3 text-lg"></i>
+                        <span>茗沐大陆记事簿</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="note.html" class="flex items-center p-3 rounded-lg bg-primary/10 text-primary transition-all duration-200">
+                        <i class="fa fa-book mr-3 text-lg"></i>
+                        <span>蘿嵐随记簿</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="music.html" class="flex items-center p-3 rounded-lg transition-all duration-200 hover:bg-accent-4/20 text-diary-text-secondary">
+                        <i class="fa fa-music mr-3 text-lg"></i>
+                        <span>猫之都音乐馆</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="photos.html" class="flex items-center p-3 rounded-lg transition-all duration-200 hover:bg-accent-4/20 text-diary-text-secondary">
+                        <i class="fa fa-camera mr-3 text-lg"></i>
+                        <span>摄影集</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
         
-        <div class="p-4">
-            <a href="index.html" class="flex items-center p-3 rounded-xl hover:bg-gray-100 mb-2 transition-all">
-                <i class="fa fa-home w-8 text-center"></i>
-                <span>首页</span>
-            </a>
-            
-            <a href="passage.html" class="flex items-center p-3 rounded-xl hover:bg-gray-100 mb-2 transition-all">
-                <i class="fa fa-book w-8 text-center"></i>
-                <span>茗沐大陆记事簿</span>
-            </a>
-            
-            <a href="note.html" class="flex items-center p-3 rounded-xl bg-primary bg-opacity-20 text-primary mb-2 transition-all">
-                <i class="fa fa-sticky-note w-8 text-center"></i>
-                <span><strong>蘿嵐随记簿</strong></span>
-            </a>
-            
-            <a href="music.html" class="flex items-center p-3 rounded-xl hover:bg-gray-100 mb-2 transition-all">
-                <i class="fa fa-headphones w-8 text-center"></i>
-                <span>猫之都音乐馆</span>
-            </a>
-            
-            <a href="photos.html" class="flex items-center p-3 rounded-xl hover:bg-gray-100 transition-all">
-                <i class="fa fa-camera w-8 text-center"></i>
-                <span>摄影集</span>
-            </a>
+        <!-- 当前时间日期显示 -->
+        <div class="absolute bottom-8 left-0 right-0 px-6">
+            <div class="time-display p-4 bg-diary-paper/80 rounded-lg diary-shadow text-center">
+                <div id="current-date" class="font-handwriting text-xl text-primary"></div>
+                <div id="current-time" class="font-handwriting text-lg text-diary-text-secondary mt-1"></div>
+            </div>
         </div>
-    </div>
-    
-    <!-- 主内容区 -->
-    <div class="min-h-screen transition-all duration-300 md:ml-64" id="main-content">
+    </aside>
+
+    <!-- 遮罩层 -->
+    <div id="overlay" class="fixed inset-0 bg-black/20 z-40 hidden md:hidden"></div>
+
+    <!-- 主内容区域 -->
+    <main class="flex-1 transition-all duration-300 md:ml-64">
         <!-- 顶部工具栏 -->
-        <header class="sticky top-0 bg-white bg-opacity-90 backdrop-blur-sm shadow-sm z-30 p-4 flex justify-between items-center">
-            <div class="flex items-center">
-                <button id="sidebar-toggle" class="mr-4 p-2 rounded-full hover:bg-gray-100 control-btn">
-                    <i class="fa fa-bars text-primary"></i>
+        <header class="sticky top-0 bg-diary-paper/90 backdrop-blur-sm z-30 p-4 flex items-center justify-between border-b border-diary-border">
+            <!-- 移动端菜单按钮 -->
+            <button id="sidebar-toggle" class="md:hidden text-primary p-2 rounded-lg hover:bg-primary/10">
+                <i class="fa fa-bars text-xl"></i>
+            </button>
+
+            <!-- 笔记导航按钮 -->
+            <div class="flex items-center space-x-2 md:space-x-4">
+                <button id="prev-chapter" class="p-2 text-diary-text-secondary hover:text-primary transition-colors">
+                    <i class="fa fa-chevron-left"></i>
                 </button>
-                <h1 class="text-xl md:text-2xl font-bold text-primary">蘿嵐随记簿</h1>
+                <button id="next-chapter" class="p-2 text-diary-text-secondary hover:text-primary transition-colors">
+                    <i class="fa fa-chevron-right"></i>
+                </button>
             </div>
-            
-            <div class="flex items-center space-x-2">
-                <!-- 字体大小调节 -->
-                <div class="flex items-center bg-gray-100 rounded-full p-1">
-                    <button id="font-smaller" class="p-2 rounded-full hover:bg-white control-btn">
-                        <i class="fa fa-text-height text-sm text-dark"></i>
+
+            <!-- 字体和排序控制 -->
+            <div class="hidden md:flex items-center space-x-4">
+                <div class="flex items-center space-x-2">
+                    <button id="font-smaller" class="p-2 text-diary-text-secondary hover:text-primary transition-colors">
+                        <i class="fa fa-text-height"></i>
                     </button>
-                    <button id="font-larger" class="p-2 rounded-full hover:bg-white control-btn">
-                        <i class="fa fa-text-height text-lg text-dark"></i>
+                    <button id="font-larger" class="p-2 text-diary-text-secondary hover:text-primary transition-colors">
+                        <i class="fa fa-text-height" style="transform: scaleY(1.5);"></i>
                     </button>
                 </div>
-                
-                <!-- 主题切换 -->
-                <div class="flex items-center bg-gray-100 rounded-full p-1">
-                    <button id="theme-day" class="p-2 rounded-full hover:bg-white control-btn" title="日间模式">
-                        <i class="fa fa-sun-o text-yellow-500"></i>
+                <div class="flex items-center space-x-2">
+                    <button id="order-asc" class="p-2 text-primary transition-colors">
+                        <i class="fa fa-sort-amount-asc"></i>
                     </button>
-                    <button id="theme-eye" class="p-2 rounded-full hover:bg-white control-btn" title="护眼模式">
-                        <i class="fa fa-leaf text-green-600"></i>
-                    </button>
-                    <button id="theme-night" class="p-2 rounded-full hover:bg-white control-btn" title="夜间模式">
-                        <i class="fa fa-moon-o text-blue-800"></i>
+                    <button id="order-desc" class="p-2 text-diary-text-secondary hover:text-primary transition-colors">
+                        <i class="fa fa-sort-amount-desc"></i>
                     </button>
                 </div>
             </div>
+
+            <!-- 笔记列表按钮 -->
+            <button id="chapter-toggle" class="p-2 text-primary hover:bg-primary/10 rounded-lg transition-colors">
+                <i class="fa fa-list-ul text-xl"></i>
+            </button>
         </header>
-        
-        <!-- 阅读区域 -->
-        <div class="max-w-4xl mx-auto p-4 md:p-8 py-8">
-            <!-- 章节控制 -->
-            <div class="mb-8 flex justify-between items-center">
-                <button id="prev-chapter" class="flex items-center space-x-2 bg-secondary bg-opacity-10 hover:bg-opacity-20 text-secondary px-4 py-2 rounded-full control-btn disabled:opacity-50 disabled:cursor-not-allowed">
-                    <i class="fa fa-arrow-left"></i>
-                    <span>上一篇</span>
-                </button>
-                
-                <button id="chapter-toggle" class="bg-primary bg-opacity-10 hover:bg-opacity-20 text-primary px-4 py-2 rounded-full control-btn">
-                    <i class="fa fa-list-ul mr-2"></i>
-                    <span>笔记列表</span>
-                </button>
-                
-                <button id="next-chapter" class="flex items-center space-x-2 bg-secondary bg-opacity-10 hover:bg-opacity-20 text-secondary px-4 py-2 rounded-full control-btn disabled:opacity-50 disabled:cursor-not-allowed">
-                    <span>下一篇</span>
-                    <i class="fa fa-arrow-right"></i>
-                </button>
-            </div>
-            
-            <!-- 文章标题 -->
-            <div class="text-center mb-10">
-                <h2 id="chapter-title" class="text-2xl md:text-3xl font-bold mb-2 text-secondary text-shadow"></h2>
-                <div class="text-sm text-gray-500 mb-4" id="note-date">2023年9月1日</div>
-                <div class="w-24 h-1 bg-secondary bg-opacity-50 mx-auto rounded-full"></div>
-            </div>
-            
-            <!-- 阅读内容区 -->
-            <div id="reading-area" class="reading-content leading-relaxed text-lg mb-16 min-h-[50vh]">
-                <!-- 内容将通过JavaScript动态加载 -->
-                <div class="flex justify-center items-center h-64">
-                    <div class="text-center">
-                        <i class="fa fa-sticky-note text-5xl text-secondary opacity-30 mb-4"></i>
-                        <p class="text-gray-500">点击笔记列表选择要阅读的笔记</p>
-                    </div>
+
+        <!-- 笔记内容区域 -->
+        <div class="max-w-3xl mx-auto p-6 md:p-8 bg-diary-paper paper-texture diary-shadow my-6 rounded-xl">
+            <div class="mb-6 flex items-center justify-between">
+                <div>
+                    <h2 id="chapter-title" class="text-2xl font-handwriting text-primary text-shadow">清晨的微光</h2>
+                    <p id="note-date" class="text-diary-text-secondary font-diary italic">2023年9月1日</p>
                 </div>
             </div>
             
-            <!-- 底部章节控制 -->
-            <div class="mt-8 flex justify-between items-center">
-                <button id="prev-chapter-bottom" class="flex items-center space-x-2 bg-secondary bg-opacity-10 hover:bg-opacity-20 text-secondary px-4 py-2 rounded-full control-btn disabled:opacity-50 disabled:cursor-not-allowed">
-                    <i class="fa fa-arrow-left"></i>
-                    <span>上一篇</span>
+            <div id="reading-area" class="prose prose-lg max-w-none note-content font-diary">
+                <!-- 笔记内容将在这里动态加载 -->
+            </div>
+        </div>
+
+        <!-- 底部导航按钮（仅在移动端显示） -->
+        <div class="md:hidden fixed bottom-6 left-0 right-0 flex justify-center">
+            <div class="flex bg-diary-paper diary-shadow rounded-full px-2 py-1">
+                <button id="prev-chapter-bottom" class="p-3 text-diary-text-secondary hover:text-primary transition-colors">
+                    <i class="fa fa-chevron-left"></i>
                 </button>
-                
-                <button id="chapter-toggle-bottom" class="bg-primary bg-opacity-10 hover:bg-opacity-20 text-primary px-4 py-2 rounded-full control-btn">
-                    <i class="fa fa-list-ul mr-2"></i>
-                    <span>笔记列表</span>
+                <button id="font-smaller" class="p-3 text-diary-text-secondary hover:text-primary transition-colors">
+                    <i class="fa fa-text-height"></i>
                 </button>
-                
-                <button id="next-chapter-bottom" class="flex items-center space-x-2 bg-secondary bg-opacity-10 hover:bg-opacity-20 text-secondary px-4 py-2 rounded-full control-btn disabled:opacity-50 disabled:cursor-not-allowed">
-                    <span>下一篇</span>
-                    <i class="fa fa-arrow-right"></i>
+                <button id="chapter-toggle-bottom" class="p-3 text-primary">
+                    <i class="fa fa-list-ul"></i>
+                </button>
+                <button id="font-larger" class="p-3 text-diary-text-secondary hover:text-primary transition-colors">
+                    <i class="fa fa-text-height" style="transform: scaleY(1.5);"></i>
+                </button>
+                <button id="next-chapter-bottom" class="p-3 text-diary-text-secondary hover:text-primary transition-colors">
+                    <i class="fa fa-chevron-right"></i>
                 </button>
             </div>
         </div>
-    </div>
-    
+    </main>
+
     <!-- 章节侧边栏 -->
-    <div class="chapter-sidebar fixed top-0 right-0 h-full w-80 bg-white shadow-xl z-50 overflow-y-auto">
-        <div class="p-5 border-b flex justify-between items-center">
-            <h3 class="text-xl font-bold text-secondary">笔记列表</h3>
-            <button id="close-chapter" class="p-2 rounded-full hover:bg-gray-100 control-btn">
-                <i class="fa fa-times text-dark"></i>
+    <aside class="chapter-sidebar fixed right-0 top-0 h-full w-72 bg-diary-paper diary-shadow transform translate-x-full transition-transform duration-300 z-40">
+        <div class="p-6 border-b border-diary-border flex justify-between items-center">
+            <h2 class="text-xl font-handwriting text-primary">笔记列表</h2>
+            <button id="close-chapter" class="text-diary-text-secondary hover:text-primary">
+                <i class="fa fa-times"></i>
             </button>
         </div>
-        
-        <div class="p-4">
-            <!-- 章节排序控制 -->
-            <div class="flex items-center justify-between mb-4 p-2 bg-gray-100 rounded-lg">
-                <span class="text-sm">排序方式:</span>
-                <div class="flex items-center space-x-2">
-                    <button id="order-asc" class="p-1 rounded hover:bg-white text-sm control-btn active">
-                        <i class="fa fa-sort-amount-asc text-secondary"></i>
-                        <span>正序</span>
-                    </button>
-                    <button id="order-desc" class="p-1 rounded hover:bg-white text-sm control-btn">
-                        <i class="fa fa-sort-amount-desc text-dark"></i>
-                        <span>逆序</span>
-                    </button>
-                </div>
-            </div>
-            
-            <!-- 章节列表 -->
+        <div class="p-4 overflow-y-auto h-[calc(100%-6rem)]">
             <div id="chapter-list" class="space-y-1">
-                <!-- 章节将通过JavaScript动态加载 -->
-                <div class="flex justify-center p-8">
-                    <i class="fa fa-spinner fa-spin text-secondary"></i>
-                    <span class="ml-2">加载笔记中...</span>
-                </div>
+                <!-- 笔记列表将在这里动态渲染 -->
             </div>
         </div>
-    </div>
-    
-    <!-- 点击遮罩层 - 用于在移动设备上点击空白处关闭侧边栏 -->
-    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
+    </aside>
 
+    <!-- 配置信息 -->
     <script>
-        // 配置对象，类似passage.html的配置方式
         const config = {
             loadFromGithub: false, // 是否从GitHub加载文件
             github: {
-                owner: 'Whitemiaoqwq',
-                repo: 'Roran-personal-blog',
+                owner: 'your-username',
+                repo: 'your-repo',
                 branch: 'main',
-                path: 'static/notes/'
+                path: 'content/notes/'
             },
-            localPath: 'static/notes/'
+            localPath: 'content/notes/' // 本地文件路径
         };
-        
-        // 生成文件URL的函数
+
         function getFileUrl(filename) {
             if (config.loadFromGithub) {
-                // 从GitHub加载文件的URL格式
                 return `https://raw.githubusercontent.com/${config.github.owner}/${config.github.repo}/${config.github.branch}/${config.github.path}${filename}`;
             } else {
-                // 从本地加载文件
                 return `${config.localPath}${filename}`;
             }
         }
     </script>
-    
+
     <script>
         // 全局变量
         let notes = [];              // 笔记列表
         let currentNoteIndex = 0;    // 当前笔记索引
         let sortOrder = 'asc';       // 排序方式：asc正序，desc逆序
         let fontSize = 100;          // 字体大小百分比
+        let timeUpdateInterval;      // 时间更新定时器
         
         // DOM元素
         const mainSidebar = document.getElementById('main-sidebar');
@@ -336,10 +320,9 @@
         const orderDesc = document.getElementById('order-desc');
         const fontSmaller = document.getElementById('font-smaller');
         const fontLarger = document.getElementById('font-larger');
-        const themeDay = document.getElementById('theme-day');
-        const themeEye = document.getElementById('theme-eye');
-        const themeNight = document.getElementById('theme-night');
-        
+        const currentDateElement = document.getElementById('current-date');
+        const currentTimeElement = document.getElementById('current-time');
+
         // 初始化
         document.addEventListener('DOMContentLoaded', () => {
             // 加载笔记列表
@@ -350,8 +333,34 @@
             
             // 检查本地存储的设置
             loadSettings();
+            
+            // 初始化并启动时间显示
+            updateDateTime();
+            timeUpdateInterval = setInterval(updateDateTime, 1000);
         });
-        
+
+        // 更新当前时间和日期
+        function updateDateTime() {
+            const now = new Date();
+            
+            // 格式化日期：2023年10月15日 星期日
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1;
+            const day = now.getDate();
+            const weekday = ['日', '一', '二', '三', '四', '五', '六'][now.getDay()];
+            const formattedDate = `${year}年${month}月${day}日 星期${weekday}`;
+            
+            // 格式化时间：15:30:45
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const formattedTime = `${hours}:${minutes}:${seconds}`;
+            
+            // 更新DOM
+            currentDateElement.textContent = formattedDate;
+            currentTimeElement.textContent = formattedTime;
+        }
+
         // 渲染笔记列表
         function renderNoteList() {
             // 清空笔记列表
@@ -368,12 +377,12 @@
             // 渲染每个笔记
             sortedNotes.forEach((note, index) => {
                 const noteItem = document.createElement('div');
-                noteItem.className = `chapter-item p-3 cursor-pointer transition-all duration-200 ${
-                    currentNoteIndex === notes.findIndex(c => c.id === note.id) ? 'bg-primary/10 text-primary border-l-4 border-primary' : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                noteItem.className = `chapter-item p-3 cursor-pointer transition-all duration-200 rounded-lg ${
+                    currentNoteIndex === notes.findIndex(c => c.id === note.id) ? 'bg-primary/10 text-primary border-l-4 border-primary' : 'hover:bg-accent-4/20'
                 }`;
                 noteItem.innerHTML = `
-                    <div class="chapter-number text-xs text-gray-500 mb-1">第${note.id}篇</div>
-                    <div class="chapter-title">${note.title}</div>
+                    <div class="chapter-number text-xs text-diary-text-secondary mb-1 font-handwriting">第${note.id}篇</div>
+                    <div class="chapter-title font-diary">${note.title}</div>
                 `;
                 
                 // 绑定点击事件
@@ -391,13 +400,13 @@
                 chapterList.appendChild(noteItem);
             });
         }
-        
+
         // 加载笔记列表
         function loadNotes() {
             // 显示加载状态
             chapterList.innerHTML = `
                 <div class="flex justify-center items-center h-64">
-                    <i class="fa fa-spinner fa-spin text-secondary"></i>
+                    <i class="fa fa-spinner fa-spin text-primary"></i>
                     <span class="ml-2">加载笔记列表中...</span>
                 </div>
             `;
@@ -406,12 +415,11 @@
                 console.log('开始加载笔记列表...');
                 
                 // 根据项目结构，从仓库读取笔记文件
-                // 目前仓库中只有note1.md文件
                 notes = [
                     {
                         id: 1,
-                        title: "一个简单的日记",
-                        date: "20XX年9月27日",
+                        title: "清晨的微光",
+                        date: "2023年9月1日",
                         file: "note1.md"
                     }
                 ];
@@ -430,7 +438,7 @@
                 
                 // 显示错误信息
                 chapterList.innerHTML = `
-                    <div class="flex flex-col justify-center items-center h-64 text-red-500">
+                    <div class="flex flex-col justify-center items-center h-64 text-accent-2">
                         <i class="fa fa-exclamation-circle text-4xl mb-3"></i>
                         <p>无法加载笔记列表</p>
                         <p class="text-sm mt-2">错误: ${error.message}</p>
@@ -451,7 +459,7 @@
                 loadNote(0);
             }
         }
-        
+
         // 加载笔记内容
         function loadNote(index) {
             if (index < 0 || index >= notes.length) return;
@@ -466,7 +474,7 @@
             // 显示加载状态
             readingArea.innerHTML = `
                 <div class="flex justify-center items-center h-64">
-                    <i class="fa fa-spinner fa-spin text-secondary"></i>
+                    <i class="fa fa-spinner fa-spin text-primary"></i>
                     <span class="ml-2">加载中...</span>
                 </div>
             `;
@@ -504,16 +512,16 @@
                     // 显示错误信息
                     readingArea.innerHTML = `
                         <div class="flex flex-col justify-center items-center h-64 text-center p-8">
-                            <i class="fa fa-exclamation-circle text-4xl text-red-500 mb-4"></i>
-                            <p class="text-gray-500 mb-2">无法加载笔记内容</p>
-                            <p class="text-sm text-gray-400">错误信息: ${error.message}</p>
-                            <p class="text-sm text-gray-400">文件路径: ${filePath}</p>
-                            <p class="text-sm text-gray-400 mt-2">提示: 请使用本地服务器运行项目以避免跨域问题</p>
+                            <i class="fa fa-exclamation-circle text-4xl text-accent-2 mb-4"></i>
+                            <p class="text-diary-text-secondary mb-2">无法加载笔记内容</p>
+                            <p class="text-sm text-diary-text-secondary">错误信息: ${error.message}</p>
+                            <p class="text-sm text-diary-text-secondary">文件路径: ${filePath}</p>
+                            <p class="text-sm text-diary-text-secondary mt-2">提示: 请使用本地服务器运行项目以避免跨域问题</p>
                         </div>
                     `;
                 });
         }
-        
+
         // 更新导航按钮状态
         function updateNavButtons() {
             // 上一篇按钮
@@ -534,7 +542,7 @@
                 nextChapterBottom.disabled = false;
             }
         }
-        
+
         // 绑定事件监听
         function bindEvents() {
             // 侧边栏切换
@@ -605,19 +613,19 @@
             // 排序方式切换
             orderAsc.addEventListener('click', () => {
                 sortOrder = 'asc';
-                orderAsc.classList.add('text-secondary');
-                orderAsc.classList.remove('text-dark');
-                orderDesc.classList.add('text-dark');
-                orderDesc.classList.remove('text-secondary');
+                orderAsc.classList.add('text-primary');
+                orderAsc.classList.remove('text-diary-text-secondary');
+                orderDesc.classList.add('text-diary-text-secondary');
+                orderDesc.classList.remove('text-primary');
                 renderNoteList();
             });
             
             orderDesc.addEventListener('click', () => {
                 sortOrder = 'desc';
-                orderDesc.classList.add('text-secondary');
-                orderDesc.classList.remove('text-dark');
-                orderAsc.classList.add('text-dark');
-                orderAsc.classList.remove('text-secondary');
+                orderDesc.classList.add('text-primary');
+                orderDesc.classList.remove('text-diary-text-secondary');
+                orderAsc.classList.add('text-diary-text-secondary');
+                orderAsc.classList.remove('text-primary');
                 renderNoteList();
             });
             
@@ -637,73 +645,28 @@
                     saveSettings();
                 }
             });
-            
-            // 主题切换
-            themeDay.addEventListener('click', () => {
-                setTheme('day');
-                saveSettings();
-            });
-            
-            themeEye.addEventListener('click', () => {
-                setTheme('eye');
-                saveSettings();
-            });
-            
-            themeNight.addEventListener('click', () => {
-                setTheme('night');
-                saveSettings();
-            });
         }
-        
+
         // 更新字体大小
         function updateFontSize() {
             readingArea.style.fontSize = `${fontSize}%`;
         }
-        
-        // 设置主题
-        function setTheme(theme) {
-            // 移除所有主题类
-            document.body.classList.remove('bg-day-bg', 'text-day-text');
-            document.body.classList.remove('bg-eye-bg', 'text-eye-text');
-            document.body.classList.remove('bg-night-bg', 'text-night-text');
-            
-            // 添加当前主题类
-            document.body.classList.add(`bg-${theme}-bg`, `text-${theme}-text`);
-            
-            // 更新按钮样式
-            themeDay.classList.remove('bg-day-bg', 'text-day-text');
-            themeEye.classList.remove('bg-eye-bg', 'text-eye-text');
-            themeNight.classList.remove('bg-night-bg', 'text-night-text');
-            
-            if (theme === 'day') {
-                themeDay.classList.add('bg-day-bg', 'text-day-text');
-            } else if (theme === 'eye') {
-                themeEye.classList.add('bg-eye-bg', 'text-eye-text');
-            } else if (theme === 'night') {
-                themeNight.classList.add('bg-night-bg', 'text-night-text');
-            }
-        }
-        
+
         // 保存设置到本地存储
         function saveSettings() {
             const settings = {
-                theme: document.body.classList.contains('bg-day-bg') ? 'day' : 
-                       document.body.classList.contains('bg-eye-bg') ? 'eye' : 'night',
                 fontSize: fontSize,
                 sortOrder: sortOrder
             };
             
             localStorage.setItem('noteSettings', JSON.stringify(settings));
         }
-        
+
         // 从本地存储加载设置
         function loadSettings() {
             const savedSettings = localStorage.getItem('noteSettings');
             if (savedSettings) {
                 const settings = JSON.parse(savedSettings);
-                
-                // 应用主题设置
-                setTheme(settings.theme);
                 
                 // 应用字体大小设置
                 fontSize = settings.fontSize;
@@ -712,18 +675,23 @@
                 // 应用排序设置
                 sortOrder = settings.sortOrder;
                 if (sortOrder === 'asc') {
-                    orderAsc.classList.add('text-secondary');
-                    orderAsc.classList.remove('text-dark');
-                    orderDesc.classList.add('text-dark');
-                    orderDesc.classList.remove('text-secondary');
+                    orderAsc.classList.add('text-primary');
+                    orderAsc.classList.remove('text-diary-text-secondary');
+                    orderDesc.classList.add('text-diary-text-secondary');
+                    orderDesc.classList.remove('text-primary');
                 } else {
-                    orderDesc.classList.add('text-secondary');
-                    orderDesc.classList.remove('text-dark');
-                    orderAsc.classList.add('text-dark');
-                    orderAsc.classList.remove('text-secondary');
+                    orderDesc.classList.add('text-primary');
+                    orderDesc.classList.remove('text-diary-text-secondary');
+                    orderAsc.classList.add('text-diary-text-secondary');
+                    orderAsc.classList.remove('text-primary');
                 }
             }
         }
+
+        // 页面卸载时清理定时器
+        window.addEventListener('beforeunload', () => {
+            clearInterval(timeUpdateInterval);
+        });
     </script>
 </body>
 </html>
