@@ -273,16 +273,16 @@
     <!-- 配置信息 -->
     <script>
         const config = {
-            loadFromGithub: false, // 是否从GitHub加载文件
+            loadFromGithub: ture, // 是否从GitHub加载文件
             github: {
-                owner: 'your-username',
-                repo: 'your-repo',
+                owner: 'Whitemiaoqwq',
+                repo: 'Roran-personal-blog',
                 branch: 'main',
                 path: 'content/notes/'
             },
-            localPath: 'content/notes/' // 本地文件路径
+            localPath: 'static/notes/' // 修复：将content/notes/改为static/notes/
         };
-
+    
         function getFileUrl(filename) {
             if (config.loadFromGithub) {
                 return `https://raw.githubusercontent.com/${config.github.owner}/${config.github.repo}/${config.github.branch}/${config.github.path}${filename}`;
