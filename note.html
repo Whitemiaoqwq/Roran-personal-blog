@@ -78,6 +78,10 @@
             .time-display {
                 border-bottom: 1px dashed #D3C9C0;
             }
+            /* 侧边栏active状态样式 */
+            .chapter-sidebar.active {
+                transform: translate(0);
+            }
         }
     </style>
 
@@ -273,14 +277,14 @@
     <!-- 配置信息 -->
     <script>
         const config = {
-            loadFromGithub: ture, // 是否从GitHub加载文件
+            loadFromGithub: true, // 是否从GitHub加载文件
             github: {
                 owner: 'Whitemiaoqwq',
                 repo: 'Roran-personal-blog',
                 branch: 'main',
-                path: 'content/notes/'
+                path: 'static/notes/'
             },
-            localPath: 'static/notes/' // 修复：将content/notes/改为static/notes/
+            localPath: 'static/notes/'
         };
     
         function getFileUrl(filename) {
@@ -411,53 +415,55 @@
                 </div>
             `;
             
-            try {
-                console.log('开始加载笔记列表...');
-                
-                // 根据项目结构，从仓库读取笔记文件
-                notes = [
-                    {
-                        id: 1,
-                        title: "清晨的微光",
-                        date: "2023年9月1日",
-                        file: "note1.md"
+            // 使用配置的URL请求manifest.json文件
+            const manifestUrl = getFileUrl('manifest.json');
+            
+            fetch(manifestUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`无法加载笔记清单: ${response.status} ${response.statusText}`);
                     }
-                ];
-                
-                console.log("笔记列表加载成功，共" + notes.length + "篇笔记", notes);
-                
-                // 渲染笔记列表
-                renderNoteList();
-                
-                // 默认加载第一篇笔记
-                if (notes.length > 0) {
+                    return response.json();
+                })
+                .then(data => {
+                    notes = data;
+                    
+                    console.log("笔记列表加载成功，共" + notes.length + "篇笔记", notes);
+                    
+                    // 渲染笔记列表
+                    renderNoteList();
+                    
+                    // 默认加载第一篇笔记
+                    if (notes.length > 0) {
+                        loadNote(0);
+                    }
+                })
+                .catch(error => {
+                    console.error('加载笔记列表时出错:', error);
+                    
+                    // 显示错误信息
+                    chapterList.innerHTML = `
+                        <div class="flex flex-col justify-center items-center h-64 text-accent-2">
+                            <i class="fa fa-exclamation-circle text-4xl mb-3"></i>
+                            <p>无法加载笔记列表</p>
+                            <p class="text-sm mt-2">错误: ${error.message}</p>
+                            <p class="text-sm mt-1">URL: ${manifestUrl}</p>
+                        </div>
+                    `;
+                    
+                    // 回退到模拟数据
+                    notes = [
+                        {
+                            id: 1,
+                            title: "清晨的微光",
+                            date: "2023年9月1日",
+                            file: "note1.md"
+                        }
+                    ];
+                    
+                    renderNoteList();
                     loadNote(0);
-                }
-            } catch (error) {
-                console.error("加载笔记列表时出错:", error);
-                
-                // 显示错误信息
-                chapterList.innerHTML = `
-                    <div class="flex flex-col justify-center items-center h-64 text-accent-2">
-                        <i class="fa fa-exclamation-circle text-4xl mb-3"></i>
-                        <p>无法加载笔记列表</p>
-                        <p class="text-sm mt-2">错误: ${error.message}</p>
-                    </div>
-                `;
-                
-                // 回退到模拟数据
-                notes = [
-                    {
-                        id: 1,
-                        title: "清晨的微光",
-                        date: "2023年9月1日",
-                        file: "note1.md"
-                    }
-                ];
-                
-                renderNoteList();
-                loadNote(0);
-            }
+                });
         }
 
         // 加载笔记内容
