@@ -20,9 +20,6 @@
                         tertiary: '#D4A373',
                         light: '#F5F5F0',
                         dark: '#585858'
-                    },
-                    fontFamily: {
-                        cute: ['"Comic Sans MS"', '"Marker Felt"', 'sans-serif']
                     }
                 }
             }
@@ -38,96 +35,25 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
-        /* ========== 拟物化骰子样式 ========== */
-        .dice-wrapper {
-            perspective: 800px;
-            width: 70px;
-            height: 70px;
-            display: inline-block;
-            margin: 8px;
-        }
-        
-        .dice-3d {
-            width: 100%;
-            height: 100%;
+        /* ========== 导航栏 ========== */
+        .nav-link {
             position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.3s ease;
-            cursor: pointer;
+            transition: color 0.3s ease;
         }
         
-        .dice-face {
+        .nav-link::after {
+            content: '';
             position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #91A3B0;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
             width: 100%;
-            height: 100%;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            backface-visibility: hidden;
-            box-shadow: 
-                inset 0 0 15px rgba(0,0,0,0.1),
-                0 2px 8px rgba(0,0,0,0.15);
-            border: 1px solid rgba(255,255,255,0.3);
-        }
-        
-        /* 骰子点数样式（D6的点） */
-        .dice-dots {
-            display: grid;
-            width: 80%;
-            height: 80%;
-            padding: 8px;
-        }
-        
-        .dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: currentColor;
-            opacity: 0.9;
-        }
-        
-        /* D6立方体各面位置 */
-        .dice-d6 .face-1 { transform: rotateY(0deg) translateZ(35px); }
-        .dice-d6 .face-2 { transform: rotateY(180deg) translateZ(35px); }
-        .dice-d6 .face-3 { transform: rotateY(-90deg) translateZ(35px); }
-        .dice-d6 .face-4 { transform: rotateY(90deg) translateZ(35px); }
-        .dice-d6 .face-5 { transform: rotateX(90deg) translateZ(35px); }
-        .dice-d6 .face-6 { transform: rotateX(-90deg) translateZ(35px); }
-        
-        /* 投掷动画 */
-        @keyframes diceRoll3D {
-            0% { 
-                transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); 
-            }
-            15% { 
-                transform: rotateX(180deg) rotateY(90deg) rotateZ(45deg) translateY(-30px); 
-            }
-            30% { 
-                transform: rotateX(360deg) rotateY(180deg) rotateZ(90deg) translateY(-50px); 
-            }
-            50% { 
-                transform: rotateX(540deg) rotateY(270deg) rotateZ(135deg) translateY(-20px); 
-            }
-            70% { 
-                transform: rotateX(720deg) rotateY(360deg) rotateZ(180deg) translateY(-40px); 
-            }
-            85% { 
-                transform: rotateX(800deg) rotateY(405deg) rotateZ(200deg) translateY(-10px); 
-            }
-            100% { 
-                transform: var(--final-rotation); 
-            }
-        }
-        
-        .dice-3d.rolling {
-            animation: diceRoll3D 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-        }
-        
-        /* 骰子池中的骰子悬停效果 */
-        .dice-wrapper:hover .dice-3d:not(.rolling) {
-            transform: rotateX(15deg) rotateY(15deg);
         }
         
         /* ========== 骰子类型卡片 ========== */
@@ -247,253 +173,351 @@
         
         /* ========== 历史记录项 ========== */
         .history-item {
-            transition: all 0.3s ease;
-            animation: historySlideIn 0.3s ease-out;
-        }
-        
-        @keyframes historySlideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+            transition: all 0.2s ease;
         }
         
         .history-item:hover {
             background-color: rgba(145,163,176,0.05);
-            transform: translateX(5px);
         }
         
-        /* ========== 粒子效果容器 ========== */
-        .particles-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 9999;
-        }
-        
+        /* ========== 粒子特效 ========== */
         .particle {
-            position: absolute;
+            position: fixed;
+            pointer-events: none;
             border-radius: 50%;
-            animation: particleFly 1s ease-out forwards;
+            animation: particleFade 1s ease-out forwards;
         }
         
-        @keyframes particleFly {
+        @keyframes particleFade {
             0% {
                 opacity: 1;
-                transform: translate(0, 0) scale(1);
+                transform: scale(1);
             }
             100% {
                 opacity: 0;
-                transform: translate(var(--tx), var(--ty)) scale(0);
+                transform: scale(0) translateY(-50px);
             }
         }
         
-        /* ========== 响应式 ========== */
-        @media (max-width: 768px) {
-            .dice-wrapper {
-                width: 55px;
-                height: 55px;
-            }
-            
-            .dice-d6 .face-1,
-            .dice-d6 .face-2,
-            .dice-d6 .face-3,
-            .dice-d6 .face-4,
-            .dice-d6 .face-5,
-            .dice-d6 .face-6 {
-                transform-origin: center;
-            }
-            
-            .dice-d6 .face-1 { transform: rotateY(0deg) translateZ(27.5px); }
-            .dice-d6 .face-2 { transform: rotateY(180deg) translateZ(27.5px); }
-            .dice-d6 .face-3 { transform: rotateY(-90deg) translateZ(27.5px); }
-            .dice-d6 .face-4 { transform: rotateY(90deg) translateZ(27.5px); }
-            .dice-d6 .face-5 { transform: rotateX(90deg) translateZ(27.5px); }
-            .dice-d6 .face-6 { transform: rotateX(-90deg) translateZ(27.5px); }
+        /* ========== 扁平化骰子样式 ========== */
+        .dice-flat {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .dice-flat:hover {
+            transform: scale(1.08);
+        }
+        
+        /* D4 - 三角形 */
+        .dice-flat.d4 {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--dice-color), color-mix(in srgb, var(--dice-color) 70%, #000));
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            border-radius: 8px 8px 8px 8px;
+        }
+        
+        /* D6 - 正方形圆角 */
+        .dice-flat.d6 {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--dice-color), color-mix(in srgb, var(--dice-color) 70%, #000));
+            border-radius: 12px;
+        }
+        
+        /* D8 - 菱形 (rotate 45deg) */
+        .dice-flat.d8 {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--dice-color), color-mix(in srgb, var(--dice-color) 70%, #000));
+            transform: rotate(45deg);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .dice-flat.d8 .dice-label {
+            transform: rotate(-45deg);
+        }
+        
+        /* D10 - 五边形 */
+        .dice-flat.d10 {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--dice-color), color-mix(in srgb, var(--dice-color) 70%, #000));
+            clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+            border-radius: 4px;
+        }
+        
+        /* D12 - 六边形变体 */
+        .dice-flat.d12 {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--dice-color), color-mix(in srgb, var(--dice-color) 70%, #000));
+            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+            border-radius: 4px;
+        }
+        
+        /* D20 - 圆形 */
+        .dice-flat.d20 {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--dice-color), color-mix(in srgb, var(--dice-color) 70%, #000));
+            border-radius: 50%;
+        }
+        
+        .dice-label {
+            font-size: 1.1rem;
+            z-index: 1;
+            line-height: 1;
+        }
+        
+        .dice-type-icon {
+            font-size: 0.65rem;
+            opacity: 0.9;
+            margin-top: 2px;
+        }
+        
+        /* 骰子池中骰子的包裹 */
+        .dice-pool-item {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 8px;
+            animation: dicePopIn 0.3s ease-out;
+        }
+        
+        @keyframes dicePopIn {
+            0% { opacity: 0; transform: scale(0.3); }
+            70% { transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        
+        /* 投掷动画 - 扁平化弹跳 */
+        @keyframes diceBounce {
+            0% { transform: translateY(0) scale(1); }
+            15% { transform: translateY(-25px) scale(1.1); }
+            30% { transform: translateY(0) scale(0.95); }
+            45% { transform: translateY(-15px) scale(1.05); }
+            60% { transform: translateY(0) scale(0.98); }
+            75% { transform: translateY(-8px) scale(1.02); }
+            90% { transform: translateY(0) scale(0.99); }
+            100% { transform: translateY(0) scale(1); }
+        }
+        
+        .dice-flat.rolling {
+            animation: diceBounce 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        /* 骰子类型选择器中的icon */
+        .dice-type-icon-preview {
+            width: 50px;
+            height: 50px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            margin-bottom: 8px;
+        }
+        
+        /* 结果区域骰子icon（小尺寸） */
+        .dice-result-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
     </style>
 </head>
-<body class="p-4 md:p-8">
-    
-    <!-- 粒子效果容器 -->
-    <div id="particles-container" class="particles-container"></div>
-    
-    <!-- 顶部导航 -->
-    <nav class="max-w-6xl mx-auto mb-8 flex justify-between items-center">
-        <a href="index.html" class="flex items-center space-x-2 text-primary hover:text-dark transition-colors">
-            <i class="fa fa-arrow-left text-xl"></i>
-            <span class="font-medium">返回首页</span>
-        </a>
-        <h1 class="text-2xl md:text-3xl font-bold text-dark">
-            <i class="fa fa-dice text-primary mr-2"></i>骰子小游戏
-        </h1>
-        <div class="w-24"></div>
-    </nav>
-    
-    <main class="max-w-6xl mx-auto">
-        
-        <!-- 骰子选择区 -->
-        <section class="mb-12">
-            <h2 class="text-xl font-bold text-dark mb-6 flex items-center">
-                <i class="fa fa-th-large text-primary mr-2"></i>选择骰子类型
-            </h2>
+<body>
+    <!-- 导航栏 -->
+    <nav class="bg-white/90 backdrop-blur-sm shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="index.html" class="flex items-center space-x-2">
+                <i class="fa fa-dice text-primary text-2xl"></i>
+                <span class="text-xl font-bold text-dark">蘿嵐的博客</span>
+            </a>
             
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4" id="dice-type-selector">
+            <div class="hidden md:flex space-x-6">
+                <a href="index.html" class="nav-link text-dark hover:text-primary transition-colors">首页</a>
+                <a href="passage.html" class="nav-link text-dark hover:text-primary transition-colors">记事簿</a>
+                <a href="music.html" class="nav-link text-dark hover:text-primary transition-colors">音乐馆</a>
+                <a href="note.html" class="nav-link text-dark hover:text-primary transition-colors">日记</a>
+                <a href="photos.html" class="nav-link text-dark hover:text-primary transition-colors">摄影集</a>
+                <a href="dice.html" class="nav-link text-primary font-medium">骰子游戏</a>
             </div>
-        </section>
-        
-        <div class="flex flex-col lg:flex-row gap-8">
             
-            <!-- 左侧 -->
-            <div class="lg:w-2/3">
-                
-                <!-- 已选骰子池 -->
-                <section class="mb-8 bg-white rounded-2xl p-6 shadow-lg">
-                    <div class="flex justify-between items-center mb-6">
+            <!-- 移动端菜单按钮 -->
+            <button id="menu-toggle" class="md:hidden text-dark text-2xl focus:outline-none">
+                <i class="fa fa-bars"></i>
+            </button>
+        </div>
+        
+        <!-- 移动端菜单 -->
+        <div id="mobile-menu" class="md:hidden hidden bg-white/95 backdrop-blur-sm border-t">
+            <div class="container mx-auto px-4 py-2 flex flex-col">
+                <a href="index.html" class="py-3 border-b nav-link text-dark">首页</a>
+                <a href="passage.html" class="py-3 border-b nav-link text-dark">记事簿</a>
+                <a href="music.html" class="py-3 border-b nav-link text-dark">音乐馆</a>
+                <a href="note.html" class="py-3 border-b nav-link text-dark">日记</a>
+                <a href="photos.html" class="py-3 border-b nav-link text-dark">摄影集</a>
+                <a href="dice.html" class="py-3 nav-link text-primary font-medium">骰子游戏</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- 标题区 -->
+        <div class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-dark mb-3" style="font-family: 'Comic Sans MS', 'Marker Felt', sans-serif;">
+                <i class="fa fa-dice text-primary mr-2"></i>骰子小游戏
+            </h1>
+            <p class="text-gray-500 max-w-2xl mx-auto">选择骰子类型，设置颜色，点击投掷！支持D4/D6/D8/D10/D12/D20多种骰子类型</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- 左侧：骰子类型选择 + 骰子池 -->
+            <div class="lg:col-span-8 space-y-6">
+                <!-- 骰子类型选择 -->
+                <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-md p-6">
+                    <h2 class="text-xl font-bold text-dark mb-4 flex items-center">
+                        <i class="fa fa-th-large text-primary mr-2"></i>选择骰子类型
+                    </h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3" id="dice-types">
+                        <!-- JS动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 骰子池 -->
+                <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-md p-6">
+                    <div class="flex justify-between items-center mb-4">
                         <h2 class="text-xl font-bold text-dark flex items-center">
                             <i class="fa fa-cube text-primary mr-2"></i>骰子池
-                            <span class="ml-2 text-sm font-normal text-gray-500" id="dice-count">0 个骰子</span>
+                            <span id="dice-count" class="ml-2 text-sm text-gray-500 font-normal">0 个骰子</span>
                         </h2>
-                        <button id="clear-dice" class="text-sm text-red-500 hover:text-red-700 transition-colors">
-                            <i class="fa fa-trash-o mr-1"></i>清空
+                        <button id="clear-pool" onclick="clearDicePool()" 
+                            class="text-sm text-red-500 hover:text-red-600 transition-colors flex items-center">
+                            <i class="fa fa-trash mr-1"></i>清空
                         </button>
                     </div>
-                    
-                    <div class="flex flex-wrap gap-2 min-h-[120px] p-4 bg-gray-50 rounded-xl justify-center" id="dice-pool">
+                    <div id="dice-pool" class="flex flex-wrap min-h-[100px] items-center justify-center border-2 border-dashed border-gray-200 rounded-xl p-4 transition-all hover:border-primary/30">
                         <div class="text-gray-400 flex items-center justify-center w-full h-20">
                             <p>点击上方骰子类型添加到池中</p>
                         </div>
                     </div>
-                </section>
-                
+                </div>
+
                 <!-- 投掷按钮 -->
-                <div class="text-center mb-8">
-                    <button id="roll-button" class="roll-button text-white font-bold text-xl px-12 py-4 rounded-full shadow-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                <div class="text-center">
+                    <button id="roll-button" onclick="rollAllDice()" 
+                        class="roll-button text-white font-bold py-4 px-12 rounded-full text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center mx-auto">
                         <i class="fa fa-play-circle mr-2"></i>投掷骰子
                     </button>
+                    
+                    <!-- 修正值 -->
+                    <div class="mt-4 flex items-center justify-center gap-2">
+                        <span class="text-gray-600 text-sm">修正值：</span>
+                        <button onclick="changeModifier(-1)" class="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors text-sm font-bold">-</button>
+                        <span id="modifier-value" class="w-10 text-center font-bold text-dark">0</span>
+                        <button onclick="changeModifier(1)" class="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors text-sm font-bold">+</button>
+                    </div>
                 </div>
-                
+
                 <!-- 投掷结果 -->
-                <section class="bg-white rounded-2xl p-6 shadow-lg mb-8">
-                    <h2 class="text-xl font-bold text-dark mb-6 flex items-center">
+                <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-md p-6">
+                    <h2 class="text-xl font-bold text-dark mb-4 flex items-center">
                         <i class="fa fa-bar-chart text-primary mr-2"></i>投掷结果
                     </h2>
-                    
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="roll-results">
-                        <div class="text-gray-400 text-center py-8 col-span-full">
-                            投掷结果将显示在这里
-                        </div>
+                    <div id="roll-results" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-4">
+                        <!-- JS动态生成 -->
                     </div>
-                    
-                    <!-- 按颜色统计 -->
-                    <div id="color-stats" class="mb-6 hidden">
-                        <h3 class="text-lg font-bold text-dark mb-4 flex items-center">
-                            <i class="fa fa-pie-chart text-primary mr-2"></i>按颜色统计
-                        </h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="color-stats-container">
-                        </div>
+                    <div class="text-center pt-4 border-t">
+                        <span class="text-gray-500">总计：</span>
+                        <span id="total-sum" class="text-4xl font-bold text-primary">0</span>
+                        <div id="total-detail" class="text-sm text-gray-500 mt-1"></div>
                     </div>
-                    
-                    <!-- 点数计算器 -->
-                    <div class="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-xl p-6">
-                        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                            <div>
-                                <h3 class="text-lg font-bold text-dark">点数总和</h3>
-                                <p class="text-sm text-gray-600">所有骰子点数相加</p>
-                            </div>
-                            <div class="text-4xl font-bold text-primary" id="total-sum">0</div>
-                            <div class="flex gap-2">
-                                <button id="add-modifier" class="px-4 py-2 bg-white rounded-lg shadow hover:shadow-md transition-shadow">
-                                    <i class="fa fa-plus mr-1"></i>修正值
-                                </button>
-                                <button id="reset-calc" class="px-4 py-2 bg-white rounded-lg shadow hover:shadow-md transition-shadow">
-                                    <i class="fa fa-refresh mr-1"></i>重置
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-4 flex items-center gap-2 hidden" id="modifier-input">
-                            <input type="number" id="modifier-value" class="w-24 px-3 py-2 border border-gray-300 rounded-lg" value="0">
-                            <button id="apply-modifier" class="px-3 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors">应用</button>
-                            <span class="text-sm text-gray-600">范围：-100 ~ 100</span>
-                        </div>
-                    </div>
-                </section>
-            </div>
-            
-            <!-- 右侧 -->
-            <div class="lg:w-1/3">
-                
-                <!-- 骰子颜色选择 -->
-                <section class="bg-white rounded-2xl p-6 shadow-lg mb-8">
-                    <h2 class="text-xl font-bold text-dark mb-6 flex items-center">
-                        <i class="fa fa-paint-brush text-primary mr-2"></i>骰子颜色
+                </div>
+
+                <!-- 按颜色统计 -->
+                <div id="color-stats-section" class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-md p-6 hidden">
+                    <h2 class="text-xl font-bold text-dark mb-4 flex items-center">
+                        <i class="fa fa-pie-chart text-primary mr-2"></i>按颜色统计
                     </h2>
-                    
-                    <div class="mb-4">
-                        <p class="text-sm text-gray-600 mb-3">选择骰子颜色</p>
-                        <div class="flex flex-wrap gap-3" id="color-options">
+                    <div id="color-stats-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- JS动态生成 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：颜色选择 + 历史记录 -->
+            <div class="lg:col-span-4 space-y-6">
+                <!-- 颜色选择 -->
+                <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-md p-6">
+                    <h2 class="text-xl font-bold text-dark mb-4 flex items-center">
+                        <i class="fa fa-palette text-primary mr-2"></i>骰子颜色
+                    </h2>
+                    <div class="flex flex-wrap gap-3 mb-4" id="color-options">
+                        <!-- JS动态生成 -->
+                    </div>
+                    <div class="text-center pt-3 border-t">
+                        <div class="text-sm text-gray-500 mb-2">预览</div>
+                        <div id="color-preview" class="flex justify-center">
+                            <!-- JS动态生成 -->
                         </div>
                     </div>
-                    
-                    <div class="mt-6 p-4 bg-gray-50 rounded-xl">
-                        <h3 class="font-medium text-dark mb-2">预览</h3>
-                        <div class="flex justify-center" id="color-preview">
-                        </div>
-                    </div>
-                </section>
-                
+                </div>
+
                 <!-- 历史记录 -->
-                <section class="bg-white rounded-2xl p-6 shadow-lg">
-                    <div class="flex justify-between items-center mb-6">
+                <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-md p-6">
+                    <div class="flex justify-between items-center mb-4">
                         <h2 class="text-xl font-bold text-dark flex items-center">
                             <i class="fa fa-history text-primary mr-2"></i>历史记录
                         </h2>
-                        <button id="clear-history" class="text-sm text-gray-500 hover:text-gray-700 transition-colors">
-                            <i class="fa fa-trash-o mr-1"></i>清空
+                        <button onclick="clearHistory()" 
+                            class="text-xs text-gray-400 hover:text-red-500 transition-colors">
+                            清空
                         </button>
                     </div>
-                    
-                    <div class="space-y-3 max-h-[400px] overflow-y-auto" id="roll-history">
-                        <div class="text-gray-400 text-center py-8">
-                            历史记录将显示在这里
-                        </div>
+                    <div id="history-list" class="space-y-2 max-h-[400px] overflow-y-auto">
+                        <div class="text-gray-400 text-sm text-center py-8">暂无记录</div>
                     </div>
-                </section>
+                </div>
             </div>
         </div>
     </main>
-    
-    <footer class="max-w-6xl mx-auto mt-12 pt-8 border-t border-gray-200 text-center text-gray-500 text-sm">
-        <p>© 2026 蘿嵐的个人博客 | 骰子小游戏</p>
+
+    <!-- 页脚 -->
+    <footer class="bg-white/80 backdrop-blur-sm mt-12 py-6 border-t">
+        <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
+            <p>© 2024 蘿嵐的个人博客 | 骰子小游戏</p>
+        </div>
     </footer>
 
     <script>
-        // ========== 全局变量 ==========
-        let dicePool = [];
-        let rollHistory = [];
-        let currentColor = '#91A3B0';
-        let modifier = 0;
-        
-        // 骰子类型定义
+        // ========== 骰子类型定义 ==========
         const diceTypes = [
-            { id: 'd4', name: 'D4', sides: 4, desc: '1-4' },
-            { id: 'd6', name: 'D6', sides: 6, desc: '1-6' },
-            { id: 'd8', name: 'D8', sides: 8, desc: '1-8' },
-            { id: 'd10', name: 'D10', sides: 10, desc: '1-10' },
-            { id: 'd10x10', name: 'D10%', sides: 10, desc: '十位' },
-            { id: 'd12', name: 'D12', sides: 12, desc: '1-12' },
-            { id: 'd20', name: 'D20', sides: 20, desc: '1-20' }
+            { id: 'd4', name: 'D4', sides: 4, icon: 'd4', display: 'D4 (1-4)', desc: '四面体骰子' },
+            { id: 'd6', name: 'D6', sides: 6, icon: 'd6', display: 'D6 (1-6)', desc: '立方体骰子' },
+            { id: 'd8', name: 'D8', sides: 8, icon: 'd8', display: 'D8 (1-8)', desc: '八面体骰子' },
+            { id: 'd10', name: 'D10', sides: 10, icon: 'd10', display: 'D10 (1-10)', desc: '十面体骰子' },
+            { id: 'd10x10', name: 'D10%', sides: 10, icon: 'd10', display: 'D10% (00-90)', desc: '百分比骰子', isPercent: true },
+            { id: 'd12', name: 'D12', sides: 12, icon: 'd12', display: 'D12 (1-12)', desc: '十二面体骰子' },
+            { id: 'd20', name: 'D20', sides: 20, icon: 'd20', display: 'D20 (1-20)', desc: '二十面体骰子' }
         ];
-        
-        // 颜色选项
+
+        // ========== 颜色定义 ==========
         const colorOptions = [
             { name: '莫兰迪蓝', value: '#91A3B0' },
             { name: '莫兰迪绿', value: '#A3B18A' },
@@ -504,146 +528,124 @@
             { name: '阳光黄', value: '#F1C40F' },
             { name: '优雅黑', value: '#2C3E50' }
         ];
-        
-        // 骰子点数对应的旋转角度
-        const diceRotations = {
-            1: 'rotateX(0deg) rotateY(0deg)',
-            2: 'rotateX(0deg) rotateY(-90deg)',
-            3: 'rotateX(0deg) rotateY(90deg)',
-            4: 'rotateX(0deg) rotateY(180deg)',
-            5: 'rotateX(-90deg) rotateY(0deg)',
-            6: 'rotateX(90deg) rotateY(0deg)'
-        };
-        
+
+        let currentColor = '#91A3B0';
+        let dicePool = [];
+        let modifier = 0;
+        let history = [];
+
         // ========== 初始化 ==========
-        document.addEventListener('DOMContentLoaded', () => {
-            initDiceTypeSelector();
-            initColorOptions();
-            updateDicePoolDisplay();
+        function init() {
+            renderDiceTypes();
+            renderColorOptions();
+            updateColorPreview();
             updateRollButtonState();
             
-            document.getElementById('roll-button').addEventListener('click', rollAllDice);
-            document.getElementById('clear-dice').addEventListener('click', clearDicePool);
-            document.getElementById('clear-history').addEventListener('click', clearHistory);
-            document.getElementById('add-modifier').addEventListener('click', toggleModifierInput);
-            document.getElementById('apply-modifier').addEventListener('click', applyModifier);
-            document.getElementById('reset-calc').addEventListener('click', resetCalculator);
-        });
-        
-        // ========== 骰子类型选择器 ==========
-        function initDiceTypeSelector() {
-            const container = document.getElementById('dice-type-selector');
-            
+            // 移动端菜单
+            const menuToggle = document.getElementById('menu-toggle');
+            const mobileMenu = document.getElementById('mobile-menu');
+            menuToggle.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+
+        // ========== 渲染骰子类型 ==========
+        function renderDiceTypes() {
+            const container = document.getElementById('dice-types');
+            container.innerHTML = '';
             diceTypes.forEach(dt => {
                 const card = document.createElement('div');
-                card.className = 'dice-type-card bg-white rounded-xl p-4 shadow-md text-center';
+                card.className = 'dice-type-card bg-white rounded-xl p-4 shadow text-center';
+                card.onclick = () => addDiceToPool(dt);
                 card.innerHTML = `
-                    <div class="text-3xl mb-2"><i class="fa fa-dice text-primary"></i></div>
-                    <h3 class="font-bold text-dark">${dt.name}</h3>
-                    <p class="text-xs text-gray-500">${dt.desc}</p>
+                    <div class="dice-type-icon-preview mx-auto"
+                         style="background: linear-gradient(135deg, ${currentColor}, ${adjustColor(currentColor, -20)}); border-radius: 10px; width: 52px; height: 52px;">
+                        <span style="font-size: 1rem;">${getDiceTypeIcon(dt.icon)}</span>
+                    </div>
+                    <div class="font-bold text-dark text-sm">${dt.display}</div>
+                    <div class="text-xs text-gray-400 mt-1">${dt.desc}</div>
                 `;
-                card.addEventListener('click', () => addDiceToPool(dt));
                 container.appendChild(card);
             });
         }
-        
-        // ========== 颜色选择器 ==========
-        function initColorOptions() {
+
+        // 获取骰子类型icon的HTML
+        function getDiceTypeIcon(iconType) {
+            const icons = {
+                'd4': `<div style="width:30px;height:30px;background:rgba(255,255,255,0.25);clip-path:polygon(50% 0%,0% 100%,100% 100%);border-radius:2px;"></div>`,
+                'd6': `<div style="width:26px;height:26px;background:rgba(255,255,255,0.25);border-radius:4px;"></div>`,
+                'd8': `<div style="width:24px;height:24px;background:rgba(255,255,255,0.25);transform:rotate(45deg);border-radius:3px;"></div>`,
+                'd10': `<div style="width:26px;height:26px;background:rgba(255,255,255,0.25);border-radius:50%;"></div>`,
+                'd12': `<div style="width:26px;height:26px;background:rgba(255,255,255,0.25);border-radius:6px;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);"></div>`,
+                'd20': `<div style="width:26px;height:26px;background:rgba(255,255,255,0.25);border-radius:50%;"></div>`
+            };
+            return icons[iconType] || icons['d6'];
+        }
+
+        // ========== 渲染颜色选项 ==========
+        function renderColorOptions() {
             const container = document.getElementById('color-options');
-            
+            container.innerHTML = '';
             colorOptions.forEach(c => {
                 const opt = document.createElement('div');
-                opt.className = 'color-option';
+                opt.className = `color-option ${c.value === currentColor ? 'active' : ''}`;
                 opt.style.backgroundColor = c.value;
-                opt.title = c.name;
                 opt.dataset.color = c.value;
-                
-                if (c.value === currentColor) opt.classList.add('active');
-                
-                opt.addEventListener('click', () => selectColor(c.value));
+                opt.title = c.name;
+                opt.onclick = () => selectColor(c.value);
                 container.appendChild(opt);
             });
-            
-            updateColorPreview();
         }
-        
+
         function selectColor(color) {
             currentColor = color;
             document.querySelectorAll('.color-option').forEach(o => {
                 o.classList.toggle('active', o.dataset.color === color);
             });
             updateColorPreview();
+            renderDiceTypes(); // 刷新骰子类型卡片的预览颜色
         }
-        
+
         function updateColorPreview() {
             const preview = document.getElementById('color-preview');
-            preview.innerHTML = createD6Dice(currentColor);
+            preview.innerHTML = createFlatDice(currentColor, 'd6', 5, 42);
         }
-        
-        // ========== 创建拟物化骰子HTML ==========
-        function createD6Dice(color, size = 'normal') {
-            const sizeClass = size === 'small' ? 'width: 50px; height: 50px;' : 'width: 70px; height: 70px;';
+
+        // ========== 创建扁平化骰子HTML ==========
+        function createFlatDice(color, iconType, result, size = 60) {
+            const halfSize = size / 2;
+            const d8Correction = iconType === 'd8' ? 'transform:rotate(45deg);' : '';
+            const labelCorrection = iconType === 'd8' ? 'transform:rotate(-45deg);' : '';
+            const clipPath = getClipPath(iconType);
+            const borderRadius = iconType === 'd20' ? '50%' : (iconType === 'd4' ? '4px' : '12px');
+            
             return `
-                <div class="dice-3d dice-d6" style="${sizeClass}">
-                    <div class="dice-face" style="background: linear-gradient(135deg, ${color}, ${adjustColor(color, -20)}); color: ${getContrastColor(color)};">
-                        <div class="dice-dots" style="grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr; justify-items: center; align-items: center;">
-                            <div class="dot" style="grid-area: 2/2;"></div>
-                        </div>
-                    </div>
-                    <div class="dice-face face-2" style="background: linear-gradient(135deg, ${color}, ${adjustColor(color, -20)}); color: ${getContrastColor(color)};">
-                        <div class="dice-dots" style="grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr; justify-items: center; align-items: center;">
-                            <div class="dot" style="grid-area: 1/1;"></div>
-                            <div class="dot" style="grid-area: 3/3;"></div>
-                        </div>
-                    </div>
-                    <div class="dice-face face-3" style="background: linear-gradient(135deg, ${color}, ${adjustColor(color, -20)}); color: ${getContrastColor(color)};">
-                        <div class="dice-dots" style="grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr; justify-items: center; align-items: center;">
-                            <div class="dot" style="grid-area: 1/1;"></div>
-                            <div class="dot" style="grid-area: 2/2;"></div>
-                            <div class="dot" style="grid-area: 3/3;"></div>
-                        </div>
-                    </div>
-                    <div class="dice-face face-4" style="background: linear-gradient(135deg, ${color}, ${adjustColor(color, -20)}); color: ${getContrastColor(color)};">
-                        <div class="dice-dots" style="grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr; justify-items: center; align-items: center;">
-                            <div class="dot" style="grid-area: 1/1;"></div>
-                            <div class="dot" style="grid-area: 1/3;"></div>
-                            <div class="dot" style="grid-area: 3/1;"></div>
-                            <div class="dot" style="grid-area: 3/3;"></div>
-                        </div>
-                    </div>
-                    <div class="dice-face face-5" style="background: linear-gradient(135deg, ${color}, ${adjustColor(color, -20)}); color: ${getContrastColor(color)};">
-                        <div class="dice-dots" style="grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr; justify-items: center; align-items: center;">
-                            <div class="dot" style="grid-area: 1/1;"></div>
-                            <div class="dot" style="grid-area: 1/3;"></div>
-                            <div class="dot" style="grid-area: 2/2;"></div>
-                            <div class="dot" style="grid-area: 3/1;"></div>
-                            <div class="dot" style="grid-area: 3/3;"></div>
-                        </div>
-                    </div>
-                    <div class="dice-face face-6" style="background: linear-gradient(135deg, ${color}, ${adjustColor(color, -20)}); color: ${getContrastColor(color)};">
-                        <div class="dice-dots" style="grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr; justify-items: center; align-items: center;">
-                            <div class="dot" style="grid-area: 1/1;"></div>
-                            <div class="dot" style="grid-area: 1/3;"></div>
-                            <div class="dot" style="grid-area: 2/1;"></div>
-                            <div class="dot" style="grid-area: 2/3;"></div>
-                            <div class="dot" style="grid-area: 3/1;"></div>
-                            <div class="dot" style="grid-area: 3/3;"></div>
-                        </div>
-                    </div>
+                <div class="dice-flat ${iconType}" 
+                     style="--dice-color: ${color}; width: ${size}px; height: ${size}px; ${d8Correction} clip-path: ${clipPath}; border-radius: ${borderRadius};">
+                    <span class="dice-label" style="${labelCorrection} font-size: ${size > 50 ? '1.1rem' : '0.9rem'};">${result}</span>
                 </div>
             `;
         }
-        
-        function createGenericDice(color, text, sides) {
-            return `
-                <div class="dice-3d" style="width: 70px; height: 70px;">
-                    <div class="dice-face" style="background: linear-gradient(135deg, ${color}, ${adjustColor(color, -30)}); border-radius: 12px; color: ${getContrastColor(color)}; font-size: 1.5rem; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 0 20px rgba(0,0,0,0.1);">
-                        ${text}
-                    </div>
-                </div>
-            `;
+
+        function getClipPath(type) {
+            switch(type) {
+                case 'd4': return 'polygon(50% 0%, 0% 100%, 100% 100%)';
+                case 'd6': return 'none'; // 用border-radius
+                case 'd8': return 'none'; // 用rotate正方形
+                case 'd10': return 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)';
+                case 'd12': return 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)';
+                case 'd20': return 'none'; // 用border-radius 50%
+                default: return 'none';
+            }
         }
-        
+
+        function getResultDiceHTML(color, type, result, size = 40) {
+            const iconType = type === 'd10x10' ? 'd10' : type.replace('d', '');
+            // 对d10x10显示十位数字
+            const displayResult = type === 'd10x10' ? (result === 0 ? '00' : result) : result;
+            return createFlatDice(color, iconType, displayResult, size);
+        }
+
         // 颜色辅助函数
         function adjustColor(hex, amount) {
             hex = hex.replace('#', '');
@@ -656,7 +658,7 @@
             b = Math.max(0, Math.min(255, b));
             return `#${(r << 16 | g << 8 | b).toString(16).padStart(6, '0')}`;
         }
-        
+
         function getContrastColor(hex) {
             hex = hex.replace('#', '');
             const r = parseInt(hex.substr(0, 2), 16);
@@ -665,7 +667,12 @@
             const brightness = (r * 299 + g * 587 + b * 114) / 1000;
             return brightness > 128 ? '#333333' : '#FFFFFF';
         }
-        
+
+        function getColorName(hex) {
+            const found = colorOptions.find(c => c.value === hex);
+            return found ? found.name : hex;
+        }
+
         // ========== 骰子池管理 ==========
         function addDiceToPool(diceType) {
             dicePool.push({
@@ -673,18 +680,21 @@
                 type: diceType.id,
                 sides: diceType.sides,
                 name: diceType.name,
+                display: diceType.display,
+                iconType: diceType.id === 'd10x10' ? 'd10' : diceType.id.replace('d', ''),
+                isPercent: diceType.isPercent || false,
                 color: currentColor
             });
             updateDicePoolDisplay();
             updateRollButtonState();
         }
-        
+
         function removeDiceFromPool(diceId) {
             dicePool = dicePool.filter(d => d.id !== diceId);
             updateDicePoolDisplay();
             updateRollButtonState();
         }
-        
+
         function clearDicePool() {
             if (dicePool.length === 0) return;
             if (confirm('确定清空骰子池？')) {
@@ -693,7 +703,7 @@
                 updateRollButtonState();
             }
         }
-        
+
         function updateDicePoolDisplay() {
             const container = document.getElementById('dice-pool');
             const countEl = document.getElementById('dice-count');
@@ -707,25 +717,35 @@
             container.innerHTML = '';
             dicePool.forEach(dice => {
                 const wrapper = document.createElement('div');
-                wrapper.className = 'dice-wrapper';
-                wrapper.innerHTML = createD6Dice(dice.color, 'small');
+                wrapper.className = 'dice-pool-item';
+                wrapper.dataset.diceId = dice.id;
                 
-                // 添加删除按钮
-                const delBtn = document.createElement('button');
-                delBtn.className = 'absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center hover:bg-red-600 transition-colors z-10';
-                delBtn.innerHTML = '<i class="fa fa-times"></i>';
-                delBtn.onclick = () => removeDiceFromPool(dice.id);
-                wrapper.style.position = 'relative';
-                wrapper.appendChild(delBtn);
-                
+                // 创建骰子图形
+                const iconType = dice.iconType || 'd6';
+                wrapper.innerHTML = `
+                    <div style="position:relative;">
+                        ${createFlatDice(dice.color, iconType, '?', 56)}
+                        <button onclick="removeDiceFromPool(${dice.id})" 
+                            class="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center hover:bg-red-600 transition-colors z-10 shadow-md">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1">${dice.name}</div>
+                `;
                 container.appendChild(wrapper);
             });
         }
-        
+
         function updateRollButtonState() {
             document.getElementById('roll-button').disabled = dicePool.length === 0;
         }
-        
+
+        // ========== 修正值 ==========
+        function changeModifier(delta) {
+            modifier += delta;
+            document.getElementById('modifier-value').textContent = modifier >= 0 ? '+' + modifier : modifier;
+        }
+
         // ========== 投掷骰子 ==========
         function rollAllDice() {
             if (dicePool.length === 0) return;
@@ -737,7 +757,7 @@
             const results = [];
             let total = 0;
             
-            // 先计算每个骰子的点数
+            // 计算每个骰子的点数
             dicePool.forEach(dice => {
                 let result;
                 if (dice.type === 'd10x10') {
@@ -747,29 +767,39 @@
                 }
                 results.push({
                     type: dice.name,
+                    display: dice.display,
                     sides: dice.sides,
                     result: result,
                     color: dice.color,
-                    id: dice.id,
-                    diceType: dice.type
+                    iconType: dice.iconType,
+                    isPercent: dice.isPercent
                 });
                 total += result;
             });
             
-            // 把点数写入骰子池对应的DOM元素
-            const poolEl = document.getElementById('dice-pool');
-            const wrappers = poolEl.querySelectorAll('.dice-wrapper');
-            wrappers.forEach((wrapper, i) => {
-                const diceEl = wrapper.querySelector('.dice-3d');
-                if (diceEl && results[i]) {
-                    diceEl.dataset.result = results[i].result;
-                    diceEl.dataset.type = results[i].diceType;
+            // 更新骰子池中的骰子显示实际点数并添加动画
+            const poolItems = document.querySelectorAll('.dice-pool-item');
+            poolItems.forEach((item, i) => {
+                if (results[i]) {
+                    const diceEl = item.querySelector('.dice-flat');
+                    const labelEl = item.querySelector('.dice-label');
+                    if (diceEl && labelEl) {
+                        // 添加投掷动画
+                        diceEl.classList.add('rolling');
+                        
+                        // 动画结束后更新点数显示
+                        setTimeout(() => {
+                            diceEl.classList.remove('rolling');
+                            const displayResult = results[i].isPercent ? 
+                                (results[i].result === 0 ? '00' : results[i].result) : 
+                                results[i].result;
+                            labelEl.textContent = displayResult;
+                        }, 1000);
+                    }
                 }
             });
             
-            // 再播动画（动画结束时会读取 dataset.result）
-            animateDiceRolling();
-            
+            // 等动画完成后显示结果
             setTimeout(() => {
                 const finalTotal = total + modifier;
                 displayRollResults(results, total, finalTotal);
@@ -782,39 +812,7 @@
                 updateRollButtonState();
             }, 1200);
         }
-        
-        // D6骰子：点数 -> 最终旋转角度（让对应点数的面朝前）
-        // 面定义：face-1前(0,0) face-2后(180,0) face-3左(-90,0) face-4右(90,0) face-5上(0,90) face-6下(0,-90)
-        // 要让某面朝前，容器需取相反角度
-        const d6Rotations = {
-            1: 'rotateY(0deg) rotateX(0deg)',      // 面1朝前
-            6: 'rotateY(180deg) rotateX(0deg)',    // 面2朝前（点数6）
-            3: 'rotateY(90deg) rotateX(0deg)',     // 面3朝前（点数3）
-            4: 'rotateY(-90deg) rotateX(0deg)',    // 面4朝前（点数4）
-            2: 'rotateY(0deg) rotateX(-90deg)',     // 面5朝前（点数2）
-            5: 'rotateY(0deg) rotateX(90deg)'      // 面6朝前（点数5）
-        };
-        
-        function animateDiceRolling() {
-            const poolEl = document.getElementById('dice-pool');
-            const diceEls = poolEl.querySelectorAll('.dice-3d');
-            diceEls.forEach(el => {
-                el.classList.add('rolling');
-                // 实际点数存在 el.dataset.result 里
-                const result = parseInt(el.dataset.result) || 1;
-                const type = el.dataset.type || 'D6';
-                if (type === 'D6' && d6Rotations[result]) {
-                    el.style.setProperty('--final-rotation', d6Rotations[result]);
-                } else {
-                    el.style.setProperty('--final-rotation', 'rotateX(0deg) rotateY(0deg)');
-                }
-            });
-            
-            setTimeout(() => {
-                diceEls.forEach(el => el.classList.remove('rolling'));
-            }, 1200);
-        }
-        
+
         // ========== 显示结果 ==========
         function displayRollResults(results, total, finalTotal) {
             const container = document.getElementById('roll-results');
@@ -825,9 +823,16 @@
                 card.className = 'result-card bg-white rounded-xl p-4 shadow text-center';
                 card.style.borderTop = `4px solid ${r.color}`;
                 card.style.animationDelay = `${i * 0.1}s`;
+                
+                const displayResult = r.isPercent ? 
+                    (r.result === 0 ? '00' : r.result) : r.result;
+                
                 card.innerHTML = `
-                    <div class="text-sm text-gray-500 mb-1">${r.type}</div>
-                    <div class="text-3xl font-bold" style="color: ${r.color}">${r.result}</div>
+                    <div class="flex justify-center mb-2">
+                        ${getResultDiceHTML(r.color, r.type === 'D10%' ? 'd10x10' : r.type, r.result, 40)}
+                    </div>
+                    <div class="text-sm text-gray-500 mb-1">${r.display}</div>
+                    <div class="text-3xl font-bold" style="color: ${r.color}">${displayResult}</div>
                 `;
                 container.appendChild(card);
             });
@@ -844,13 +849,16 @@
                     totalEl.parentElement.appendChild(detail);
                 }
                 detail.textContent = `${total} ${modifier >= 0 ? '+' : ''} ${modifier} = ${finalTotal}`;
+            } else {
+                const detail = document.getElementById('total-detail');
+                if (detail) detail.remove();
             }
         }
-        
+
         // ========== 按颜色统计 ==========
         function updateColorStats(results) {
             const container = document.getElementById('color-stats-container');
-            const statsSection = document.getElementById('color-stats');
+            const statsSection = document.getElementById('color-stats-section');
             
             // 按颜色分组
             const colorGroups = {};
@@ -878,127 +886,98 @@
                 card.innerHTML = `
                     <div class="flex items-center justify-between mb-2">
                         <div class="flex items-center gap-2">
-                            <div style="width: 16px; height: 16px; background: ${color}; border-radius: 50%;"></div>
+                            <div style="width: 16px; height: 16px; background: ${color}; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.15);"></div>
                             <span class="font-medium text-dark">${getColorName(color)}</span>
+                            <span class="text-xs text-gray-400">(${data.count}个)</span>
                         </div>
-                        <span class="text-2xl font-bold" style="color: ${color}">${data.total}</span>
+                        <div class="text-2xl font-bold" style="color: ${color}">${data.total}</div>
                     </div>
-                    <div class="text-sm text-gray-500">
-                        ${data.count} 个骰子：${data.dice.join(' + ')}
+                    <div class="text-xs text-gray-400">
+                        点数：${data.dice.join(' + ')}
                     </div>
                 `;
                 container.appendChild(card);
             });
         }
-        
-        function getColorName(hex) {
-            const found = colorOptions.find(c => c.value === hex);
-            return found ? found.name : hex;
+
+        // ========== 历史记录 ==========
+        function addToHistory(results, total, finalTotal) {
+            const entry = {
+                id: Date.now(),
+                time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+                results: results,
+                total: total,
+                finalTotal: finalTotal
+            };
+            
+            history.unshift(entry);
+            if (history.length > 10) history.pop();
+            
+            updateHistoryDisplay();
         }
-        
-        // ========== 粒子效果 ==========
+
+        function updateHistoryDisplay() {
+            const container = document.getElementById('history-list');
+            
+            if (history.length === 0) {
+                container.innerHTML = '<div class="text-gray-400 text-sm text-center py-8">暂无记录</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            history.forEach(entry => {
+                const item = document.createElement('div');
+                item.className = 'history-item bg-gray-50 rounded-lg p-3';
+                item.innerHTML = `
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-xs text-gray-400">${entry.time}</span>
+                        <span class="text-lg font-bold text-primary">${entry.finalTotal}</span>
+                    </div>
+                    <div class="flex flex-wrap gap-1">
+                        ${entry.results.map(r => {
+                            const displayResult = r.isPercent ? (r.result === 0 ? '00' : r.result) : r.result;
+                            return `<span class="inline-flex items-center justify-center text-xs px-2 py-1 rounded" 
+                                    style="background: ${r.color}20; color: ${r.color}; font-weight: 600;">
+                                ${r.type === 'D10%' ? displayResult : r.result}
+                            </span>`;
+                        }).join('')}
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function clearHistory() {
+            if (history.length === 0) return;
+            if (confirm('确定清空历史记录？')) {
+                history = [];
+                updateHistoryDisplay();
+            }
+        }
+
+        // ========== 粒子特效 ==========
         function createParticles() {
-            const container = document.getElementById('particles-container');
             const colors = ['#91A3B0', '#A3B18A', '#C9A9A6', '#D4A373', '#E74C3C', '#3498DB', '#F1C40F'];
             
             for (let i = 0; i < 20; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'particle';
-                const size = Math.random() * 8 + 4;
-                const x = Math.random() * window.innerWidth;
-                const y = Math.random() * window.innerHeight;
-                const tx = (Math.random() - 0.5) * 200;
-                const ty = (Math.random() - 0.5) * 200;
+                particle.style.left = `${Math.random() * 100}vw`;
+                particle.style.top = `${Math.random() * 100}vh`;
+                particle.style.width = `${Math.random() * 8 + 4}px`;
+                particle.style.height = particle.style.width;
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.animationDelay = `${Math.random() * 0.5}s`;
+                document.body.appendChild(particle);
                 
-                particle.style.cssText = `
-                    left: ${x}px;
-                    top: ${y}px;
-                    width: ${size}px;
-                    height: ${size}px;
-                    background: ${colors[Math.floor(Math.random() * colors.length)]};
-                    --tx: ${tx}px;
-                    --ty: ${ty}px;
-                `;
-                
-                container.appendChild(particle);
-                
-                setTimeout(() => particle.remove(), 1000);
+                setTimeout(() => {
+                    particle.remove();
+                }, 1500);
             }
         }
-        
-        // ========== 历史记录 ==========
-        function addToHistory(results, total, finalTotal) {
-            rollHistory.unshift({
-                id: Date.now(),
-                time: new Date().toLocaleTimeString(),
-                results: results,
-                total: total,
-                finalTotal: finalTotal,
-                modifier: modifier
-            });
-            
-            if (rollHistory.length > 10) rollHistory = rollHistory.slice(0, 10);
-            updateHistoryDisplay();
-        }
-        
-        function updateHistoryDisplay() {
-            const container = document.getElementById('roll-history');
-            
-            if (rollHistory.length === 0) {
-                container.innerHTML = '<div class="text-gray-400 text-center py-8">历史记录将显示在这里</div>';
-                return;
-            }
-            
-            container.innerHTML = '';
-            rollHistory.forEach(item => {
-                const el = document.createElement('div');
-                el.className = 'history-item bg-gray-50 rounded-lg p-4';
-                const resultsText = item.results.map(r => `${r.type}:${r.result}`).join(', ');
-                el.innerHTML = `
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="text-xs text-gray-500">${item.time}</span>
-                        <span class="font-bold text-primary">${item.finalTotal}</span>
-                    </div>
-                    <div class="text-sm text-gray-700">${resultsText}</div>
-                    ${item.modifier !== 0 ? `<div class="text-xs text-gray-500 mt-1">修正值: ${item.modifier >= 0 ? '+' : ''}${item.modifier}</div>` : ''}
-                `;
-                container.appendChild(el);
-            });
-        }
-        
-        function clearHistory() {
-            if (rollHistory.length === 0) return;
-            if (confirm('确定清空历史记录？')) {
-                rollHistory = [];
-                updateHistoryDisplay();
-            }
-        }
-        
-        // ========== 点数计算器 ==========
-        function toggleModifierInput() {
-            document.getElementById('modifier-input').classList.toggle('hidden');
-        }
-        
-        function applyModifier() {
-            const val = parseInt(document.getElementById('modifier-value').value) || 0;
-            modifier = Math.max(-100, Math.min(100, val));
-            document.getElementById('modifier-value').value = modifier;
-            
-            const currentTotal = parseInt(document.getElementById('total-sum').textContent) || 0;
-            document.getElementById('total-sum').textContent = currentTotal;
-            
-            document.getElementById('modifier-input').classList.add('hidden');
-        }
-        
-        function resetCalculator() {
-            modifier = 0;
-            document.getElementById('total-sum').textContent = '0';
-            document.getElementById('roll-results').innerHTML = '<div class="text-gray-400 text-center py-8 col-span-full">投掷结果将显示在这里</div>';
-            document.getElementById('color-stats').classList.add('hidden');
-            
-            const detail = document.getElementById('total-detail');
-            if (detail) detail.remove();
-        }
+
+        // ========== 启动 ==========
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
