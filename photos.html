@@ -232,8 +232,16 @@
 
 <body class="font-vintage text-sepia-600">
     <!-- 左侧侧边栏导航 -->
-    <div class="fixed top-0 left-0 h-full w-64 sidebar shadow-md z-40 flex flex-col">
-        <div class="p-6 text-center border-b border-sepia-200">
+    <div id="photo-sidebar" class="fixed top-0 left-0 h-full w-64 sidebar shadow-xl z-40 flex flex-col transform transition-transform duration-300 md:translate-x-0 -translate-x-full">
+        <!-- 移动端标题栏（关闭按钮） -->
+        <div class="flex items-center justify-between p-5 md:hidden border-b border-sepia-200">
+            <h2 class="text-lg font-bold text-sepia-500">导航</h2>
+            <button id="photo-sidebar-close" class="p-1 rounded-full hover:bg-sepia-100">
+                <i class="fa fa-times text-sepia-500"></i>
+            </button>
+        </div>
+        <!-- 桌面端标题 -->
+        <div class="p-6 text-center border-b border-sepia-200 hidden md:block">
             <h2 class="text-xl font-bold text-sepia-500">导航菜单</h2>
         </div>
         
@@ -270,8 +278,16 @@
         </div>
     </div>
 
+    <!-- 移动端遮罩层 -->
+    <div id="photo-overlay" class="fixed inset-0 bg-black/40 z-30 hidden md:hidden"></div>
+
+    <!-- 移动端汉堡按钮（始终显示在左上角） -->
+    <button id="photo-toggle-mobile" class="fixed top-6 left-6 z-50 p-3 bg-sepia-200/90 backdrop-blur-sm rounded-full shadow-lg md:hidden hover:bg-sepia-200 transition-colors">
+        <i class="fa fa-bars text-sepia-600"></i>
+    </button>
+
     <!-- 主内容区 -->
-    <main class="min-h-screen pt-16 pb-20 ml-64 px-4 md:px-8 lg:px-16">
+    <main class="min-h-screen pt-16 pb-20 px-4 md:px-8 lg:px-16 md:ml-64 transition-all duration-300">
         <!-- 页面标题 -->
         <div class="text-center mb-12 mt-8">
             <h1 class="text-4xl md:text-5xl font-bold text-sepia-600 mb-4">摄影集</h1>
@@ -486,25 +502,31 @@
             }
         });
         
-        // 移动端适配 - 点击显示侧边栏
-        if (window.innerWidth < 768) {
-            const sidebar = document.querySelector('.sidebar');
-            sidebar.style.transform = 'translateX(-100%)';
-            
-            const menuToggle = document.createElement('div');
-            menuToggle.className = 'fixed top-6 left-6 z-30 bg-sepia-200 p-3 rounded-full shadow-lg cursor-pointer';
-            menuToggle.innerHTML = '<i class="fa fa-bars text-sepia-600"></i>';
-            document.body.appendChild(menuToggle);
-            
-            menuToggle.addEventListener('click', () => {
-                sidebar.style.transform = sidebar.style.transform === 'translateX(0px)' ? 'translateX(-100%)' : 'translateX(0)';
+        // 移动端侧边栏事件监听
+        const photoSidebar = document.getElementById('photo-sidebar');
+        const photoToggleMobile = document.getElementById('photo-toggle-mobile');
+        const photoSidebarClose = document.getElementById('photo-sidebar-close');
+        const photoOverlay = document.getElementById('photo-overlay');
+
+        if (photoToggleMobile) {
+            photoToggleMobile.addEventListener('click', () => {
+                photoSidebar.classList.remove('-translate-x-full');
+                photoOverlay.classList.remove('hidden');
             });
-            
-            // 调整主内容区和页脚
-            document.querySelector('main').style.marginLeft = '0';
-            document.querySelector('footer').style.marginLeft = '0';
         }
-        
+        if (photoSidebarClose) {
+            photoSidebarClose.addEventListener('click', () => {
+                photoSidebar.classList.add('-translate-x-full');
+                photoOverlay.classList.add('hidden');
+            });
+        }
+        if (photoOverlay) {
+            photoOverlay.addEventListener('click', () => {
+                photoSidebar.classList.add('-translate-x-full');
+                photoOverlay.classList.add('hidden');
+            });
+        }
+
         // 初始化画廊
         initGallery();
     </script>
