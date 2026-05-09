@@ -205,7 +205,7 @@
                         <i class="fa fa-leaf text-green-600"></i>
                     </button>
                     <button id="theme-night" class="theme-btn p-2 rounded-full control-btn" title="夜间模式">
-                        <i class="fa fa-moon-o text-blue-800"></i>
+                        <i class="fa fa-adjust text-blue-800"></i>
                     </button>
                 </div>
             </div>
@@ -781,13 +781,6 @@
             readingArea.style.fontSize = `${fontSize}%`;
         }
         
-        // 主题颜色映射（备用，确保切换一定生效）
-        const themeColors = {
-            day:   { bg: '#ffffff', text: '#333333' },
-            eye:   { bg: '#eaf5e9', text: '#2d4829' },
-            night: { bg: '#2c3e50', text: '#ecf0f1' }
-        };
-
         // 设置主题
         function setTheme(theme) {
             // 移除所有主题类
@@ -795,10 +788,15 @@
             document.body.classList.remove('bg-eye-bg', 'text-eye-text');
             document.body.classList.remove('bg-night-bg', 'text-night-text');
 
-            // 添加当前主题类（依赖 Tailind CDN 生成）
+            // 添加当前主题类（CSS 备用规则已内联在 <style> 中兜底）
             document.body.classList.add(`bg-${theme}-bg`, `text-${theme}-text`);
 
             // 同时用 inline style 设置颜色（备用方案，确保一定生效）
+            const themeColors = {
+                day:   { bg: '#ffffff', text: '#333333' },
+                eye:   { bg: '#eaf5e9', text: '#2d4829' },
+                night: { bg: '#2c3e50', text: '#ecf0f1' }
+            };
             if (themeColors[theme]) {
                 document.body.style.backgroundColor = themeColors[theme].bg;
                 document.body.style.color = themeColors[theme].text;
