@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>答案之书 - 蘿嵐的工具箱</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1',
+                        primaryHover: '#4f46e5',
+                        accent: '#f59e0b',
+                        dark: '#0f172a',
+                        panel: '#1e293b',
+                        cardBg: 'rgba(30,41,59,0.8)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 40%, #0f172a 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            color: #e2e8f0;
+        }
+
+        /* ========== 侧边栏（暗色主题） ========== */
+        .sidebar-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 30;
+            display: none;
+        }
+        .sidebar-overlay.show { display: block; }
+        #sidebar-toggle {
+            position: fixed;
+            top: 1rem; left: 1rem;
+            z-index: 50;
+            width: 2.5rem; height: 2.5rem;
+            border-radius: 0.75rem;
+            background: rgba(30,41,59,0.9);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(99,102,241,0.3);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            color: #94a3b8;
+            font-size: 1.25rem;
+            transition: all 0.2s ease;
+        }
+        #sidebar-toggle:hover { background: rgba(99,102,241,0.2); color: #e2e8f0; }
+        @media (min-width: 768px) { #sidebar-toggle { display: none; } }
+
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            width: 16rem; height: 100%;
+            background: linear-gradient(180deg, rgba(15,23,42,0.98), rgba(30,27,75,0.98));
+            backdrop-filter: blur(12px);
+            border-right: 1px solid rgba(99,102,241,0.2);
+            box-shadow: 4px 0 24px rgba(0,0,0,0.4);
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(-100%);
+            z-index: 40;
+            display: flex;
+            flex-direction: column;
+        }
+        @media (min-width: 768px) { .sidebar { transform: translateX(0); } }
+
+        .sidebar-brand {
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(99,102,241,0.15);
+        }
+        .sidebar-brand h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 0.5rem;
+        }
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.7rem 1rem;
+            margin: 0.2rem 0.5rem;
+            border-radius: 0.75rem;
+            transition: all 0.2s ease;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+        .sidebar-nav a:hover {
+            background: rgba(99,102,241,0.12);
+            color: #e2e8f0;
+        }
+        .sidebar-nav a.active {
+            background: linear-gradient(135deg, rgba(99,102,241,0.25), rgba(168,85,247,0.18));
+            color: #a78bfa;
+            font-weight: 600;
+            box-shadow: 0 0 12px rgba(99,102,241,0.15);
+        }
+        .sidebar-nav a i { width: 1.2rem; text-align: center; font-size: 1rem; flex-shrink: 0; }
+
+        .sidebar-footer {
+            padding: 1rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #475569;
+            border-top: 1px solid rgba(99,102,241,0.1);
+        }
+
+        /* ========== 书本图标（暗色主题） ========== */
+        .book-icon {
+            position: relative;
+            display: inline-flex;
+            width: 1.5rem;
+            height: 1.5rem;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 0.2rem 0.4rem 0.4rem 0.2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 2px rgba(255,255,255,0.2);
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .book-icon::before {
+            content: '';
+            position: absolute;
+            left: 45%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: rgba(255,255,255,0.3);
+        }
+        .book-icon::after {
+            content: '';
+            position: absolute;
+            inset: 3px 4px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 0 0.15rem 0.15rem 0;
+        }
+
+        /* ========== 主内容区 ========== */
+        .main-content {
+            padding: 2rem 1.5rem;
+            max-width: 640px;
+            margin: 0 auto;
+        }
+        @media (min-width: 768px) {
+            .main-content { max-width: 640px; margin: 0 auto; padding-left: 16rem; }
+        }
+
+        /* ========== 书本动画 ========== */
+        .book-container {
+            perspective: 1200px;
+            width: 220px;
+            height: 300px;
+            margin: 0 auto 2rem;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .book {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        .book-cover {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 0.5rem 1rem 1rem 0.5rem;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .book-cover-front {
+            background: linear-gradient(135deg, #1e1b4b, #312e81);
+            border: 2px solid rgba(99,102,241,0.5);
+            box-shadow: 0 0 30px rgba(99,102,241,0.3), inset 0 0 30px rgba(99,102,241,0.1);
+            z-index: 2;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: left center;
+        }
+
+        .book-cover-front.open {
+            transform: rotateY(-160deg);
+        }
+
+        .book-cover-front .book-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #a78bfa;
+            letter-spacing: 0.15em;
+            margin-bottom: 0.5rem;
+        }
+
+        .book-cover-front .book-subtitle {
+            font-size: 0.7rem;
+            color: #64748b;
+            letter-spacing: 0.1em;
+        }
+
+        .book-cover-front .book-decoration {
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            border: 1px solid rgba(99,102,241,0.2);
+            border-radius: 0.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .book-spine {
+            position: absolute;
+            left: 0; top: 0;
+            width: 12px;
+            height: 100%;
+            background: linear-gradient(180deg, #312e81, #1e1b4b);
+            border-radius: 0.5rem 0 0 0.5rem;
+            z-index: 3;
+            box-shadow: inset -2px 0 4px rgba(0,0,0,0.3);
+        }
+
+        .book-page {
+            position: absolute;
+            width: 96%;
+            height: 96%;
+            top: 2%;
+            left: 2%;
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-radius: 0 0.8rem 0.8rem 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+            opacity: 0;
+            transition: opacity 0.4s ease 0.4s;
+        }
+
+        .book-page.show {
+            opacity: 1;
+        }
+
+        .book-page .page-number {
+            position: absolute;
+            top: 0.8rem;
+            right: 1.2rem;
+            font-size: 0.65rem;
+            color: #a16207;
+            font-style: italic;
+        }
+
+        .book-page .answer-text {
+            font-size: 1.05rem;
+            color: #1e1b4b;
+            line-height: 1.8;
+            font-weight: 500;
+        }
+
+        .book-page .answer-author {
+            position: absolute;
+            bottom: 1rem;
+            right: 1.2rem;
+            font-size: 0.6rem;
+            color: #92400e;
+            font-style: italic;
+        }
+
+        /* ========== 提示文字 ========== */
+        .hint-text {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .hint-text .step {
+            display: inline-block;
+            background: rgba(99,102,241,0.15);
+            border: 1px solid rgba(99,102,241,0.3);
+            border-radius: 0.5rem;
+            padding: 0.3rem 0.8rem;
+            margin: 0 0.3rem;
+            color: #a78bfa;
+            font-size: 0.8rem;
+        }
+
+        /* ========== 操作按钮 ========== */
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.8rem;
+            border-radius: 0.75rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(99,102,241,0.3);
+        }
+        .btn-primary:hover {
+            box-shadow: 0 6px 20px rgba(99,102,241,0.5);
+            transform: translateY(-1px);
+        }
+        .btn-primary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(30,41,59,0.8);
+            color: #94a3b8;
+            border: 1px solid rgba(99,102,241,0.2);
+            padding: 0.6rem 1.4rem;
+            border-radius: 0.75rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-secondary:hover {
+            border-color: rgba(99,102,241,0.4);
+            color: #e2e8f0;
+        }
+
+        /* ========== 历史记录 ========== */
+        .history-card {
+            background: rgba(15,23,42,0.6);
+            border: 1px solid rgba(99,102,241,0.15);
+            border-radius: 0.75rem;
+            padding: 0.8rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .history-card:hover {
+            border-color: rgba(245,158,11,0.4);
+            box-shadow: 0 0 12px rgba(245,158,11,0.1);
+        }
+        .history-card .day-label {
+            font-size: 0.7rem;
+            color: #64748b;
+        }
+        .history-card .answer-preview {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-top: 0.3rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .hidden { display: none !important; }
+        .fade-in { animation: fadeIn 0.6s ease forwards; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <!-- 侧边栏 -->
+    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <h2>蘿嵐的工具箱</h2>
+        </div>
+        <div class="sidebar-nav">
+            <a href="index.html">
+                <i class="fa fa-home"></i><span>首页</span>
+            </a>
+            <a href="toolbox.html">
+                <i class="fa fa-wrench"></i><span>工具箱</span>
+            </a>
+            <div style="height:1px; background:rgba(99,102,241,0.15); margin:0.5rem 0;"></div>
+            <a href="dice.html">
+                <span class="book-icon" style="background:linear-gradient(135deg,#91A3B0,#A3B18A);"><span class="dot" style="position:absolute;width:0.28rem;height:0.28rem;background:#F5F5F0;border-radius:50%;top:0.18rem;left:0.18rem;"></span><span class="dot" style="position:absolute;width:0.28rem;height:0.28rem;background:#F5F5F0;border-radius:50%;top:0.18rem;right:0.18rem;"></span><span class="dot" style="position:absolute;width:0.28rem;height:0.28rem;background:#F5F5F0;border-radius:50%;top:50%;left:0.18rem;transform:translateY(-50%);"></span><span class="dot" style="position:absolute;width:0.28rem;height:0.28rem;background:#F5F5F0;border-radius:50%;top:50%;right:0.18rem;transform:translateY(-50%);"></span><span class="dot" style="position:absolute;width:0.28rem;height:0.28rem;background:#F5F5F0;border-radius:50%;bottom:0.18rem;left:0.18rem;"></span><span class="dot" style="position:absolute;width:0.28rem;height:0.28rem;background:#F5F5F0;border-radius:50%;bottom:0.18rem;right:0.18rem;"></span></span><span>骰子游戏</span>
+            </a>
+            <a href="serial.html">
+                <i class="fa fa-plug"></i><span>串口调试</span>
+            </a>
+            <a href="verilog.html">
+                <i class="fa fa-microchip"></i><span>Verilog 速查</span>
+            </a>
+            <a href="fortune.html">
+                <span style="display:inline-flex;align-items:center;justify-content:center;width:1.2rem;height:1.2rem;font-size:0.85rem;color:#a78bfa;flex-shrink:0;">◆</span><span>今日运势</span>
+            </a>
+            <a href="answer-book.html" class="active">
+                <span class="book-icon"></span><span>答案之书</span>
+            </a>
+        </div>
+        <div class="sidebar-footer">
+            © 2024 蘿嵐工具箱
+        </div>
+    </nav>
+
+    <!-- 汉堡按钮 -->
+    <button id="sidebar-toggle" class="md:hidden" onclick="toggleSidebar()">
+        <i class="fa fa-bars"></i>
+    </button>
+
+    <!-- 主内容 -->
+    <div class="main-content">
+
+        <!-- 标题 -->
+        <div class="text-center mb-8 fade-in">
+            <h1 class="text-2xl font-bold mb-2" style="background:linear-gradient(135deg,#a78bfa,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+                <i class="fa fa-book"></i> 答案之书
+            </h1>
+            <p class="text-sm" style="color:#94a3b8;">心中默念问题，翻开书页寻找答案</p>
+        </div>
+
+        <!-- 提示 -->
+        <div class="hint-text fade-in">
+            <div class="mb-3">
+                <span class="step">①</span> 心中默念你的问题
+            </div>
+            <div>
+                <span class="step">②</span> 点击书本，揭开答案
+            </div>
+        </div>
+
+        <!-- 书本 -->
+        <div class="book-container" id="book-container" onclick="openBook()">
+            <div class="book" id="book">
+                <div class="book-spine"></div>
+                <div class="book-cover book-cover-front" id="book-cover">
+                    <div class="book-decoration">
+                        <div>
+                            <div class="book-title">ANSWER<br>BOOK</div>
+                            <div class="book-subtitle">答案之书</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="book-page" id="book-page">
+                    <div class="page-number" id="page-number"></div>
+                    <div class="answer-text" id="answer-text"></div>
+                    <div class="answer-author">— 答案之书</div>
+                </div>
+            </div>
+        </div>
+
+        <p id="click-hint" class="text-sm text-center mb-8" style="color:#64748b;">
+            点击上方的书本
+        </p>
+
+        <!-- 操作按钮 -->
+        <div id="action-buttons" class="flex items-center justify-center gap-3 mb-8 hidden">
+            <button class="btn-secondary" onclick="resetBook()">
+                <i class="fa fa-refresh mr-1"></i> 再问一次
+            </button>
+            <button class="btn-secondary" onclick="shareAnswer()">
+                <i class="fa fa-camera mr-1"></i> 保存截图
+            </button>
+        </div>
+
+        <!-- 历史记录 -->
+        <div id="history-section" class="mb-8 hidden">
+            <h3 class="text-base font-bold mb-4" style="color:#a78bfa;">
+                <i class="fa fa-history mr-2"></i>过往答案
+            </h3>
+            <div id="history-list" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <!-- 历史卡片由JS填充 -->
+            </div>
+        </div>
+
+        <div class="text-center text-xs pb-8" style="color:#475569;">
+            © 2024 蘿嵐工具箱 · 答案之书 · 仅供娱乐
+        </div>
+    </div>
+
+    <script>
+        // ========== 答案库（随机调用 Math.random）==========
+        const ANSWERS = [
+            "是的，毫无疑问。",
+            "你可以信赖它。",
+            "不用怀疑，去做吧。",
+            "未来会给你答案。",
+            "相信你的直觉。",
+            "答案就在你心里。",
+            "时机未到，再等等。",
+            "现在还不是时候。",
+            "这件事情需要更多耐心。",
+            "别急，让子弹飞一会儿。",
+            "前景非常好。",
+            "一切都会如你所愿。",
+            "你会得到想要的。",
+            "这条路通向光。",
+            "美好的事情正在发生。",
+            "不要依赖运气，行动才有用。",
+            "先踏出第一步再说。",
+            "想法很好，但需要落实。",
+            "纸上谈兵没有意义。",
+            "先做好眼前的事。",
+            "答案是否定的。",
+            "恐怕不会如你所愿。",
+            "换个方向会更好。",
+            "放手吧，不值得。",
+            "此路不通，另寻他法。",
+            "试着换个角度思考。",
+            "答案在别处。",
+            "你需要听听别人的意见。",
+            "距离太近反而看不清。",
+            "退一步，海阔天空。",
+            "勇敢一点，没那么难。",
+            "恐惧是你唯一的阻碍。",
+            "你已经知道答案了。",
+            "承认吧，你心里有数。",
+            "也许吧，也许不。",
+            "宇宙还没有决定。",
+            "这个问题本身就有问题。",
+            "重新定义你的问题。",
+            "你问得太宽泛了。",
+            "专注于一个真正重要的问题。",
+            "今天不适合问这个。",
+            "明天再来翻我吧。",
+            "等月亮变圆了再说。",
+            "现在问这个，不太合适。",
+            "先去吃顿好的，再来问。",
+            "有人正在替你回答这个问题。",
+            "和你想象的不一样。",
+            "结果会让你惊讶。",
+            "你低估了自己。",
+            "你比答案更重要。",
+            "去问那个人，别来问我。",
+            "答案在酒里，不在书里。",
+            "多喝热水，答案自然来。",
+            "你需要的不是答案，是行动。",
+            "睡一觉，明天再想。",
+            "这个问题，时间会回答。",
+            "别问了，去努力。",
+            "你已经很接近了。",
+            "再坚持一下就好。",
+            "有人默默支持着你。",
+            "你最近运气不错。",
+            "小心行事，近期有变数。",
+            "好事多磨，别放弃。",
+            "你值得更好的答案。",
+            "放过自己吧。",
+            "今天是个好日子。",
+            "当你不再纠结，答案就来了。",
+            "你已经做得够好了。",
+        ];
+
+        const todayStr = () => new Date().toISOString().slice(0,10);
+
+        let isOpened = false;
+        let currentAnswer = '';
+        let currentPage = '';
+
+        // ========== LocalStorage ==========
+        function getRecord() {
+            try {
+                return JSON.parse(localStorage.getItem('answer_book_record') || '{}');
+            } catch { return {}; }
+        }
+        function saveRecord(data) {
+            localStorage.setItem('answer_book_record', JSON.stringify(data));
+        }
+
+        // ========== 初始化 ==========
+        function init() {
+            const record = getRecord();
+            if (record.date === todayStr() && record.answer) {
+                // 今日已翻过，显示上次的答案
+                showAnswer(record.answer, record.page, false);
+                isOpened = true;
+                document.getElementById('click-hint').classList.add('hidden');
+                document.getElementById('action-buttons').classList.remove('hidden');
+            }
+            renderHistory();
+        }
+
+        // ========== 翻开书本 ==========
+        function openBook() {
+            if (isOpened) return;
+
+            // 随机选答案
+            const idx = Math.floor(Math.random() * ANSWERS.length);
+            currentAnswer = ANSWERS[idx];
+            currentPage = String(Math.floor(Math.random() * 368) + 1).padStart(3, '0');
+
+            const cover = document.getElementById('book-cover');
+            const page = document.getElementById('book-page');
+
+            // 翻书动画
+            cover.classList.add('open');
+
+            setTimeout(() => {
+                page.classList.add('show');
+                document.getElementById('page-number').textContent = `第 ${currentPage} 页`;
+                document.getElementById('answer-text').textContent = currentAnswer;
+            }, 400);
+
+            isOpened = true;
+
+            // 保存
+            const record = getRecord();
+            record.date = todayStr();
+            record.answer = currentAnswer;
+            record.page = currentPage;
+            if (!record.history) record.history = [];
+            if (!record.history.find(h => h.date === todayStr())) {
+                record.history.push({ date: todayStr(), answer: currentAnswer, page: currentPage });
+                if (record.history.length > 7) record.history = record.history.slice(-7);
+            }
+            saveRecord(record);
+
+            // 显示按钮
+            setTimeout(() => {
+                document.getElementById('click-hint').classList.add('hidden');
+                document.getElementById('action-buttons').classList.remove('hidden');
+                renderHistory();
+            }, 900);
+        }
+
+        // ========== 重置（不清除记录，只是动画重播）==========
+        function resetBook() {
+            const cover = document.getElementById('book-cover');
+            const page = document.getElementById('book-page');
+
+            page.classList.remove('show');
+            cover.classList.remove('open');
+
+            setTimeout(() => {
+                openBook();
+            }, 500);
+        }
+
+        // ========== 渲染历史 ==========
+        function renderHistory() {
+            const record = getRecord();
+            if (!record.history || record.history.length === 0) {
+                document.getElementById('history-section').classList.add('hidden');
+                return;
+            }
+            document.getElementById('history-section').classList.remove('hidden');
+            const container = document.getElementById('history-list');
+            container.innerHTML = record.history.slice(-6).reverse().map(h => `
+                <div class="history-card">
+                    <div class="day-label">${h.date}</div>
+                    <div class="answer-preview" title="${h.answer}">${h.answer}</div>
+                </div>
+            `).join('');
+        }
+
+        // ========== 分享截图 ==========
+        function shareAnswer() {
+            if (!currentAnswer) return;
+
+            const shareEl = document.createElement('div');
+            shareEl.style.cssText = 'position:fixed;top:0;left:-4000px;opacity:0;pointer-events:none;z-index:-1;';
+            shareEl.innerHTML = `
+                <div id="share-card" style="
+                    width:340px;
+                    background:linear-gradient(135deg,#1e1b4b,#0f172a);
+                    border:1px solid rgba(99,102,241,0.5);
+                    border-radius:16px;
+                    padding:28px 20px;
+                    font-family:'Segoe UI',sans-serif;
+                    color:#e2e8f0;
+                    box-sizing:border-box;
+                ">
+                    <div style="text-align:center;margin-bottom:16px;">
+                        <div style="font-size:0.8rem;color:#a78bfa;letter-spacing:0.1em;">ANSWER BOOK</div>
+                        <div style="font-size:1.4rem;font-weight:800;color:#e2e8f0;margin:6px 0 2px;">
+                            答案之书
+                        </div>
+                        <div style="font-size:0.7rem;color:#64748b;">第 ${currentPage} 页</div>
+                    </div>
+                    <div style="width:60%;height:1px;background:linear-gradient(90deg,transparent,#6366f1,transparent);margin:10px auto;"></div>
+                    <div style="font-size:1rem;color:#fbbf24;line-height:1.8;text-align:center;margin:12px 0;font-weight:500;">
+                        ${currentAnswer}
+                    </div>
+                    <div style="text-align:center;font-size:0.65rem;color:#64748b;margin-top:14px;">
+                        ${todayStr()} · 蘿嵐工具箱
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(shareEl);
+
+            const targetEl = shareEl.firstElementChild;
+
+            function doCapture() {
+                html2canvas(targetEl, {
+                    backgroundColor: null,
+                    scale: 2,
+                    useCORS: true,
+                }).then(canvas => {
+                    canvas.toBlob(blob => {
+                        if (!blob) return;
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `答案之书_${todayStr()}.png`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        setTimeout(() => document.body.removeChild(shareEl), 300);
+                    }, 'image/png');
+                }).catch(() => {
+                    document.body.removeChild(shareEl);
+                });
+            }
+
+            if (window.html2canvas) {
+                doCapture();
+            } else {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+                script.onload = doCapture;
+                script.onerror = () => { document.body.removeChild(shareEl); };
+                document.head.appendChild(script);
+            }
+        }
+
+        // ========== 侧边栏 ==========
+        function toggleSidebar() {
+            const sb = document.getElementById('sidebar');
+            const ov = document.getElementById('sidebar-overlay');
+            const open = sb.style.transform === 'translateX(0px)' || sb.getBoundingClientRect().left === 0;
+            if (open) {
+                sb.style.transform = 'translateX(-100%)';
+                ov.classList.remove('show');
+            } else {
+                sb.style.transform = 'translateX(0)';
+                ov.classList.add('show');
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
