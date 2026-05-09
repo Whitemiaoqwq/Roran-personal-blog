@@ -33,60 +33,108 @@
         * { box-sizing: border-box; }
         
         body {
-            background-color: #f0f4f8;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(145,163,176,0.1) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(163,177,138,0.1) 0%, transparent 20%);
+            background: linear-gradient(135deg, #f0f4f8 0%, #e8edf2 50%, #f0f4f8 100%);
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
-        /* 骰子容器 */
-        .dice-container {
-            perspective: 1000px;
+        /* ========== 拟物化骰子样式 ========== */
+        .dice-wrapper {
+            perspective: 800px;
+            width: 70px;
+            height: 70px;
             display: inline-block;
+            margin: 8px;
         }
         
-        .dice {
-            width: 60px;
-            height: 60px;
+        .dice-3d {
+            width: 100%;
+            height: 100%;
             position: relative;
             transform-style: preserve-3d;
-            transition: transform 0.5s ease;
+            transition: transform 0.3s ease;
             cursor: pointer;
         }
         
-        .dice.rolling {
-            animation: diceRoll 0.8s ease-out;
-        }
-        
-        @keyframes diceRoll {
-            0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
-            25% { transform: rotateX(180deg) rotateY(90deg) rotateZ(45deg); }
-            50% { transform: rotateX(360deg) rotateY(180deg) rotateZ(90deg); }
-            75% { transform: rotateX(540deg) rotateY(270deg) rotateZ(135deg); }
-            100% { transform: rotateX(720deg) rotateY(360deg) rotateZ(180deg); }
-        }
-        
-        /* 骰子面 */
         .dice-face {
             position: absolute;
             width: 100%;
             height: 100%;
-            border-radius: 10px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 1.2rem;
             backface-visibility: hidden;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 
+                inset 0 0 15px rgba(0,0,0,0.1),
+                0 2px 8px rgba(0,0,0,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
         }
         
-        /* 骰子类型卡片 */
+        /* 骰子点数样式（D6的点） */
+        .dice-dots {
+            display: grid;
+            width: 80%;
+            height: 80%;
+            padding: 8px;
+        }
+        
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0.9;
+        }
+        
+        /* D6立方体各面位置 */
+        .dice-d6 .face-1 { transform: rotateY(0deg) translateZ(35px); }
+        .dice-d6 .face-2 { transform: rotateY(180deg) translateZ(35px); }
+        .dice-d6 .face-3 { transform: rotateY(-90deg) translateZ(35px); }
+        .dice-d6 .face-4 { transform: rotateY(90deg) translateZ(35px); }
+        .dice-d6 .face-5 { transform: rotateX(90deg) translateZ(35px); }
+        .dice-d6 .face-6 { transform: rotateX(-90deg) translateZ(35px); }
+        
+        /* 投掷动画 */
+        @keyframes diceRoll3D {
+            0% { 
+                transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); 
+            }
+            15% { 
+                transform: rotateX(180deg) rotateY(90deg) rotateZ(45deg) translateY(-30px); 
+            }
+            30% { 
+                transform: rotateX(360deg) rotateY(180deg) rotateZ(90deg) translateY(-50px); 
+            }
+            50% { 
+                transform: rotateX(540deg) rotateY(270deg) rotateZ(135deg) translateY(-20px); 
+            }
+            70% { 
+                transform: rotateX(720deg) rotateY(360deg) rotateZ(180deg) translateY(-40px); 
+            }
+            85% { 
+                transform: rotateX(800deg) rotateY(405deg) rotateZ(200deg) translateY(-10px); 
+            }
+            100% { 
+                transform: var(--final-rotation); 
+            }
+        }
+        
+        .dice-3d.rolling {
+            animation: diceRoll3D 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        
+        /* 骰子池中的骰子悬停效果 */
+        .dice-wrapper:hover .dice-3d:not(.rolling) {
+            transform: rotateX(15deg) rotateY(15deg);
+        }
+        
+        /* ========== 骰子类型卡片 ========== */
         .dice-type-card {
             transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             cursor: pointer;
+            border: 2px solid transparent;
         }
         
         .dice-type-card:hover {
@@ -95,19 +143,19 @@
         }
         
         .dice-type-card.selected {
-            ring: 3px;
-            ring-color: #91A3B0;
+            border-color: #91A3B0;
             background-color: rgba(145,163,176,0.1);
         }
         
-        /* 颜色选项 */
+        /* ========== 颜色选项 ========== */
         .color-option {
-            width: 30px;
-            height: 30px;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
             cursor: pointer;
-            transition: transform 0.2s ease;
-            border: 2px solid transparent;
+            transition: all 0.2s ease;
+            border: 3px solid transparent;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
         
         .color-option:hover {
@@ -116,13 +164,31 @@
         
         .color-option.active {
             border-color: #333;
-            transform: scale(1.1);
+            transform: scale(1.15);
+            box-shadow: 0 0 0 3px rgba(51,51,51,0.2);
         }
         
-        /* 投掷按钮动画 */
+        /* ========== 投掷按钮 ========== */
         .roll-button {
             transition: all 0.3s ease;
             background: linear-gradient(135deg, #91A3B0 0%, #A3B18A 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .roll-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .roll-button:hover::before {
+            left: 100%;
         }
         
         .roll-button:hover {
@@ -134,20 +200,66 @@
             transform: scale(0.98);
         }
         
-        /* 结果动画 */
-        .result-number {
-            animation: resultPop 0.5s ease-out;
+        /* ========== 结果展示动画 ========== */
+        .result-card {
+            animation: resultSlideIn 0.5s ease-out;
+            transition: all 0.3s ease;
         }
         
-        @keyframes resultPop {
-            0% { transform: scale(0); opacity: 0; }
-            70% { transform: scale(1.2); }
-            100% { transform: scale(1); opacity: 1; }
+        .result-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
         }
         
-        /* 历史记录项 */
+        @keyframes resultSlideIn {
+            0% { 
+                opacity: 0; 
+                transform: translateY(20px) scale(0.8); 
+            }
+            60% { 
+                transform: translateY(-5px) scale(1.05); 
+            }
+            100% { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            }
+        }
+        
+        /* ========== 颜色统计卡片 ========== */
+        .color-stat-card {
+            transition: all 0.3s ease;
+            animation: statPopIn 0.4s ease-out;
+        }
+        
+        @keyframes statPopIn {
+            0% { 
+                opacity: 0; 
+                transform: scale(0.5); 
+            }
+            70% { 
+                transform: scale(1.05); 
+            }
+            100% { 
+                opacity: 1; 
+                transform: scale(1); 
+            }
+        }
+        
+        /* ========== 历史记录项 ========== */
         .history-item {
             transition: all 0.3s ease;
+            animation: historySlideIn 0.3s ease-out;
+        }
+        
+        @keyframes historySlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
         
         .history-item:hover {
@@ -155,20 +267,63 @@
             transform: translateX(5px);
         }
         
-        /* 响应式调整 */
+        /* ========== 粒子效果容器 ========== */
+        .particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            animation: particleFly 1s ease-out forwards;
+        }
+        
+        @keyframes particleFly {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--tx), var(--ty)) scale(0);
+            }
+        }
+        
+        /* ========== 响应式 ========== */
         @media (max-width: 768px) {
-            .dice {
-                width: 50px;
-                height: 50px;
+            .dice-wrapper {
+                width: 55px;
+                height: 55px;
             }
             
-            .dice-face {
-                font-size: 1rem;
+            .dice-d6 .face-1,
+            .dice-d6 .face-2,
+            .dice-d6 .face-3,
+            .dice-d6 .face-4,
+            .dice-d6 .face-5,
+            .dice-d6 .face-6 {
+                transform-origin: center;
             }
+            
+            .dice-d6 .face-1 { transform: rotateY(0deg) translateZ(27.5px); }
+            .dice-d6 .face-2 { transform: rotateY(180deg) translateZ(27.5px); }
+            .dice-d6 .face-3 { transform: rotateY(-90deg) translateZ(27.5px); }
+            .dice-d6 .face-4 { transform: rotateY(90deg) translateZ(27.5px); }
+            .dice-d6 .face-5 { transform: rotateX(90deg) translateZ(27.5px); }
+            .dice-d6 .face-6 { transform: rotateX(-90deg) translateZ(27.5px); }
         }
     </style>
 </head>
 <body class="p-4 md:p-8">
+    
+    <!-- 粒子效果容器 -->
+    <div id="particles-container" class="particles-container"></div>
     
     <!-- 顶部导航 -->
     <nav class="max-w-6xl mx-auto mb-8 flex justify-between items-center">
@@ -179,7 +334,7 @@
         <h1 class="text-2xl md:text-3xl font-bold text-dark">
             <i class="fa fa-dice text-primary mr-2"></i>骰子小游戏
         </h1>
-        <div class="w-24"></div> <!-- 占位平衡 -->
+        <div class="w-24"></div>
     </nav>
     
     <main class="max-w-6xl mx-auto">
@@ -191,13 +346,12 @@
             </h2>
             
             <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4" id="dice-type-selector">
-                <!-- 骰子类型将通过JS动态生成 -->
             </div>
         </section>
         
         <div class="flex flex-col lg:flex-row gap-8">
             
-            <!-- 左侧：已选骰子和颜色选择 -->
+            <!-- 左侧 -->
             <div class="lg:w-2/3">
                 
                 <!-- 已选骰子池 -->
@@ -212,9 +366,9 @@
                         </button>
                     </div>
                     
-                    <div class="flex flex-wrap gap-4 min-h-[100px] p-4 bg-gray-50 rounded-xl" id="dice-pool">
+                    <div class="flex flex-wrap gap-2 min-h-[120px] p-4 bg-gray-50 rounded-xl justify-center" id="dice-pool">
                         <div class="text-gray-400 flex items-center justify-center w-full h-20">
-                            <p>还没有选择骰子，请从上方选择骰子类型</p>
+                            <p>点击上方骰子类型添加到池中</p>
                         </div>
                     </div>
                 </section>
@@ -238,6 +392,15 @@
                         </div>
                     </div>
                     
+                    <!-- 按颜色统计 -->
+                    <div id="color-stats" class="mb-6 hidden">
+                        <h3 class="text-lg font-bold text-dark mb-4 flex items-center">
+                            <i class="fa fa-pie-chart text-primary mr-2"></i>按颜色统计
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="color-stats-container">
+                        </div>
+                    </div>
+                    
                     <!-- 点数计算器 -->
                     <div class="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-xl p-6">
                         <div class="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -248,7 +411,7 @@
                             <div class="text-4xl font-bold text-primary" id="total-sum">0</div>
                             <div class="flex gap-2">
                                 <button id="add-modifier" class="px-4 py-2 bg-white rounded-lg shadow hover:shadow-md transition-shadow">
-                                    <i class="fa fa-plus mr-1"></i>加修正值
+                                    <i class="fa fa-plus mr-1"></i>修正值
                                 </button>
                                 <button id="reset-calc" class="px-4 py-2 bg-white rounded-lg shadow hover:shadow-md transition-shadow">
                                     <i class="fa fa-refresh mr-1"></i>重置
@@ -256,17 +419,16 @@
                             </div>
                         </div>
                         
-                        <!-- 修正值输入 -->
                         <div class="mt-4 flex items-center gap-2 hidden" id="modifier-input">
-                            <input type="number" id="modifier-value" class="w-20 px-3 py-2 border border-gray-300 rounded-lg" value="0">
+                            <input type="number" id="modifier-value" class="w-24 px-3 py-2 border border-gray-300 rounded-lg" value="0">
                             <button id="apply-modifier" class="px-3 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors">应用</button>
-                            <span class="text-sm text-gray-600">修正值范围：-100 到 100</span>
+                            <span class="text-sm text-gray-600">范围：-100 ~ 100</span>
                         </div>
                     </div>
                 </section>
             </div>
             
-            <!-- 右侧：颜色选择和历史记录 -->
+            <!-- 右侧 -->
             <div class="lg:w-1/3">
                 
                 <!-- 骰子颜色选择 -->
@@ -276,16 +438,14 @@
                     </h2>
                     
                     <div class="mb-4">
-                        <p class="text-sm text-gray-600 mb-3">选择骰子颜色外观</p>
+                        <p class="text-sm text-gray-600 mb-3">选择骰子颜色</p>
                         <div class="flex flex-wrap gap-3" id="color-options">
-                            <!-- 颜色选项将通过JS生成 -->
                         </div>
                     </div>
                     
                     <div class="mt-6 p-4 bg-gray-50 rounded-xl">
                         <h3 class="font-medium text-dark mb-2">预览</h3>
                         <div class="flex justify-center" id="color-preview">
-                            <!-- 预览骰子 -->
                         </div>
                     </div>
                 </section>
@@ -311,28 +471,26 @@
         </div>
     </main>
     
-    <!-- 页脚 -->
     <footer class="max-w-6xl mx-auto mt-12 pt-8 border-t border-gray-200 text-center text-gray-500 text-sm">
         <p>© 2026 蘿嵐的个人博客 | 骰子小游戏</p>
     </footer>
 
     <script>
         // ========== 全局变量 ==========
-        let selectedDiceTypes = []; // 已选骰子类型 {type: 'd6', sides: 6, color: '#...'}
-        let dicePool = []; // 骰子池中的骰子 {id: 1, type: 'd6', sides: 6, color: '#...'}
-        let rollHistory = []; // 投掷历史
-        let currentColor = '#91A3B0'; // 当前选择的骰子颜色
-        let modifier = 0; // 修正值
+        let dicePool = [];
+        let rollHistory = [];
+        let currentColor = '#91A3B0';
+        let modifier = 0;
         
         // 骰子类型定义
         const diceTypes = [
-            { id: 'd4', name: 'D4', sides: 4, description: '1-4', icon: 'fa-dice-d4' },
-            { id: 'd6', name: 'D6', sides: 6, description: '1-6', icon: 'fa-dice-d6' },
-            { id: 'd8', name: 'D8', sides: 8, description: '1-8', icon: 'fa-dice-d8' },
-            { id: 'd10', name: 'D10', sides: 10, description: '1-10', icon: 'fa-dice-d10' },
-            { id: 'd10x10', name: 'D10%', sides: 10, description: '十位', icon: 'fa-percent' },
-            { id: 'd12', name: 'D12', sides: 12, description: '1-12', icon: 'fa-dice-d12' },
-            { id: 'd20', name: 'D20', sides: 20, description: '1-20', icon: 'fa-dice-d20' }
+            { id: 'd4', name: 'D4', sides: 4, desc: '1-4' },
+            { id: 'd6', name: 'D6', sides: 6, desc: '1-6' },
+            { id: 'd8', name: 'D8', sides: 8, desc: '1-8' },
+            { id: 'd10', name: 'D10', sides: 10, desc: '1-10' },
+            { id: 'd10x10', name: 'D10%', sides: 10, desc: '十位' },
+            { id: 'd12', name: 'D12', sides: 12, desc: '1-12' },
+            { id: 'd20', name: 'D20', sides: 20, desc: '1-20' }
         ];
         
         // 颜色选项
@@ -347,14 +505,23 @@
             { name: '优雅黑', value: '#2C3E50' }
         ];
         
+        // 骰子点数对应的旋转角度
+        const diceRotations = {
+            1: 'rotateX(0deg) rotateY(0deg)',
+            2: 'rotateX(0deg) rotateY(-90deg)',
+            3: 'rotateX(0deg) rotateY(90deg)',
+            4: 'rotateX(0deg) rotateY(180deg)',
+            5: 'rotateX(-90deg) rotateY(0deg)',
+            6: 'rotateX(90deg) rotateY(0deg)'
+        };
+        
         // ========== 初始化 ==========
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', () => {
             initDiceTypeSelector();
             initColorOptions();
             updateDicePoolDisplay();
             updateRollButtonState();
             
-            // 绑定事件
             document.getElementById('roll-button').addEventListener('click', rollAllDice);
             document.getElementById('clear-dice').addEventListener('click', clearDicePool);
             document.getElementById('clear-history').addEventListener('click', clearHistory);
@@ -367,18 +534,15 @@
         function initDiceTypeSelector() {
             const container = document.getElementById('dice-type-selector');
             
-            diceTypes.forEach(diceType => {
+            diceTypes.forEach(dt => {
                 const card = document.createElement('div');
                 card.className = 'dice-type-card bg-white rounded-xl p-4 shadow-md text-center';
-                card.dataset.typeId = diceType.id;
-                
                 card.innerHTML = `
-                    <div class="text-3xl mb-2"><i class="fa ${diceType.icon} text-primary"></i></div>
-                    <h3 class="font-bold text-dark">${diceType.name}</h3>
-                    <p class="text-xs text-gray-500">${diceType.description}</p>
+                    <div class="text-3xl mb-2"><i class="fa fa-dice text-primary"></i></div>
+                    <h3 class="font-bold text-dark">${dt.name}</h3>
+                    <p class="text-xs text-gray-500">${dt.desc}</p>
                 `;
-                
-                card.addEventListener('click', () => addDiceToPool(diceType));
+                card.addEventListener('click', () => addDiceToPool(dt));
                 container.appendChild(card);
             });
         }
@@ -387,19 +551,17 @@
         function initColorOptions() {
             const container = document.getElementById('color-options');
             
-            colorOptions.forEach(color => {
-                const option = document.createElement('div');
-                option.className = 'color-option';
-                option.style.backgroundColor = color.value;
-                option.title = color.name;
-                option.dataset.color = color.value;
+            colorOptions.forEach(c => {
+                const opt = document.createElement('div');
+                opt.className = 'color-option';
+                opt.style.backgroundColor = c.value;
+                opt.title = c.name;
+                opt.dataset.color = c.value;
                 
-                if (color.value === currentColor) {
-                    option.classList.add('active');
-                }
+                if (c.value === currentColor) opt.classList.add('active');
                 
-                option.addEventListener('click', () => selectColor(color.value));
-                container.appendChild(option);
+                opt.addEventListener('click', () => selectColor(c.value));
+                container.appendChild(opt);
             });
             
             updateColorPreview();
@@ -407,54 +569,125 @@
         
         function selectColor(color) {
             currentColor = color;
-            
-            // 更新激活状态
-            document.querySelectorAll('.color-option').forEach(opt => {
-                opt.classList.remove('active');
-                if (opt.dataset.color === color) {
-                    opt.classList.add('active');
-                }
+            document.querySelectorAll('.color-option').forEach(o => {
+                o.classList.toggle('active', o.dataset.color === color);
             });
-            
             updateColorPreview();
         }
         
         function updateColorPreview() {
             const preview = document.getElementById('color-preview');
-            preview.innerHTML = `
-                <div class="dice-container">
-                    <div class="dice" style="background-color: ${currentColor}; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                        <span style="color: white; font-weight: bold; font-size: 1.5rem;">D6</span>
+            preview.innerHTML = createD6Dice(currentColor);
+        }
+        
+        // ========== 创建拟物化骰子HTML ==========
+        function createD6Dice(color, size = 'normal') {
+            const sizeClass = size === 'small' ? 'width: 50px; height: 50px;' : 'width: 70px; height: 70px;';
+            return `
+                <div class="dice-3d dice-d6" style="${sizeClass}">
+                    <div class="dice-face" style="background: linear-gradient(135deg, ${color}, ${adjustColor(color, -20)}); color: ${getContrastColor(color)};">
+                        <div class="dice-dots" style="grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr; justify-items: center; align-items: center;">
+                            <div class="dot" style="grid-area: 2/2;"></div>
+                        </div>
+                    </div>
+                    <div class="dice-face face-2" style="background: linear-gradient(135deg, ${color}, ${adjustColor(color, -20)}); color: ${getContrastColor(color)};">
+                        <div class="dice-dots" style="grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr; justify-items: center; align-items: center;">
+                            <div class="dot" style="grid-area: 1/1;"></div>
+                            <div class="dot" style="grid-area: 3/3;"></div>
+                        </div>
+                    </div>
+                    <div class="dice-face face-3" style="background: linear-gradient(135deg, ${color}, ${adjustColor(color, -20)}); color: ${getContrastColor(color)};">
+                        <div class="dice-dots" style="grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr; justify-items: center; align-items: center;">
+                            <div class="dot" style="grid-area: 1/1;"></div>
+                            <div class="dot" style="grid-area: 2/2;"></div>
+                            <div class="dot" style="grid-area: 3/3;"></div>
+                        </div>
+                    </div>
+                    <div class="dice-face face-4" style="background: linear-gradient(135deg, ${color}, ${adjustColor(color, -20)}); color: ${getContrastColor(color)};">
+                        <div class="dice-dots" style="grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr; justify-items: center; align-items: center;">
+                            <div class="dot" style="grid-area: 1/1;"></div>
+                            <div class="dot" style="grid-area: 1/3;"></div>
+                            <div class="dot" style="grid-area: 3/1;"></div>
+                            <div class="dot" style="grid-area: 3/3;"></div>
+                        </div>
+                    </div>
+                    <div class="dice-face face-5" style="background: linear-gradient(135deg, ${color}, ${adjustColor(color, -20)}); color: ${getContrastColor(color)};">
+                        <div class="dice-dots" style="grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr; justify-items: center; align-items: center;">
+                            <div class="dot" style="grid-area: 1/1;"></div>
+                            <div class="dot" style="grid-area: 1/3;"></div>
+                            <div class="dot" style="grid-area: 2/2;"></div>
+                            <div class="dot" style="grid-area: 3/1;"></div>
+                            <div class="dot" style="grid-area: 3/3;"></div>
+                        </div>
+                    </div>
+                    <div class="dice-face face-6" style="background: linear-gradient(135deg, ${color}, ${adjustColor(color, -20)}); color: ${getContrastColor(color)};">
+                        <div class="dice-dots" style="grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr; justify-items: center; align-items: center;">
+                            <div class="dot" style="grid-area: 1/1;"></div>
+                            <div class="dot" style="grid-area: 1/3;"></div>
+                            <div class="dot" style="grid-area: 2/1;"></div>
+                            <div class="dot" style="grid-area: 2/3;"></div>
+                            <div class="dot" style="grid-area: 3/1;"></div>
+                            <div class="dot" style="grid-area: 3/3;"></div>
+                        </div>
                     </div>
                 </div>
             `;
         }
         
+        function createGenericDice(color, text, sides) {
+            return `
+                <div class="dice-3d" style="width: 70px; height: 70px;">
+                    <div class="dice-face" style="background: linear-gradient(135deg, ${color}, ${adjustColor(color, -30)}); border-radius: 12px; color: ${getContrastColor(color)}; font-size: 1.5rem; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 0 20px rgba(0,0,0,0.1);">
+                        ${text}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 颜色辅助函数
+        function adjustColor(hex, amount) {
+            hex = hex.replace('#', '');
+            const num = parseInt(hex, 16);
+            let r = (num >> 16) + amount;
+            let g = ((num >> 8) & 0x00FF) + amount;
+            let b = (num & 0x0000FF) + amount;
+            r = Math.max(0, Math.min(255, r));
+            g = Math.max(0, Math.min(255, g));
+            b = Math.max(0, Math.min(255, b));
+            return `#${(r << 16 | g << 8 | b).toString(16).padStart(6, '0')}`;
+        }
+        
+        function getContrastColor(hex) {
+            hex = hex.replace('#', '');
+            const r = parseInt(hex.substr(0, 2), 16);
+            const g = parseInt(hex.substr(2, 2), 16);
+            const b = parseInt(hex.substr(4, 2), 16);
+            const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+            return brightness > 128 ? '#333333' : '#FFFFFF';
+        }
+        
         // ========== 骰子池管理 ==========
         function addDiceToPool(diceType) {
-            const diceId = Date.now() + Math.random();
             dicePool.push({
-                id: diceId,
+                id: Date.now() + Math.random(),
                 type: diceType.id,
                 sides: diceType.sides,
                 name: diceType.name,
                 color: currentColor
             });
-            
             updateDicePoolDisplay();
             updateRollButtonState();
         }
         
         function removeDiceFromPool(diceId) {
-            dicePool = dicePool.filter(dice => dice.id !== diceId);
+            dicePool = dicePool.filter(d => d.id !== diceId);
             updateDicePoolDisplay();
             updateRollButtonState();
         }
         
         function clearDicePool() {
             if (dicePool.length === 0) return;
-            
-            if (confirm('确定要清空骰子池吗？')) {
+            if (confirm('确定清空骰子池？')) {
                 dicePool = [];
                 updateDicePoolDisplay();
                 updateRollButtonState();
@@ -463,148 +696,215 @@
         
         function updateDicePoolDisplay() {
             const container = document.getElementById('dice-pool');
-            const countElement = document.getElementById('dice-count');
-            
-            countElement.textContent = `${dicePool.length} 个骰子`;
+            const countEl = document.getElementById('dice-count');
+            countEl.textContent = `${dicePool.length} 个骰子`;
             
             if (dicePool.length === 0) {
-                container.innerHTML = `
-                    <div class="text-gray-400 flex items-center justify-center w-full h-20">
-                        <p>还没有选择骰子，请从上方选择骰子类型</p>
-                    </div>
-                `;
+                container.innerHTML = '<div class="text-gray-400 flex items-center justify-center w-full h-20"><p>点击上方骰子类型添加到池中</p></div>';
                 return;
             }
             
             container.innerHTML = '';
-            
             dicePool.forEach(dice => {
-                const diceElement = document.createElement('div');
-                diceElement.className = 'dice-container';
-                diceElement.innerHTML = `
-                    <div class="dice" style="background-color: ${dice.color}; border-radius: 10px; display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; position: relative;">
-                        <span style="color: white; font-weight: bold; font-size: 1.2rem;">${dice.name}</span>
-                        <button class="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center hover:bg-red-600 transition-colors" onclick="removeDiceFromPool(${dice.id})">
-                            <i class="fa fa-times"></i>
-                        </button>
-                    </div>
-                `;
+                const wrapper = document.createElement('div');
+                wrapper.className = 'dice-wrapper';
+                wrapper.innerHTML = createD6Dice(dice.color, 'small');
                 
-                container.appendChild(diceElement);
+                // 添加删除按钮
+                const delBtn = document.createElement('button');
+                delBtn.className = 'absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center hover:bg-red-600 transition-colors z-10';
+                delBtn.innerHTML = '<i class="fa fa-times"></i>';
+                delBtn.onclick = () => removeDiceFromPool(dice.id);
+                wrapper.style.position = 'relative';
+                wrapper.appendChild(delBtn);
+                
+                container.appendChild(wrapper);
             });
         }
         
         function updateRollButtonState() {
-            const button = document.getElementById('roll-button');
-            button.disabled = dicePool.length === 0;
+            document.getElementById('roll-button').disabled = dicePool.length === 0;
         }
         
         // ========== 投掷骰子 ==========
         function rollAllDice() {
             if (dicePool.length === 0) return;
             
+            const btn = document.getElementById('roll-button');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>投掷中...';
+            
             const results = [];
             let total = 0;
             
-            // 禁用投掷按钮
-            const rollButton = document.getElementById('roll-button');
-            rollButton.disabled = true;
-            rollButton.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>投掷中...';
+            // 先播放射击动画
+            animateDiceRolling();
             
-            // 模拟投掷延迟
             setTimeout(() => {
-                // 计算每个骰子的结果
                 dicePool.forEach(dice => {
                     let result;
-                    
-                    // 特殊处理 d10x10 (十位骰子)
                     if (dice.type === 'd10x10') {
                         result = Math.floor(Math.random() * 10) * 10;
                     } else {
                         result = Math.floor(Math.random() * dice.sides) + 1;
                     }
-                    
                     results.push({
                         type: dice.name,
                         sides: dice.sides,
                         result: result,
                         color: dice.color
                     });
-                    
                     total += result;
                 });
                 
-                // 应用修正值
                 const finalTotal = total + modifier;
-                
-                // 显示结果
                 displayRollResults(results, total, finalTotal);
-                
-                // 添加到历史记录
                 addToHistory(results, total, finalTotal);
+                updateColorStats(results);
+                createParticles();
                 
-                // 恢复按钮状态
-                rollButton.disabled = false;
-                rollButton.innerHTML = '<i class="fa fa-play-circle mr-2"></i>投掷骰子';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa fa-play-circle mr-2"></i>投掷骰子';
                 updateRollButtonState();
-            }, 800);
+            }, 1200);
         }
         
+        function animateDiceRolling() {
+            const poolEl = document.getElementById('dice-pool');
+            const diceEls = poolEl.querySelectorAll('.dice-3d');
+            diceEls.forEach(el => {
+                el.classList.add('rolling');
+                el.style.setProperty('--final-rotation', 'rotateX(0deg) rotateY(0deg)');
+            });
+            
+            setTimeout(() => {
+                diceEls.forEach(el => el.classList.remove('rolling'));
+            }, 1200);
+        }
+        
+        // ========== 显示结果 ==========
         function displayRollResults(results, total, finalTotal) {
             const container = document.getElementById('roll-results');
             container.innerHTML = '';
             
-            results.forEach((result, index) => {
-                const resultElement = document.createElement('div');
-                resultElement.className = 'result-number bg-white rounded-xl p-4 shadow text-center';
-                resultElement.style.borderTop = `4px solid ${result.color}`;
-                
-                resultElement.innerHTML = `
-                    <div class="text-sm text-gray-500 mb-1">${result.type}</div>
-                    <div class="text-3xl font-bold" style="color: ${result.color}">${result.result}</div>
+            results.forEach((r, i) => {
+                const card = document.createElement('div');
+                card.className = 'result-card bg-white rounded-xl p-4 shadow text-center';
+                card.style.borderTop = `4px solid ${r.color}`;
+                card.style.animationDelay = `${i * 0.1}s`;
+                card.innerHTML = `
+                    <div class="text-sm text-gray-500 mb-1">${r.type}</div>
+                    <div class="text-3xl font-bold" style="color: ${r.color}">${r.result}</div>
                 `;
-                
-                container.appendChild(resultElement);
+                container.appendChild(card);
             });
             
-            // 显示总和
-            const totalElement = document.getElementById('total-sum');
-            totalElement.textContent = finalTotal;
+            const totalEl = document.getElementById('total-sum');
+            totalEl.textContent = finalTotal;
             
-            // 如果有修正值，显示详情
             if (modifier !== 0) {
-                const totalContainer = totalElement.parentElement;
-                let detailElement = document.getElementById('total-detail');
-                
-                if (!detailElement) {
-                    detailElement = document.createElement('div');
-                    detailElement.id = 'total-detail';
-                    detailElement.className = 'text-sm text-gray-500 mt-1';
-                    totalContainer.appendChild(detailElement);
+                let detail = document.getElementById('total-detail');
+                if (!detail) {
+                    detail = document.createElement('div');
+                    detail.id = 'total-detail';
+                    detail.className = 'text-sm text-gray-500 mt-1';
+                    totalEl.parentElement.appendChild(detail);
                 }
+                detail.textContent = `${total} ${modifier >= 0 ? '+' : ''} ${modifier} = ${finalTotal}`;
+            }
+        }
+        
+        // ========== 按颜色统计 ==========
+        function updateColorStats(results) {
+            const container = document.getElementById('color-stats-container');
+            const statsSection = document.getElementById('color-stats');
+            
+            // 按颜色分组
+            const colorGroups = {};
+            results.forEach(r => {
+                if (!colorGroups[r.color]) {
+                    colorGroups[r.color] = { total: 0, count: 0, dice: [] };
+                }
+                colorGroups[r.color].total += r.result;
+                colorGroups[r.color].count++;
+                colorGroups[r.color].dice.push(r.result);
+            });
+            
+            if (Object.keys(colorGroups).length <= 1) {
+                statsSection.classList.add('hidden');
+                return;
+            }
+            
+            statsSection.classList.remove('hidden');
+            container.innerHTML = '';
+            
+            Object.entries(colorGroups).forEach(([color, data]) => {
+                const card = document.createElement('div');
+                card.className = 'color-stat-card bg-white rounded-xl p-4 shadow';
+                card.style.borderLeft = `4px solid ${color}`;
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                            <div style="width: 16px; height: 16px; background: ${color}; border-radius: 50%;"></div>
+                            <span class="font-medium text-dark">${getColorName(color)}</span>
+                        </div>
+                        <span class="text-2xl font-bold" style="color: ${color}">${data.total}</span>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        ${data.count} 个骰子：${data.dice.join(' + ')}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        function getColorName(hex) {
+            const found = colorOptions.find(c => c.value === hex);
+            return found ? found.name : hex;
+        }
+        
+        // ========== 粒子效果 ==========
+        function createParticles() {
+            const container = document.getElementById('particles-container');
+            const colors = ['#91A3B0', '#A3B18A', '#C9A9A6', '#D4A373', '#E74C3C', '#3498DB', '#F1C40F'];
+            
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                const size = Math.random() * 8 + 4;
+                const x = Math.random() * window.innerWidth;
+                const y = Math.random() * window.innerHeight;
+                const tx = (Math.random() - 0.5) * 200;
+                const ty = (Math.random() - 0.5) * 200;
                 
-                detailElement.textContent = `${total} ${modifier >= 0 ? '+' : ''} ${modifier} = ${finalTotal}`;
+                particle.style.cssText = `
+                    left: ${x}px;
+                    top: ${y}px;
+                    width: ${size}px;
+                    height: ${size}px;
+                    background: ${colors[Math.floor(Math.random() * colors.length)]};
+                    --tx: ${tx}px;
+                    --ty: ${ty}px;
+                `;
+                
+                container.appendChild(particle);
+                
+                setTimeout(() => particle.remove(), 1000);
             }
         }
         
         // ========== 历史记录 ==========
         function addToHistory(results, total, finalTotal) {
-            const historyItem = {
+            rollHistory.unshift({
                 id: Date.now(),
-                timestamp: new Date().toLocaleTimeString(),
+                time: new Date().toLocaleTimeString(),
                 results: results,
                 total: total,
                 finalTotal: finalTotal,
                 modifier: modifier
-            };
+            });
             
-            rollHistory.unshift(historyItem);
-            
-            // 只保留最近10条记录
-            if (rollHistory.length > 10) {
-                rollHistory = rollHistory.slice(0, 10);
-            }
-            
+            if (rollHistory.length > 10) rollHistory = rollHistory.slice(0, 10);
             updateHistoryDisplay();
         }
         
@@ -612,39 +912,30 @@
             const container = document.getElementById('roll-history');
             
             if (rollHistory.length === 0) {
-                container.innerHTML = `
-                    <div class="text-gray-400 text-center py-8">
-                        历史记录将显示在这里
-                    </div>
-                `;
+                container.innerHTML = '<div class="text-gray-400 text-center py-8">历史记录将显示在这里</div>';
                 return;
             }
             
             container.innerHTML = '';
-            
             rollHistory.forEach(item => {
-                const historyElement = document.createElement('div');
-                historyElement.className = 'history-item bg-gray-50 rounded-lg p-4';
-                
-                let resultsText = item.results.map(r => `${r.type}:${r.result}`).join(', ');
-                
-                historyElement.innerHTML = `
+                const el = document.createElement('div');
+                el.className = 'history-item bg-gray-50 rounded-lg p-4';
+                const resultsText = item.results.map(r => `${r.type}:${r.result}`).join(', ');
+                el.innerHTML = `
                     <div class="flex justify-between items-start mb-2">
-                        <span class="text-xs text-gray-500">${item.timestamp}</span>
+                        <span class="text-xs text-gray-500">${item.time}</span>
                         <span class="font-bold text-primary">${item.finalTotal}</span>
                     </div>
                     <div class="text-sm text-gray-700">${resultsText}</div>
                     ${item.modifier !== 0 ? `<div class="text-xs text-gray-500 mt-1">修正值: ${item.modifier >= 0 ? '+' : ''}${item.modifier}</div>` : ''}
                 `;
-                
-                container.appendChild(historyElement);
+                container.appendChild(el);
             });
         }
         
         function clearHistory() {
             if (rollHistory.length === 0) return;
-            
-            if (confirm('确定要清空历史记录吗？')) {
+            if (confirm('确定清空历史记录？')) {
                 rollHistory = [];
                 updateHistoryDisplay();
             }
@@ -652,38 +943,28 @@
         
         // ========== 点数计算器 ==========
         function toggleModifierInput() {
-            const input = document.getElementById('modifier-input');
-            input.classList.toggle('hidden');
+            document.getElementById('modifier-input').classList.toggle('hidden');
         }
         
         function applyModifier() {
-            const value = parseInt(document.getElementById('modifier-value').value) || 0;
-            modifier = Math.max(-100, Math.min(100, value));
-            
+            const val = parseInt(document.getElementById('modifier-value').value) || 0;
+            modifier = Math.max(-100, Math.min(100, val));
             document.getElementById('modifier-value').value = modifier;
             
-            // 更新当前显示的总和
             const currentTotal = parseInt(document.getElementById('total-sum').textContent) || 0;
-            const baseTotal = currentTotal - (parseInt(document.getElementById('modifier-value').dataset.oldValue) || 0);
-            document.getElementById('total-sum').textContent = baseTotal + modifier;
+            document.getElementById('total-sum').textContent = currentTotal;
             
-            // 隐藏输入框
             document.getElementById('modifier-input').classList.add('hidden');
         }
         
         function resetCalculator() {
             modifier = 0;
             document.getElementById('total-sum').textContent = '0';
-            document.getElementById('roll-results').innerHTML = `
-                <div class="text-gray-400 text-center py-8 col-span-full">
-                    投掷结果将显示在这里
-                </div>
-            `;
+            document.getElementById('roll-results').innerHTML = '<div class="text-gray-400 text-center py-8 col-span-full">投掷结果将显示在这里</div>';
+            document.getElementById('color-stats').classList.add('hidden');
             
-            const detailElement = document.getElementById('total-detail');
-            if (detailElement) {
-                detailElement.remove();
-            }
+            const detail = document.getElementById('total-detail');
+            if (detail) detail.remove();
         }
     </script>
 </body>
