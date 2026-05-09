@@ -1,0 +1,8 @@
+# 音乐工程草稿（不对外展示）
+flp/
+
+# 临时文件
+*.tmp
+*.log
+.DS_Store
+Thumbs.db

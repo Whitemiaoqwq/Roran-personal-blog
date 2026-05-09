@@ -89,6 +89,15 @@
         .control-btn:hover {
             transform: scale(1.1);
         }
+
+        /* 主题按钮激活态 */
+        .theme-btn.active {
+            background-color: rgba(109, 174, 141, 0.25);
+            box-shadow: 0 0 0 2px rgba(109, 174, 141, 0.5);
+        }
+        .theme-btn.active .fa-sun-o    { color: #f59e0b !important; }
+        .theme-btn.active .fa-leaf     { color: #16a34a !important; }
+        .theme-btn.active .fa-moon-o   { color: #60a5fa !important; }
         
         /* 图片样式 */
         .reading-content img {
@@ -174,13 +183,13 @@
                 
                 <!-- 主题切换 -->
                 <div class="flex items-center bg-gray-100 rounded-full p-1">
-                    <button id="theme-day" class="p-2 rounded-full hover:bg-white control-btn" title="日间模式">
+                    <button id="theme-day" class="theme-btn p-2 rounded-full control-btn active" title="日间模式">
                         <i class="fa fa-sun-o text-yellow-500"></i>
                     </button>
-                    <button id="theme-eye" class="p-2 rounded-full hover:bg-white control-btn" title="护眼模式">
+                    <button id="theme-eye" class="theme-btn p-2 rounded-full control-btn" title="护眼模式">
                         <i class="fa fa-leaf text-green-600"></i>
                     </button>
-                    <button id="theme-night" class="p-2 rounded-full hover:bg-white control-btn" title="夜间模式">
+                    <button id="theme-night" class="theme-btn p-2 rounded-full control-btn" title="夜间模式">
                         <i class="fa fa-moon-o text-blue-800"></i>
                     </button>
                 </div>
@@ -280,8 +289,10 @@
         </div>
     </div>
     
-    <!-- 点击遮罩层 - 用于在移动设备上点击空白处关闭侧边栏 -->
-    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
+            <!-- 点击遮罩层 - 用于在移动设备上点击空白处关闭侧边栏 -->
+            <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
+            <!-- 章节侧边栏遮罩层 - 关闭章节列表用 -->
+            <div id="chapter-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
 
  
     <script>
@@ -289,7 +300,8 @@
         // 配置选项
         const config = {
             // 设置为true从GitHub加载文件，false从本地加载
-            loadFromGithub: true,
+            // 自动检测：本地调试用相对路径，GitHub Pages 用完整 CDN URL
+            loadFromGithub: !window.location.hostname.match(/localhost|127\.0\.0\.1/),
             // GitHub仓库配置
             github: {
                 owner: 'Whitemiaoqwq',
@@ -342,6 +354,7 @@
         const themeDay = document.getElementById('theme-day');
         const themeEye = document.getElementById('theme-eye');
         const themeNight = document.getElementById('theme-night');
+        const chapterOverlay = document.getElementById('chapter-overlay');
         
         // 初始化
         document.addEventListener('DOMContentLoaded', () => {
@@ -386,6 +399,7 @@
                     // 在移动设备上，点击章节后关闭侧边栏
                     if (window.innerWidth < 768) {
                         chapterSidebar.classList.remove('active');
+                        chapterOverlay.classList.add('hidden');
                     }
                 });
                 
@@ -545,14 +559,23 @@
             // 章节侧边栏切换
             chapterToggle.addEventListener('click', () => {
                 chapterSidebar.classList.add('active');
+                chapterOverlay.classList.remove('hidden');
             });
-            
+
             chapterToggleBottom.addEventListener('click', () => {
                 chapterSidebar.classList.add('active');
+                chapterOverlay.classList.remove('hidden');
             });
-            
+
             closeChapter.addEventListener('click', () => {
                 chapterSidebar.classList.remove('active');
+                chapterOverlay.classList.add('hidden');
+            });
+
+            // 点击遮罩层关闭章节侧边栏
+            chapterOverlay.addEventListener('click', () => {
+                chapterSidebar.classList.remove('active');
+                chapterOverlay.classList.add('hidden');
             });
             
             // 点击阅读区域中间位置打开章节列表
@@ -567,6 +590,7 @@
                 // 如果点击位置在中心区域（100px范围内）
                 if (Math.abs(clickX - centerX) < 100 && Math.abs(clickY - centerY) < 100) {
                     chapterSidebar.classList.toggle('active');
+                    chapterOverlay.classList.toggle('hidden');
                 }
             });
             
@@ -659,21 +683,20 @@
             document.body.classList.remove('bg-day-bg', 'text-day-text');
             document.body.classList.remove('bg-eye-bg', 'text-eye-text');
             document.body.classList.remove('bg-night-bg', 'text-night-text');
-            
+
             // 添加当前主题类
             document.body.classList.add(`bg-${theme}-bg`, `text-${theme}-text`);
-            
-            // 更新按钮样式
-            themeDay.classList.remove('bg-day-bg', 'text-day-text');
-            themeEye.classList.remove('bg-eye-bg', 'text-eye-text');
-            themeNight.classList.remove('bg-night-bg', 'text-night-text');
-            
+
+            // 更新按钮激活态
+            themeDay.classList.remove('active');
+            themeEye.classList.remove('active');
+            themeNight.classList.remove('active');
             if (theme === 'day') {
-                themeDay.classList.add('bg-day-bg', 'text-day-text');
+                themeDay.classList.add('active');
             } else if (theme === 'eye') {
-                themeEye.classList.add('bg-eye-bg', 'text-eye-text');
+                themeEye.classList.add('active');
             } else if (theme === 'night') {
-                themeNight.classList.add('bg-night-bg', 'text-night-text');
+                themeNight.classList.add('active');
             }
         }
         

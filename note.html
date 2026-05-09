@@ -243,13 +243,13 @@
                 <button id="prev-chapter-bottom" class="p-3 text-diary-text-secondary hover:text-primary transition-colors">
                     <i class="fa fa-chevron-left"></i>
                 </button>
-                <button id="font-smaller" class="p-3 text-diary-text-secondary hover:text-primary transition-colors">
+                <button id="font-smaller-mobile" class="p-3 text-diary-text-secondary hover:text-primary transition-colors">
                     <i class="fa fa-text-height"></i>
                 </button>
                 <button id="chapter-toggle-bottom" class="p-3 text-primary">
                     <i class="fa fa-list-ul"></i>
                 </button>
-                <button id="font-larger" class="p-3 text-diary-text-secondary hover:text-primary transition-colors">
+                <button id="font-larger-mobile" class="p-3 text-diary-text-secondary hover:text-primary transition-colors">
                     <i class="fa fa-text-height" style="transform: scaleY(1.5);"></i>
                 </button>
                 <button id="next-chapter-bottom" class="p-3 text-diary-text-secondary hover:text-primary transition-colors">
@@ -277,7 +277,8 @@
     <!-- 配置信息 -->
     <script>
         const config = {
-            loadFromGithub: true, // 是否从GitHub加载文件
+            // 自动检测：本地调试用相对路径，GitHub Pages 用完整 CDN URL
+            loadFromGithub: !window.location.hostname.match(/localhost|127\.0\.0\.1/),
             github: {
                 owner: 'Whitemiaoqwq',
                 repo: 'Roran-personal-blog',
@@ -635,7 +636,7 @@
                 renderNoteList();
             });
             
-            // 字体大小调节
+            // 字体大小调节（桌面端）
             fontSmaller.addEventListener('click', () => {
                 if (fontSize > 70) {
                     fontSize -= 10;
@@ -651,6 +652,28 @@
                     saveSettings();
                 }
             });
+
+            // 字体大小调节（移动端）
+            const fontSmallerMobile = document.getElementById('font-smaller-mobile');
+            const fontLargerMobile = document.getElementById('font-larger-mobile');
+            if (fontSmallerMobile) {
+                fontSmallerMobile.addEventListener('click', () => {
+                    if (fontSize > 70) {
+                        fontSize -= 10;
+                        updateFontSize();
+                        saveSettings();
+                    }
+                });
+            }
+            if (fontLargerMobile) {
+                fontLargerMobile.addEventListener('click', () => {
+                    if (fontSize < 150) {
+                        fontSize += 10;
+                        updateFontSize();
+                        saveSettings();
+                    }
+                });
+            }
         }
 
         // 更新字体大小

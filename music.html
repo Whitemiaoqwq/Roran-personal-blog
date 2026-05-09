@@ -4,18 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>猫之都音乐馆 - 蘿嵐的个人博客</title>
-    <!-- 引入Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 引入Font Awesome图标库 -->
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     
-    <!-- 配置Tailwind自定义颜色（马卡龙色系） -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        // 马卡龙色系
                         macaron: {
                             pink: '#f8cad5',
                             blue: '#b9d8e0',
@@ -40,50 +36,20 @@
         }
     </script>
     
-    <!-- 自定义工具类 -->
     <style type="text/tailwindcss">
         @layer utilities {
-            .content-auto {
-                content-visibility: auto;
-            }
-            .vinyl-spin {
-                animation: spin 20s linear infinite;
-            }
-            .pulse-light {
-                animation: pulse-light 2s infinite;
-            }
-            .eq-animation {
-                animation: eq-animation 1s infinite;
-            }
+            .content-auto { content-visibility: auto; }
+            .vinyl-spin { animation: spin 20s linear infinite; }
+            .pulse-light { animation: pulse-light 2s infinite; }
             .hover-scale {
                 transition: transform 0.3s ease;
             }
-            .hover-scale:hover {
-                transform: scale(1.03);
-            }
+            .hover-scale:hover { transform: scale(1.03); }
             .btn-pop {
                 transition: all 0.2s ease;
             }
-            .btn-pop:hover {
-                transform: translateY(-2px);
-            }
-            .btn-pop:active {
-                transform: translateY(0);
-            }
-            .nav-item-active {
-                position: relative;
-            }
-            .nav-item-active::after {
-                content: '';
-                position: absolute;
-                left: 50%;
-                bottom: -6px;
-                transform: translateX(-50%);
-                width: 30px;
-                height: 3px;
-                background-color: theme('colors.macaron.purple');
-                border-radius: 3px;
-            }
+            .btn-pop:hover { transform: translateY(-2px); }
+            .btn-pop:active { transform: translateY(0); }
         }
     </style>
     
@@ -99,15 +65,14 @@
             50% { opacity: 1; }
         }
         
-        @keyframes eq-animation {
-            0%, 100% { transform: scaleY(0.2); }
-            50% { transform: scaleY(1); }
+        /* 频谱柱条 - 更自然的高度变化 */
+        .eq-bar {
+            transition: height 0.08s ease-out;
+            border-radius: 3px 3px 0 0;
         }
         
         /* 平滑滚动 */
-        html {
-            scroll-behavior: smooth;
-        }
+        html { scroll-behavior: smooth; }
         
         /* 进度条样式 */
         .progress-bar {
@@ -118,10 +83,7 @@
             cursor: pointer;
             transition: background-color 0.2s ease;
         }
-        
-        .progress-bar:hover {
-            background-color: rgba(0, 0, 0, 0.15);
-        }
+        .progress-bar:hover { background-color: rgba(0, 0, 0, 0.15); }
         
         .progress-fill {
             height: 100%;
@@ -140,10 +102,7 @@
             cursor: pointer;
             transition: background-color 0.2s ease;
         }
-        
-        .volume-bar:hover {
-            background-color: rgba(0, 0, 0, 0.15);
-        }
+        .volume-bar:hover { background-color: rgba(0, 0, 0, 0.15); }
         
         .volume-fill {
             height: 100%;
@@ -153,28 +112,25 @@
             transition: width 0.1s linear;
         }
         
-        /* 音乐列表滚动条样式 */
-        .music-list-container::-webkit-scrollbar {
-            width: 4px;
-        }
-        
+        /* 音乐列表滚动条 */
+        .music-list-container::-webkit-scrollbar { width: 4px; }
         .music-list-container::-webkit-scrollbar-track {
             background: rgba(0, 0, 0, 0.05);
             border-radius: 2px;
         }
-        
         .music-list-container::-webkit-scrollbar-thumb {
             background: rgba(0, 0, 0, 0.2);
             border-radius: 2px;
         }
         
-        /* 动画延迟 */
-        .delay-100 { animation-delay: 100ms; }
-        .delay-200 { animation-delay: 200ms; }
-        .delay-300 { animation-delay: 300ms; }
-        .delay-400 { animation-delay: 400ms; }
-        .delay-500 { animation-delay: 500ms; }
-        .delay-600 { animation-delay: 600ms; }
+        /* 均衡器柱条底色 */
+        .eq-bar-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            height: 100%;
+        }
     </style>
 </head>
 
@@ -190,22 +146,18 @@
                 <i class="fa fa-home w-8 text-center"></i>
                 <span>首页</span>
             </a>
-            
             <a href="passage.html" class="flex items-center p-3 rounded-xl hover:bg-gray-100 mb-2 transition-all btn-pop">
                 <i class="fa fa-book w-8 text-center"></i>
                 <span>茗沐大陆记事簿</span>
             </a>
-            
             <a href="note.html" class="flex items-center p-3 rounded-xl hover:bg-gray-100 mb-2 transition-all btn-pop">
                 <i class="fa fa-sticky-note w-8 text-center"></i>
                 <span>蘿嵐随记簿</span>
             </a>
-            
-            <a href="music.html" class="flex items-center p-3 rounded-xl bg-macaron-purple bg-opacity-20 text-macaron-purple mb-2 transition-all nav-item-active">
+            <a href="music.html" class="flex items-center p-3 rounded-xl bg-macaron-purple bg-opacity-20 text-macaron-purple mb-2 transition-all">
                 <i class="fa fa-headphones w-8 text-center"></i>
                 <span><strong>猫之都音乐馆</strong></span>
             </a>
-            
             <a href="photos.html" class="flex items-center p-3 rounded-xl hover:bg-gray-100 transition-all btn-pop">
                 <i class="fa fa-camera w-8 text-center"></i>
                 <span>摄影集</span>
@@ -224,7 +176,6 @@
                     </button>
                     <h1 class="text-xl md:text-2xl font-bold text-macaron-purple">猫之都音乐馆</h1>
                 </div>
-                
                 <div>
                     <button id="shuffle-all" class="flex items-center space-x-2 bg-gradient-to-r from-macaron-pink/20 to-macaron-purple/20 hover:from-macaron-pink/30 hover:to-macaron-purple/30 text-dark px-4 py-2 rounded-full btn-pop">
                         <i class="fa fa-random"></i>
@@ -251,7 +202,6 @@
                 
                 <!-- 音乐列表 -->
                 <div class="music-list-container overflow-y-auto max-h-[calc(100vh-360px)] pr-2" id="music-list">
-                    <!-- 音乐列表将通过JavaScript动态加载 -->
                     <div class="flex flex-col items-center justify-center p-10">
                         <div class="text-4xl text-macaron-blue mb-4">
                             <i class="fa fa-music pulse-light"></i>
@@ -269,14 +219,12 @@
                     <div class="relative album-cover mb-6 md:mb-0 md:mr-8 group">
                         <div class="w-48 h-48 md:w-64 md:h-64 rounded-full bg-gradient-to-br from-macaron-purple/30 to-macaron-blue/30 flex items-center justify-center overflow-hidden shadow-lg">
                             <img id="album-cover" src="https://picsum.photos/300/300?random=1" alt="专辑封面" class="w-full h-full object-cover rounded-full">
-                            <!-- 黑胶唱片效果 -->
                             <div class="absolute inset-0 rounded-full border-8 border-black border-opacity-80 transform scale-95 group-hover:scale-90 transition-transform">
                                 <div class="absolute inset-0 flex items-center justify-center">
                                     <div class="w-16 h-16 rounded-full bg-macaron-yellow/80"></div>
                                 </div>
                             </div>
                         </div>
-                        <!-- 播放指示器 -->
                         <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 rounded-full">
                             <div class="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center">
                                 <i class="fa fa-play text-macaron-green text-2xl"></i>
@@ -290,15 +238,9 @@
                         <p id="current-song-artist" class="text-gray-600 mb-4">艺术家</p>
                         <p id="current-song-album" class="text-gray-500 text-sm">专辑</p>
                         
-                        <!-- 均衡器动画 -->
-                        <div class="mt-8 flex items-end justify-center h-12 space-x-2">
-                            <div class="eq-bar w-2 bg-macaron-pink rounded-t" style="height: 20%"></div>
-                            <div class="eq-bar w-2 bg-macaron-blue rounded-t" style="height: 60%"></div>
-                            <div class="eq-bar w-2 bg-macaron-green rounded-t" style="height: 40%"></div>
-                            <div class="eq-bar w-2 bg-macaron-yellow rounded-t" style="height: 80%"></div>
-                            <div class="eq-bar w-2 bg-macaron-purple rounded-t" style="height: 30%"></div>
-                            <div class="eq-bar w-2 bg-macaron-orange rounded-t" style="height: 70%"></div>
-                            <div class="eq-bar w-2 bg-macaron-pink rounded-t" style="height: 50%"></div>
+                        <!-- 频谱动画柱条 -->
+                        <div class="mt-8 flex items-end justify-center h-12 space-x-1" id="eq-container">
+                            <!-- 由JS动态生成 -->
                         </div>
                     </div>
                 </div>
@@ -347,7 +289,7 @@
                         </div>
                     </div>
                     
-                    <!-- EQ设置 -->
+                    <!-- 音效设置（视觉展示） -->
                     <div>
                         <h4 class="text-md font-bold mb-4 text-macaron-orange">音效设置</h4>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -360,13 +302,17 @@
                             <button class="eq-preset bg-gradient-to-r from-macaron-blue/20 to-transparent hover:from-macaron-blue/30 py-2 rounded-xl text-sm btn-pop" data-preset="vocal">人声</button>
                             <button class="eq-preset bg-gradient-to-r from-macaron-pink/20 to-transparent hover:from-macaron-pink/30 py-2 rounded-xl text-sm btn-pop" data-preset="electronic">电子</button>
                         </div>
+                        <!-- 提示文字 -->
+                        <p class="text-xs text-gray-400 mt-3 text-center">
+                            <i class="fa fa-info-circle mr-1"></i>音效预设为视觉风格展示，实际音频处理需要后端支持
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- 底部迷你播放器（仅在移动设备上显示） -->
+    <!-- 底部迷你播放器 -->
     <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white bg-opacity-95 backdrop-blur-sm shadow-lg p-3 border-t z-40 hidden" id="mini-player">
         <div class="flex items-center justify-between">
             <div class="flex items-center">
@@ -376,1015 +322,488 @@
                     <p id="mini-song-artist" class="text-xs text-gray-500 truncate w-24">艺术家</p>
                 </div>
             </div>
-            
             <div class="flex items-center space-x-4">
-                <button id="mini-prev" class="text-gray-600 btn-pop">
-                    <i class="fa fa-step-backward"></i>
-                </button>
-                <button id="mini-play-pause" class="bg-macaron-green text-white p-2 rounded-full btn-pop">
-                    <i class="fa fa-play"></i>
-                </button>
-                <button id="mini-next" class="text-gray-600 btn-pop">
-                    <i class="fa fa-step-forward"></i>
-                </button>
+                <button id="mini-prev" class="text-gray-600 btn-pop"><i class="fa fa-step-backward"></i></button>
+                <button id="mini-play-pause" class="bg-macaron-green text-white p-2 rounded-full btn-pop"><i class="fa fa-play"></i></button>
+                <button id="mini-next" class="text-gray-600 btn-pop"><i class="fa fa-step-forward"></i></button>
             </div>
         </div>
     </div>
     
-    <!-- 点击遮罩层 - 用于在移动设备上点击空白处关闭侧边栏 -->
     <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden transition-opacity duration-300"></div>
 
     <script>
-        // 全局变量
-        let musicList = [];             // 音乐列表
-        let photoList = [];             // 照片列表
-        let currentMusicIndex = -1;     // 当前播放索引
-        let audio = new Audio();        // 音频对象
-        let audioContext = null;        // Web Audio API上下文
-        let analyser = null;            // 音频分析器
-        let isPlaying = false;          // 是否正在播放
-        let repeatMode = 0;             // 循环模式：0-列表循环，1-单曲循环，2-随机播放
-        let volume = 0.8;               // 音量（0-1）
-        let isMuted = false;            // 是否静音
-        let originalVolume = volume;    // 静音前的音量
-        let currentEqPreset = 'normal'; // 当前均衡器预设
-        
-        // DOM元素
-        const mainSidebar = document.getElementById('main-sidebar');
-        const sidebarToggle = document.getElementById('sidebar-toggle');
-        const overlay = document.getElementById('overlay');
-        const musicListElement = document.getElementById('music-list');
-        const totalSongsElement = document.getElementById('total-songs');
-        const musicSearch = document.getElementById('music-search');
-        const currentSongTitle = document.getElementById('current-song-title');
-        const currentSongArtist = document.getElementById('current-song-artist');
-        const currentSongAlbum = document.getElementById('current-song-album');
-        const currentTimeElement = document.getElementById('current-time');
-        const totalTimeElement = document.getElementById('total-time');
-        const progressBar = document.getElementById('progress-bar');
-        const progressFill = document.getElementById('progress-fill');
-        const playPauseButton = document.getElementById('play-pause');
-        const prevButton = document.getElementById('prev-song');
-        const nextButton = document.getElementById('next-song');
-        const repeatButton = document.getElementById('repeat-mode');
-        const shuffleButton = document.getElementById('shuffle');
-        const muteButton = document.getElementById('mute');
-        const volumeBar = document.getElementById('volume-bar');
-        const volumeFill = document.getElementById('volume-fill');
-        const shuffleAllButton = document.getElementById('shuffle-all');
-        const eqPresets = document.querySelectorAll('.eq-preset');
-        const miniPlayer = document.getElementById('mini-player');
-        const miniSongTitle = document.getElementById('mini-song-title');
-        const miniSongArtist = document.getElementById('mini-song-artist');
-        const miniPlayPause = document.getElementById('mini-play-pause');
-        const miniPrev = document.getElementById('mini-prev');
-        const miniNext = document.getElementById('mini-next');
-        const eqBars = document.querySelectorAll('.eq-bar');
-        const albumCover = document.getElementById('album-cover');
-        const miniCover = document.getElementById('mini-cover');
-        
-        // 初始化
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('文档加载完成，开始初始化音乐播放器');
-            // 初始化音频上下文
-            initAudioContext();
-            // 加载照片列表
-            loadPhotosList();
-            // 加载音乐列表
-            loadMusicList();
-            // 绑定事件监听
-            bindEvents();
-            // 初始化音频对象
-            initAudio();
-            // 启动均衡器动画
-            startEqAnimation();
+    // ========== 全局变量 ==========
+    let musicList = [];
+    let currentMusicIndex = -1;
+    let audio = new Audio();
+    let audioContext = null;
+    let analyser = null;
+    let audioSourceNode = null;   // 保存已连接的 source，避免重复创建
+    let isPlaying = false;
+    let repeatMode = 0;          // 0-列表循环，1-单曲循环，2-随机播放
+    let volume = 0.8;
+    let isMuted = false;
+    let originalVolume = volume;
+    let currentEqPreset = 'normal';
+    let eqBars = [];             // 频谱柱条DOM引用
+    let eqColors = [
+        '#f8cad5', '#b9d8e0', '#bcebcb',
+        '#fff3ba', '#d8b9e0', '#ffd6ba',
+        '#f8cad5', '#b9d8e0'
+    ];
+    let isAudioContextConnected = false; // 修复：标记 audioContext 是否已连接
+
+    // EQ预设参数（用于动画视觉风格）
+    const EQ_PRESETS = {
+        normal:     { avg: 55, variance: 15, speed: 0.08 },
+        pop:        { avg: 65, variance: 25, speed: 0.12 },
+        rock:       { avg: 60, variance: 35, speed: 0.15 },
+        classical:  { avg: 50, variance: 20, speed: 0.06 },
+        jazz:       { avg: 52, variance: 28, speed: 0.09 },
+        bass:       { avg: 70, variance: 20, speed: 0.10 },
+        vocal:      { avg: 58, variance: 18, speed: 0.08 },
+        electronic: { avg: 68, variance: 30, speed: 0.18 }
+    };
+
+    // ========== DOM元素 ==========
+    const dom = {};
+    function getEl(id) { return document.getElementById(id); }
+    function initDoms() {
+        dom.mainSidebar    = getEl('main-sidebar');
+        dom.sidebarToggle  = getEl('sidebar-toggle');
+        dom.overlay        = getEl('overlay');
+        dom.musicList      = getEl('music-list');
+        dom.totalSongs     = getEl('total-songs');
+        dom.musicSearch    = getEl('music-search');
+        dom.title          = getEl('current-song-title');
+        dom.artist         = getEl('current-song-artist');
+        dom.album          = getEl('current-song-album');
+        dom.albumCover     = getEl('album-cover');
+        dom.currentTime    = getEl('current-time');
+        dom.totalTime      = getEl('total-time');
+        dom.progressBar    = getEl('progress-bar');
+        dom.progressFill   = getEl('progress-fill');
+        dom.playPause      = getEl('play-pause');
+        dom.prevBtn        = getEl('prev-song');
+        dom.nextBtn        = getEl('next-song');
+        dom.repeatBtn      = getEl('repeat-mode');
+        dom.shuffleBtn     = getEl('shuffle');
+        dom.muteBtn        = getEl('mute');
+        dom.volumeBar      = getEl('volume-bar');
+        dom.volumeFill     = getEl('volume-fill');
+        dom.shuffleAll     = getEl('shuffle-all');
+        dom.miniPlayer     = getEl('mini-player');
+        dom.miniTitle      = getEl('mini-song-title');
+        dom.miniArtist     = getEl('mini-song-artist');
+        dom.miniCover      = getEl('mini-cover');
+        dom.miniPlayPause  = getEl('mini-play-pause');
+        dom.miniPrev       = getEl('mini-prev');
+        dom.miniNext       = getEl('mini-next');
+    }
+
+    // ========== 初始化 ==========
+    document.addEventListener('DOMContentLoaded', () => {
+        initDoms();
+        buildEqBars();          // 先生成EQ柱条DOM
+        loadMusicList();
+        bindEvents();
+        initAudio();
+        startEqAnimation();     // 启动动画（使用模拟数据，不依赖audioContext）
+    });
+
+    // ========== 生成频谱柱条 ==========
+    function buildEqBars() {
+        const container = document.getElementById('eq-container');
+        container.innerHTML = '';
+        eqBars = [];
+        for (let i = 0; i < 8; i++) {
+            const wrap = document.createElement('div');
+            wrap.className = 'eq-bar-wrap';
+
+            const bar = document.createElement('div');
+            bar.className = 'eq-bar';
+            bar.style.cssText = `
+                width: 14px;
+                height: ${20 + (i % 4) * 15}%;
+                background: linear-gradient(to top, ${eqColors[i]}, ${eqColors[(i+2)%8]}99);
+                min-height: 6px;
+            `;
+
+            wrap.appendChild(bar);
+            container.appendChild(wrap);
+            eqBars.push(bar);
+        }
+    }
+
+    // ========== 加载音乐列表 ==========
+    function loadMusicList() {
+        musicList = [
+            { id:1, title:'hanabi',                  artist:'白萧', album:'夏日回忆',   file:'hanabi.flac',                     duration:'—' },
+            { id:2, title:'大大世界小小猫（最终重混音伴奏）', artist:'白萧', album:'音乐收藏', file:'大大世界小小猫（最终重混音伴奏）.flac', duration:'—' },
+            { id:3, title:'时年',                     artist:'白萧', album:'四时',      file:'时年.flac',                        duration:'—' }
+        ];
+        // 分配随机封面
+        musicList.forEach(m => {
+            m.cover = `https://picsum.photos/300/300?random=${m.id + 10}`;
         });
-        
-        // 初始化音频上下文
-        function initAudioContext() {
-            try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioContext.createAnalyser();
-                analyser.fftSize = 64;
-            } catch (error) {
-                console.error('初始化音频上下文失败:', error);
-            }
+        if (dom.totalSongs) dom.totalSongs.textContent = `${musicList.length}首歌曲`;
+        renderMusicList();
+    }
+
+    // ========== 渲染音乐列表 ==========
+    function renderMusicList(filter = '') {
+        if (!dom.musicList) return;
+        dom.musicList.innerHTML = '';
+
+        const filtered = filter
+            ? musicList.filter(m => m.title.includes(filter) || m.artist.includes(filter))
+            : musicList;
+
+        if (filtered.length === 0) {
+            dom.musicList.innerHTML = '<div class="text-center py-8 text-gray-400">没有找到符合条件的音乐</div>';
+            return;
         }
-        
-        // 加载照片列表
-        function loadPhotosList() {
-            try {
-                // 实际项目中应该通过API获取照片列表
-                // 这里我们模拟一个照片列表
-                photoList = [
-                    '000002.JPG', '000003.JPG', '000004.JPG', '000005.JPG', '000006.JPG',
-                    '000007.JPG', '000008.JPG', '000009.JPG', '000010.JPG', '000011.JPG',
-                    '000012.JPG', '000013.JPG', '000014.JPG', '000015.JPG', '000016.JPG',
-                    '000017.JPG', '000018.JPG', '000019.JPG', '000020.JPG', '000021.JPG'
-                ];
-                console.log('照片列表加载完成:', photoList);
-            } catch (error) {
-                console.error('加载照片列表失败:', error);
-            }
+
+        filtered.forEach((music, i) => {
+            const isActive = currentMusicIndex === music.id - 1;
+            const item = document.createElement('div');
+            item.className = `music-item p-3 flex items-center justify-between rounded-lg cursor-pointer transition-all duration-200 ${isActive ? 'bg-macaron-green/20 ring-1 ring-macaron-green/40' : 'hover:bg-gray-100 hover-scale'}`;
+            item.dataset.index = music.id - 1;
+            item.innerHTML = `
+                <div class="flex items-center min-w-0">
+                    <span class="w-7 text-center text-sm ${isActive ? 'text-macaron-green font-bold' : 'text-gray-400'}">${isActive ? '<i class="fa fa-volume-up"></i>' : music.id}</span>
+                    <div class="min-w-0">
+                        <span class="block font-medium text-sm truncate ${isActive ? 'text-macaron-green' : ''}">${music.title}</span>
+                        <span class="block text-xs text-gray-400 truncate">${music.artist} · ${music.album}</span>
+                    </div>
+                </div>
+                <span class="text-xs text-gray-400 ml-2 flex-shrink-0">${music.duration}</span>
+            `;
+            item.addEventListener('click', () => playMusic(parseInt(item.dataset.index)));
+            dom.musicList.appendChild(item);
+        });
+    }
+
+    // ========== 播放音乐 ==========
+    function playMusic(index) {
+        if (index < 0 || index >= musicList.length) return;
+
+        currentMusicIndex = index;
+        const music = musicList[index];
+
+        // 更新UI
+        if (dom.title)     dom.title.textContent = music.title;
+        if (dom.artist)    dom.artist.textContent = music.artist;
+        if (dom.album)     dom.album.textContent = music.album;
+        if (dom.albumCover){ dom.albumCover.src = music.cover; dom.albumCover.onerror = () => dom.albumCover.src = `https://picsum.photos/300/300?random=${music.id}`; }
+        if (dom.miniTitle)  dom.miniTitle.textContent = music.title;
+        if (dom.miniArtist) dom.miniArtist.textContent = music.artist;
+        if (dom.miniCover) { dom.miniCover.src = music.cover; dom.miniCover.onerror = () => dom.miniCover.src = `https://picsum.photos/60/60?random=${music.id}`; }
+        if (dom.miniPlayer) dom.miniPlayer.classList.remove('hidden');
+
+        // 设置音频源
+        audio.src = `static/music/${music.file}`;
+        audio.load();
+
+        // 尝试初始化音频上下文（用户交互后才能调用）
+        tryInitAudioContext();
+
+        audio.play().then(() => {
+            isPlaying = true;
+            updatePlayPauseButton();
+            renderMusicList(dom.musicSearch ? dom.musicSearch.value : '');
+        }).catch(err => {
+            console.warn('播放失败:', err);
+            isPlaying = false;
+            updatePlayPauseButton();
+        });
+    }
+
+    // ========== 初始化音频上下文（延迟到用户交互后） ==========
+    function tryInitAudioContext() {
+        if (audioContext) {
+            // 音频上下文已存在，只需连接一次
+            tryConnectSource();
+            return;
         }
-        
-        // 获取随机照片路径
-        function getRandomPhoto() {
-            if (photoList.length === 0) {
-                return 'https://picsum.photos/300/300?random=' + Math.floor(Math.random() * 100);
-            }
-            const randomIndex = Math.floor(Math.random() * photoList.length);
-            return `static/photos/${photoList[randomIndex]}`;
+        try {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 128;
+            tryConnectSource();
+        } catch (e) {
+            console.warn('音频上下文初始化失败（可能受跨域限制）:', e);
+            audioContext = null;
+            analyser = null;
         }
-        
-        // 加载音乐列表
-        function loadMusicList() {
-            try {
-                console.log('开始加载音乐列表...');
-                // 自动导入static/music路径下的音乐文件
-                // 实际项目中应该通过API获取文件列表
-                // 这里我们模拟一个音乐列表
-                musicList = [
-                    {
-                        id: 1,
-                        title: "hanabi",
-                        artist: "白萧",
-                        album: "夏日回忆",
-                        file: "hanabi.flac",
-                        duration: "00:00", // 实际播放时会自动更新
-                        cover: ""
-                    },
-                    {
-                        id: 2,
-                        title: "大大世界小小猫（最终重混音伴奏）",
-                        artist: "白萧",
-                        album: "音乐收藏",
-                        file: "大大世界小小猫（最终重混音伴奏）.flac",
-                        duration: "00:00", // 实际播放时会自动更新
-                        cover: ""
-                    },
-                    {
-                        id: 3,
-                        title: "时年",
-                        artist: "白萧",
-                        album: "四时",
-                        file: "时年.flac",
-                        duration: "00:00", // 实际播放时会自动更新
-                        cover: ""
-                    }
-                ];
-                
-                // 为每首音乐分配随机封面
-                musicList.forEach(music => {
-                    music.cover = getRandomPhoto();
-                });
-                
-                console.log("音乐列表加载成功，共" + musicList.length + "首歌曲", musicList);
-                
-                // 更新总歌曲数
-                if (totalSongsElement) {
-                    totalSongsElement.textContent = `${musicList.length}首歌曲`;
-                }
-                
-                // 渲染音乐列表
-                renderMusicList();
-            } catch (error) {
-                console.error("加载音乐列表时出错:", error);
-                showNotification('音乐列表加载失败，请刷新页面重试', 'error');
+    }
+
+    // ========== 连接音频源（只执行一次） ==========
+    function tryConnectSource() {
+        if (!audioContext || !analyser || isAudioContextConnected) return;
+        try {
+            if (audioContext.state === 'suspended') audioContext.resume();
+            if (audioSourceNode) {
+                try { audioSourceNode.disconnect(); } catch(e) {}
             }
+            audioSourceNode = audioContext.createMediaElementSource(audio);
+            audioSourceNode.connect(analyser);
+            analyser.connect(audioContext.destination);
+            isAudioContextConnected = true;
+            console.log('音频分析器连接成功');
+        } catch (e) {
+            console.warn('音频源连接失败（FLAC跨域限制或重复调用）:', e);
+            // 不影响播放，继续用模拟动画
         }
-        
-        // 渲染音乐列表
-        function renderMusicList(filter = '') {
-            try {
-                if (!musicListElement) {
-                    console.error('未找到音乐列表元素');
-                    return;
-                }
-                
-                musicListElement.innerHTML = '';
-                
-                // 过滤音乐列表
-                const filteredList = filter 
-                    ? musicList.filter(music => 
-                        music.title.toLowerCase().includes(filter.toLowerCase()) || 
-                        music.artist.toLowerCase().includes(filter.toLowerCase()))
-                    : musicList;
-                
-                console.log('渲染音乐列表，过滤后歌曲数：', filteredList.length);
-                
-                // 渲染每首歌曲
-                filteredList.forEach((music, index) => {
-                    const isActive = currentMusicIndex === music.id - 1;
-                    
-                    const musicItem = document.createElement('div');
-                    musicItem.className = `music-item p-3 flex items-center justify-between rounded-lg transition-all duration-300 cursor-pointer ${isActive ? 'bg-macaron-green bg-opacity-20' : 'hover:bg-gray-100 hover-scale'}`;
-                    musicItem.dataset.index = music.id - 1;
-                    
-                    // 歌曲信息
-                    const infoDiv = document.createElement('div');
-                    infoDiv.className = 'flex items-center';
-                    
-                    // 歌曲序号
-                    const indexSpan = document.createElement('span');
-                    indexSpan.className = 'w-8 text-center mr-3 text-gray-500';
-                    indexSpan.textContent = music.id;
-                    
-                    // 歌曲详情
-                    const detailsDiv = document.createElement('div');
-                    detailsDiv.className = 'min-w-0';
-                    
-                    const titleSpan = document.createElement('span');
-                    titleSpan.className = 'block font-medium truncate';
-                    titleSpan.textContent = music.title;
-                    
-                    const artistAlbumSpan = document.createElement('span');
-                    artistAlbumSpan.className = 'block text-xs text-gray-500 truncate';
-                    artistAlbumSpan.textContent = `${music.artist} - ${music.album}`;
-                    
-                    detailsDiv.appendChild(titleSpan);
-                    detailsDiv.appendChild(artistAlbumSpan);
-                    infoDiv.appendChild(indexSpan);
-                    infoDiv.appendChild(detailsDiv);
-                    
-                    // 歌曲时长
-                    const durationSpan = document.createElement('span');
-                    durationSpan.className = 'text-sm text-gray-500';
-                    durationSpan.textContent = music.duration;
-                    
-                    musicItem.appendChild(infoDiv);
-                    musicItem.appendChild(durationSpan);
-                    musicListElement.appendChild(musicItem);
-                    
-                    // 添加进入动画
-                    musicItem.style.opacity = '0';
-                    musicItem.style.transform = 'translateY(10px)';
-                    setTimeout(() => {
-                        musicItem.style.opacity = '1';
-                        musicItem.style.transform = 'translateY(0)';
-                    }, index * 50);
-                    
-                    // 点击事件
-                    musicItem.addEventListener('click', () => {
-                        playMusic(parseInt(musicItem.dataset.index));
-                    });
-                });
-                
-                // 检查是否有音乐
-                if (filteredList.length === 0) {
-                    const emptyItem = document.createElement('div');
-                    emptyItem.className = 'text-center py-8 text-gray-500';
-                    emptyItem.textContent = '没有找到符合条件的音乐';
-                    musicListElement.appendChild(emptyItem);
-                }
-            } catch (error) {
-                console.error('渲染音乐列表时出错:', error);
-            }
-        }
-        
-        // 播放音乐
-        function playMusic(index) {
-            try {
-                console.log('尝试播放音乐，索引：', index);
-                
-                if (index < 0 || index >= musicList.length) {
-                    console.warn("音乐索引超出范围");
-                    showNotification('音乐索引无效', 'warning');
-                    return;
-                }
-                
-                // 更新当前播放索引
-                currentMusicIndex = index;
-                
-                // 获取当前音乐信息
-                const music = musicList[index];
-                
-                // 更新UI显示
-                if (currentSongTitle) currentSongTitle.textContent = music.title;
-                if (currentSongArtist) currentSongArtist.textContent = music.artist;
-                if (currentSongAlbum) currentSongAlbum.textContent = music.album;
-                
-                // 更新专辑封面
-                if (albumCover) albumCover.src = music.cover;
-                albumCover.onerror = function() {
-                    albumCover.src = 'https://picsum.photos/300/300?random=1';
-                };
-                
-                // 更新迷你播放器
-                if (miniSongTitle) miniSongTitle.textContent = music.title;
-                if (miniSongArtist) miniSongArtist.textContent = music.artist;
-                if (miniCover) {
-                    miniCover.src = music.cover;
-                    miniCover.onerror = function() {
-                        miniCover.src = 'https://picsum.photos/60/60?random=1';
-                    };
-                }
-                
-                if (miniPlayer) miniPlayer.classList.remove('hidden');
-                
-                // 设置音频源并播放
-                const audioPath = `static/music/${music.file}`;
-                console.log('设置音频源:', audioPath);
-                audio.src = audioPath;
-                
-                // 添加错误处理事件监听
-                audio.onerror = function(event) {
-                    console.error("加载音乐文件失败:", music.file, event);
-                    showNotification(`无法加载音乐文件: ${music.file}`, 'error');
-                };
-                
-                // 连接音频分析器
-                connectAudioAnalyzer();
-                
-                audio.load();
-                audio.play().then(() => {
-                    console.log('音乐播放成功:', music.title);
-                    // 更新播放状态
-                    isPlaying = true;
-                    updatePlayPauseButton();
-                    // 更新音乐列表选中状态
-                    renderMusicList(musicSearch ? musicSearch.value : '');
-                    showNotification(`正在播放: ${music.title}`, 'success');
-                }).catch(error => {
-                    console.error("播放音乐失败:", error);
-                    showNotification(`播放音乐失败: ${music.title}`, 'error');
-                });
-            } catch (error) {
-                console.error("播放音乐时出错:", error);
-                showNotification(`播放音乐时发生错误`, 'error');
-            }
-        }
-        
-        // 连接音频分析器
-        function connectAudioAnalyzer() {
-            try {
-                if (!audioContext || !analyser) return;
-                
-                // 确保音频上下文已启动
-                if (audioContext.state === 'suspended') {
-                    audioContext.resume();
-                }
-                
-                // 创建媒体元素源
-                const source = audioContext.createMediaElementSource(audio);
-                source.connect(analyser);
-                analyser.connect(audioContext.destination);
-            } catch (error) {
-                console.error('连接音频分析器失败:', error);
-            }
-        }
-        
-        // 绑定事件监听
-        function bindEvents() {
-            try {
-                console.log('绑定事件监听...');
-                
-                // 侧边栏切换
-                if (sidebarToggle) {
-                    sidebarToggle.addEventListener('click', toggleSidebar);
-                }
-                
-                if (overlay) {
-                    overlay.addEventListener('click', toggleSidebar);
-                }
-                
-                // 播放/暂停按钮
-                if (playPauseButton) {
-                    playPauseButton.addEventListener('click', togglePlayPause);
-                }
-                
-                if (miniPlayPause) {
-                    miniPlayPause.addEventListener('click', togglePlayPause);
-                }
-                
-                // 上一首/下一首按钮
-                if (prevButton) {
-                    prevButton.addEventListener('click', playPrevious);
-                }
-                
-                if (nextButton) {
-                    nextButton.addEventListener('click', playNext);
-                }
-                
-                if (miniPrev) {
-                    miniPrev.addEventListener('click', playPrevious);
-                }
-                
-                if (miniNext) {
-                    miniNext.addEventListener('click', playNext);
-                }
-                
-                // 进度条点击
-                if (progressBar) {
-                    progressBar.addEventListener('click', updateProgressByClick);
-                }
-                
-                // 搜索框
-                if (musicSearch) {
-                    musicSearch.addEventListener('input', () => {
-                        renderMusicList(musicSearch.value);
-                    });
-                }
-                
-                // 循环模式
-                if (repeatButton) {
-                    repeatButton.addEventListener('click', changeRepeatMode);
-                }
-                
-                // 随机播放
-                if (shuffleAllButton) {
-                    shuffleAllButton.addEventListener('click', shuffleAndPlayAll);
-                }
-                
-                if (shuffleButton) {
-                    shuffleButton.addEventListener('click', () => {
-                        // 修正：直接切换随机播放模式，而不是重新随机播放全部
-                        if (repeatMode === 2) {
-                            changeRepeatMode(); // 切换回列表循环
-                        } else {
-                            repeatMode = 2;
-                            if (repeatButton) {
-                                repeatButton.innerHTML = '<i class="fa fa-random text-xl"></i>';
-                                repeatButton.classList.remove('text-macaron-orange');
-                                repeatButton.classList.add('text-macaron-pink');
-                                showNotification('随机播放模式', 'info');
-                            }
-                        }
-                    });
-                }
-                
-                // 音量控制
-                if (muteButton) {
-                    muteButton.addEventListener('click', toggleMute);
-                }
-                
-                // 音量条点击
-                if (volumeBar) {
-                    volumeBar.addEventListener('click', updateVolumeByClick);
-                }
-                
-                // 音效预设
-                eqPresets.forEach(preset => {
-                    preset.addEventListener('click', () => {
-                        setEqPreset(preset.dataset.preset);
-                    });
-                });
-            } catch (error) {
-                console.error('绑定事件时出错:', error);
-            }
-        }
-        
-        // 更新音量
-        function updateVolumeByClick(e) {
-            try {
-                if (!volumeBar) return;
-                
-                const rect = volumeBar.getBoundingClientRect();
-                const pos = (e.clientX - rect.left) / rect.width;
-                volume = Math.max(0, Math.min(1, pos));
-                
-                // 更新音频音量和UI
-                if (!isMuted) {
-                    audio.volume = volume;
-                }
-                
-                if (volumeFill) {
-                    volumeFill.style.width = `${volume * 100}%`;
-                }
-                
-                // 如果当前是静音状态，恢复音量时解除静音
-                if (isMuted && volume > 0) {
-                    toggleMute();
-                }
-            } catch (error) {
-                console.error('更新音量时出错:', error);
-            }
-        }
-        
-        // 初始化音频对象
-        function initAudio() {
-            try {
-                // 设置音频属性
-                audio.volume = volume;
-                
-                // 音频事件监听
-                audio.addEventListener('timeupdate', updateProgress);
-                audio.addEventListener('loadedmetadata', updateTotalTime);
-                audio.addEventListener('ended', handleAudioEnd);
-                audio.addEventListener('waiting', () => {
-                    console.log('音频缓冲中...');
-                });
-                audio.addEventListener('canplay', () => {
-                    console.log('音频可以播放了');
-                });
-            } catch (error) {
-                console.error('初始化音频对象时出错:', error);
-            }
-        }
-        
-        // 切换播放/暂停
-        function togglePlayPause() {
-            try {
-                if (isPlaying) {
-                    audio.pause();
-                    isPlaying = false;
-                } else {
-                    // 如果还没有选择音乐，默认播放第一首
-                    if (currentMusicIndex === -1 && musicList.length > 0) {
-                        playMusic(0);
-                        return;
-                    }
-                    
-                    audio.play();
-                    isPlaying = true;
-                }
-                
-                updatePlayPauseButton();
-            } catch (error) {
-                console.error('切换播放/暂停时出错:', error);
-            }
-        }
-        
-        // 更新播放/暂停按钮
-        function updatePlayPauseButton() {
-            try {
-                if (playPauseButton && miniPlayPause) {
-                    if (isPlaying) {
-                        playPauseButton.innerHTML = '<i class="fa fa-pause text-3xl"></i>';
-                        miniPlayPause.innerHTML = '<i class="fa fa-pause"></i>';
-                    } else {
-                        playPauseButton.innerHTML = '<i class="fa fa-play text-3xl"></i>';
-                        miniPlayPause.innerHTML = '<i class="fa fa-play"></i>';
-                    }
-                }
-            } catch (error) {
-                console.error('更新播放/暂停按钮时出错:', error);
-            }
-        }
-        
-        // 播放上一首
-        function playPrevious() {
-            try {
-                if (musicList.length === 0) return;
-                
-                let index = currentMusicIndex - 1;
-                if (index < 0) index = musicList.length - 1;
-                
-                playMusic(index);
-            } catch (error) {
-                console.error('播放上一首时出错:', error);
-            }
-        }
-        
-        // 播放下一首
-        function playNext() {
-            try {
-                if (musicList.length === 0) return;
-                
-                // 根据循环模式决定下一首
-                if (repeatMode === 2) {
-                    // 随机播放
-                    let randomIndex;
-                    do {
-                        randomIndex = Math.floor(Math.random() * musicList.length);
-                    } while (randomIndex === currentMusicIndex && musicList.length > 1);
-                    playMusic(randomIndex);
-                } else {
-                    // 顺序播放
-                    let index = currentMusicIndex + 1;
-                    if (index >= musicList.length) index = 0;
-                    playMusic(index);
-                }
-            } catch (error) {
-                console.error('播放下一首时出错:', error);
-            }
-        }
-        
-        // 处理音频播放结束
-        function handleAudioEnd() {
-            try {
-                if (repeatMode === 1) {
-                    // 单曲循环
-                    audio.currentTime = 0;
-                    audio.play();
-                } else {
-                    // 播放下一首
-                    playNext();
-                }
-            } catch (error) {
-                console.error('处理音频播放结束时出错:', error);
-            }
-        }
-        
-        // 更新进度条
-        function updateProgress() {
-            try {
-                if (isNaN(audio.duration) || !isPlaying) return;
-                
-                const progress = (audio.currentTime / audio.duration) * 100;
-                if (progressFill) {
-                    progressFill.style.width = `${progress}%`;
-                }
-                
-                // 更新当前时间
-                if (currentTimeElement) {
-                    currentTimeElement.textContent = formatTime(audio.currentTime);
-                }
-                
-                // 更新EQ动画
-                updateEqAnimation();
-            } catch (error) {
-                console.error('更新进度条时出错:', error);
-            }
-        }
-        
-        // 通过点击更新进度
-        function updateProgressByClick(e) {
-            try {
-                if (!progressBar) return;
-                
-                const rect = progressBar.getBoundingClientRect();
-                const pos = (e.clientX - rect.left) / rect.width;
-                audio.currentTime = pos * audio.duration;
-                
-                // 立即更新进度条UI
-                if (progressFill) {
-                    progressFill.style.width = `${pos * 100}%`;
-                }
-                if (currentTimeElement) {
-                    currentTimeElement.textContent = formatTime(audio.currentTime);
-                }
-            } catch (error) {
-                console.error('点击进度条时出错:', error);
-            }
-        }
-        
-        // 更新总时长
-        function updateTotalTime() {
-            try {
-                if (totalTimeElement) {
-                    totalTimeElement.textContent = formatTime(audio.duration);
-                    
-                    // 更新音乐列表中的时长
-                    if (musicList[currentMusicIndex]) {
-                        musicList[currentMusicIndex].duration = formatTime(audio.duration);
-                        renderMusicList(musicSearch ? musicSearch.value : '');
-                    }
-                }
-            } catch (error) {
-                console.error('更新总时长时出错:', error);
-            }
-        }
-        
-        // 格式化时间
-        function formatTime(seconds) {
-            try {
-                const mins = Math.floor(seconds / 60);
-                const secs = Math.floor(seconds % 60);
-                return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-            } catch (error) {
-                console.error('格式化时间时出错:', error);
-                return '0:00';
-            }
-        }
-        
-        // 切换侧边栏
-        function toggleSidebar() {
-            try {
-                if (mainSidebar && overlay) {
-                    mainSidebar.classList.toggle('translate-x-0');
-                    mainSidebar.classList.toggle('-translate-x-full');
-                    overlay.classList.toggle('hidden');
-                }
-            } catch (error) {
-                console.error('切换侧边栏时出错:', error);
-            }
-        }
-        
-        // 改变循环模式
-        function changeRepeatMode() {
-            try {
-                if (!repeatButton) return;
-                
-                repeatMode = (repeatMode + 1) % 3;
-                
-                // 修正：添加相对定位，确保小圆点正确显示
-                repeatButton.style.position = 'relative';
-                
-                // 更新按钮图标和样式
-                switch (repeatMode) {
-                    case 0: // 列表循环
-                        repeatButton.innerHTML = '<i class="fa fa-repeat text-xl"></i>';
-                        repeatButton.classList.remove('text-macaron-orange', 'text-macaron-pink');
-                        showNotification('列表循环模式', 'info');
-                        break;
-                    case 1: // 单曲循环
-                        repeatButton.innerHTML = '<i class="fa fa-repeat text-xl"></i><span class="absolute top-1 right-1 w-1 h-1 bg-macaron-orange rounded-full"></span>';
-                        repeatButton.classList.remove('text-macaron-pink');
-                        repeatButton.classList.add('text-macaron-orange');
-                        showNotification('单曲循环模式', 'info');
-                        break;
-                    case 2: // 随机播放
-                        repeatButton.innerHTML = '<i class="fa fa-random text-xl"></i>';
-                        repeatButton.classList.remove('text-macaron-orange');
-                        repeatButton.classList.add('text-macaron-pink');
-                        showNotification('随机播放模式', 'info');
-                        break;
-                }
-            } catch (error) {
-                console.error('改变循环模式时出错:', error);
-            }
-        }
-        
-        // 随机播放所有歌曲
-        function shuffleAndPlayAll() {
-            try {
-                if (musicList.length === 0) return;
-                
-                // 打乱播放列表
-                const shuffled = [...musicList].sort(() => Math.random() - 0.5);
-                musicList = shuffled;
-                
-                // 设置为随机播放模式
+    }
+
+    // ========== 绑定事件 ==========
+    function bindEvents() {
+        dom.sidebarToggle?.addEventListener('click', toggleSidebar);
+        dom.overlay?.addEventListener('click', toggleSidebar);
+        dom.playPause?.addEventListener('click', togglePlayPause);
+        dom.miniPlayPause?.addEventListener('click', togglePlayPause);
+        dom.prevBtn?.addEventListener('click', playPrevious);
+        dom.nextBtn?.addEventListener('click', playNext);
+        dom.miniPrev?.addEventListener('click', playPrevious);
+        dom.miniNext?.addEventListener('click', playNext);
+        dom.progressBar?.addEventListener('click', updateProgressByClick);
+        dom.musicSearch?.addEventListener('input', e => renderMusicList(e.target.value));
+        dom.repeatBtn?.addEventListener('click', changeRepeatMode);
+        dom.shuffleAll?.addEventListener('click', shuffleAndPlayAll);
+        dom.shuffleBtn?.addEventListener('click', () => {
+            if (repeatMode === 2) {
+                changeRepeatMode();
+            } else {
                 repeatMode = 2;
-                if (repeatButton) {
-                    repeatButton.innerHTML = '<i class="fa fa-random text-xl"></i>';
-                    repeatButton.classList.remove('text-macaron-orange');
-                    repeatButton.classList.add('text-macaron-pink');
-                }
-                
-                // 从第一首开始播放
-                playMusic(0);
-                showNotification('随机播放全部歌曲', 'info');
-            } catch (error) {
-                console.error('随机播放所有歌曲时出错:', error);
+                dom.repeatBtn && (dom.repeatBtn.innerHTML = '<i class="fa fa-random text-xl"></i>');
+                dom.repeatBtn?.classList.remove('text-macaron-orange');
+                dom.repeatBtn?.classList.add('text-macaron-pink');
             }
-        }
-        
-        // 切换静音
-        function toggleMute() {
-            try {
-                if (!muteButton || !volumeFill) return;
-                
-                isMuted = !isMuted;
-                
-                if (isMuted) {
-                    originalVolume = volume;
-                    audio.volume = 0;
-                    volumeFill.style.width = '0%';
-                    muteButton.innerHTML = '<i class="fa fa-volume-off"></i>';
-                    showNotification('已静音', 'info');
-                } else {
-                    volume = originalVolume;
-                    audio.volume = volume;
-                    volumeFill.style.width = `${volume * 100}%`;
-                    muteButton.innerHTML = '<i class="fa fa-volume-up"></i>';
-                    showNotification('已取消静音', 'info');
-                }
-            } catch (error) {
-                console.error('切换静音时出错:', error);
+        });
+        dom.muteBtn?.addEventListener('click', toggleMute);
+        dom.volumeBar?.addEventListener('click', updateVolumeByClick);
+        document.querySelectorAll('.eq-preset').forEach(btn => {
+            btn.addEventListener('click', () => setEqPreset(btn.dataset.preset));
+        });
+    }
+
+    // ========== 初始化Audio对象 ==========
+    function initAudio() {
+        audio.volume = volume;
+        audio.addEventListener('timeupdate', () => {
+            if (isNaN(audio.duration)) return;
+            const pct = (audio.currentTime / audio.duration) * 100;
+            dom.progressFill && (dom.progressFill.style.width = `${pct}%`);
+            if (dom.currentTime) dom.currentTime.textContent = formatTime(audio.currentTime);
+        });
+        audio.addEventListener('loadedmetadata', () => {
+            if (dom.totalTime) dom.totalTime.textContent = formatTime(audio.duration);
+            if (musicList[currentMusicIndex]) {
+                musicList[currentMusicIndex].duration = formatTime(audio.duration);
+                renderMusicList(dom.musicSearch ? dom.musicSearch.value : '');
             }
+        });
+        audio.addEventListener('ended', handleAudioEnd);
+        audio.addEventListener('play',  () => { isPlaying = true;  updatePlayPauseButton(); });
+        audio.addEventListener('pause', () => { isPlaying = false; updatePlayPauseButton(); });
+    }
+
+    // ========== 播放/暂停 ==========
+    function togglePlayPause() {
+        if (currentMusicIndex === -1 && musicList.length > 0) { playMusic(0); return; }
+        isPlaying ? audio.pause() : audio.play();
+    }
+
+    function updatePlayPauseButton() {
+        const icon = isPlaying ? 'fa-pause' : 'fa-play';
+        if (dom.playPause)     dom.playPause.innerHTML = `<i class="fa ${icon} text-3xl"></i>`;
+        if (dom.miniPlayPause) dom.miniPlayPause.innerHTML = `<i class="fa ${icon}"></i>`;
+    }
+
+    // ========== 上一首/下一首 ==========
+    function playPrevious() {
+        if (!musicList.length) return;
+        let idx = currentMusicIndex - 1;
+        if (idx < 0) idx = musicList.length - 1;
+        playMusic(idx);
+    }
+
+    function playNext() {
+        if (!musicList.length) return;
+        if (repeatMode === 2) {
+            let idx;
+            do { idx = Math.floor(Math.random() * musicList.length); }
+            while (idx === currentMusicIndex && musicList.length > 1);
+            playMusic(idx);
+        } else {
+            let idx = currentMusicIndex + 1;
+            if (idx >= musicList.length) idx = 0;
+            playMusic(idx);
         }
-        
-        // 设置均衡器预设
-        function setEqPreset(preset) {
-            try {
-                // 移除所有预设的激活状态
-                eqPresets.forEach(p => {
-                    p.classList.remove('active');
-                    p.classList.remove('from-macaron-blue/30');
-                    p.classList.remove('from-macaron-pink/30');
-                    p.classList.remove('from-macaron-green/30');
-                    p.classList.remove('from-macaron-purple/30');
-                    p.classList.remove('from-macaron-yellow/30');
-                    p.classList.remove('from-macaron-orange/30');
+    }
+
+    function handleAudioEnd() {
+        if (repeatMode === 1) { audio.currentTime = 0; audio.play(); }
+        else playNext();
+    }
+
+    // ========== 进度条 ==========
+    function updateProgressByClick(e) {
+        if (!dom.progressBar) return;
+        const rect = dom.progressBar.getBoundingClientRect();
+        const pos = (e.clientX - rect.left) / rect.width;
+        audio.currentTime = pos * audio.duration;
+        if (dom.progressFill) dom.progressFill.style.width = `${pos * 100}%`;
+        if (dom.currentTime) dom.currentTime.textContent = formatTime(audio.currentTime);
+    }
+
+    // ========== 音量 ==========
+    function toggleMute() {
+        if (!dom.muteBtn || !dom.volumeFill) return;
+        isMuted = !isMuted;
+        if (isMuted) {
+            originalVolume = volume;
+            audio.volume = 0;
+            dom.volumeFill.style.width = '0%';
+            dom.muteBtn.innerHTML = '<i class="fa fa-volume-off text-xl"></i>';
+        } else {
+            volume = originalVolume;
+            audio.volume = volume;
+            dom.volumeFill.style.width = `${volume * 100}%`;
+            dom.muteBtn.innerHTML = '<i class="fa fa-volume-up text-xl"></i>';
+        }
+    }
+
+    function updateVolumeByClick(e) {
+        if (!dom.volumeBar) return;
+        const rect = dom.volumeBar.getBoundingClientRect();
+        const pos = (e.clientX - rect.left) / rect.width;
+        volume = Math.max(0, Math.min(1, pos));
+        if (!isMuted) audio.volume = volume;
+        if (dom.volumeFill) dom.volumeFill.style.width = `${volume * 100}%`;
+        if (isMuted && volume > 0) { isMuted = false; dom.muteBtn && (dom.muteBtn.innerHTML = '<i class="fa fa-volume-up text-xl"></i>'); }
+    }
+
+    // ========== 循环模式 ==========
+    function changeRepeatMode() {
+        if (!dom.repeatBtn) return;
+        repeatMode = (repeatMode + 1) % 3;
+        const labels = ['列表循环', '单曲循环', '随机播放'];
+        const icons  = ['fa-repeat', 'fa-repeat', 'fa-random'];
+        const colors = ['', 'text-macaron-orange', 'text-macaron-pink'];
+        dom.repeatBtn.innerHTML = `<i class="fa ${icons[repeatMode]} text-xl"></i>${repeatMode === 1 ? '<span class="absolute top-1 right-1 w-1 h-1 bg-macaron-orange rounded-full"></span>' : ''}`;
+        dom.repeatBtn.className = `p-3 btn-pop ${colors[repeatMode]}`.trim();
+    }
+
+    // ========== 随机播放全部 ==========
+    function shuffleAndPlayAll() {
+        if (!musicList.length) return;
+        musicList.sort(() => Math.random() - 0.5);
+        repeatMode = 2;
+        playMusic(0);
+    }
+
+    // ========== 侧边栏 ==========
+    function toggleSidebar() {
+        if (!dom.mainSidebar || !dom.overlay) return;
+        dom.mainSidebar.classList.toggle('-translate-x-full');
+        dom.overlay.classList.toggle('hidden');
+    }
+
+    // ========== 音效预设 ==========
+    function setEqPreset(preset) {
+        document.querySelectorAll('.eq-preset').forEach(btn => {
+            btn.classList.remove('active', 'ring-2', 'ring-macaron-purple/50');
+            btn.className = btn.className.replace(/from-\w+\/30/, 'from-gray-100/20');
+        });
+        const active = document.querySelector(`.eq-preset[data-preset="${preset}"]`);
+        if (active) {
+            active.classList.add('active', 'ring-2', 'ring-macaron-purple/50');
+        }
+        currentEqPreset = preset;
+        showNotification(`音效模式: ${preset}`, 'info');
+    }
+
+    // ========== 频谱动画（核心修复） ==========
+    // 模拟数据的相位状态（每个柱条独立）
+    const eqPhase = Array.from({ length: 8 }, () => ({ phase: Math.random() * Math.PI * 2, speed: 1 }));
+
+    function startEqAnimation() {
+        let frameCount = 0;
+
+        function animate() {
+            frameCount++;
+            const preset = EQ_PRESETS[currentEqPreset] || EQ_PRESETS.normal;
+
+            if (isPlaying && analyser && isAudioContextConnected) {
+                // 真实频谱数据（仅在音频上下文成功连接时使用）
+                try {
+                    const bufLen = analyser.frequencyBinCount;
+                    const dataArr = new Uint8Array(bufLen);
+                    analyser.getByteFrequencyData(dataArr);
+                    eqBars.forEach((bar, i) => {
+                        const raw = dataArr[Math.floor(i * bufLen / 8)] || 0;
+                        const h = Math.max(6, (raw / 255) * 100);
+                        bar.style.height = `${h}%`;
+                    });
+                } catch (e) {
+                    // fallback 到模拟
+                    simulateEq(preset, frameCount);
+                }
+            } else if (isPlaying) {
+                // 模拟频谱动画（没有Web Audio时使用）
+                simulateEq(preset, frameCount);
+            } else {
+                // 暂停状态：轻微浮动
+                eqBars.forEach((bar, i) => {
+                    const idle = 15 + Math.sin(frameCount * 0.02 + i * 0.8) * 8;
+                    bar.style.height = `${idle}%`;
                 });
-                
-                // 添加当前预设的激活状态
-                const activePreset = document.querySelector(`.eq-preset[data-preset="${preset}"]`);
-                if (activePreset) {
-                    activePreset.classList.add('active');
-                    // 根据预设类型添加不同的颜色效果
-                    switch (preset) {
-                        case 'normal':
-                        case 'vocal':
-                            activePreset.classList.add('from-macaron-blue/30');
-                            break;
-                        case 'pop':
-                        case 'electronic':
-                            activePreset.classList.add('from-macaron-pink/30');
-                            break;
-                        case 'rock':
-                            activePreset.classList.add('from-macaron-green/30');
-                            break;
-                        case 'classical':
-                            activePreset.classList.add('from-macaron-purple/30');
-                            break;
-                        case 'jazz':
-                            activePreset.classList.add('from-macaron-yellow/30');
-                            break;
-                        case 'bass':
-                            activePreset.classList.add('from-macaron-orange/30');
-                            break;
-                    }
-                }
-                
-                currentEqPreset = preset;
-                console.log('设置均衡器预设:', preset);
-                
-                // 应用均衡器设置
-                applyEqPreset(preset);
-                
-                // 显示通知
-                showNotification(`音效已切换至: ${preset}`, 'info');
-            } catch (error) {
-                console.error('设置均衡器预设时出错:', error);
             }
+
+            requestAnimationFrame(animate);
         }
-        
-        // 应用均衡器预设
-        function applyEqPreset(preset) {
-            try {
-                // 在实际项目中，这里应该使用Web Audio API实现真正的均衡器效果
-                // 这里仅作为示例，实际功能需要根据Web Audio API实现
-                console.log(`应用均衡器预设: ${preset}`);
-                
-                // 简单的预设值示例
-                const eqSettings = {
-                    normal: [1, 1, 1, 1, 1, 1, 1, 1],
-                    pop: [0.8, 1.2, 1.5, 1.3, 1, 0.8, 0.7, 0.6],
-                    rock: [1.5, 1.3, 1, 0.8, 0.7, 0.8, 1.2, 1.5],
-                    classical: [0.8, 1, 1.2, 1.5, 1.5, 1.2, 1, 0.8],
-                    jazz: [1.2, 1, 0.8, 1, 1.2, 1.3, 1.2, 1],
-                    bass: [2, 1.8, 1.5, 1, 0.8, 0.6, 0.5, 0.4],
-                    vocal: [0.6, 0.8, 1.2, 1.5, 1.8, 1.5, 1, 0.8],
-                    electronic: [1.2, 1.5, 1.2, 0.8, 1, 1.3, 1.5, 1.2]
-                };
-                
-                // 修正：实现基本的均衡器效果
-                if (audioContext && analyser) {
-                    // 创建音频处理节点
-                    if (window.audioNodes) {
-                        // 清除之前的节点
-                        window.audioNodes.forEach(node => {
-                            if (node && node.disconnect) {
-                                node.disconnect();
-                            }
-                        });
-                    }
-                    
-                    // 保存当前的音频状态
-                    const wasPlaying = isPlaying;
-                    const currentTime = audio.currentTime;
-                    
-                    // 断开并重新连接音频流
-                    const source = audioContext.createMediaElementSource(audio);
-                    
-                    // 创建简单的增益节点作为均衡器
-                    const gains = [];
-                    window.audioNodes = [source];
-                    
-                    // 使用简单的增益调整模拟均衡器效果
-                    const mainGain = audioContext.createGain();
-                    mainGain.gain.value = eqSettings[preset][4]; // 使用中频增益作为主增益
-                    gains.push(mainGain);
-                    window.audioNodes.push(mainGain);
-                    
-                    // 连接节点
-                    source.connect(mainGain);
-                    mainGain.connect(analyser);
-                    analyser.connect(audioContext.destination);
-                    
-                    // 恢复播放状态
-                    if (wasPlaying) {
-                        audio.currentTime = currentTime;
-                        audio.play().catch(err => console.error('恢复播放失败:', err));
-                    }
-                }
-            } catch (error) {
-                console.error('应用均衡器预设时出错:', error);
-            }
-        }
-        
-        // 启动均衡器动画
-        function startEqAnimation() {
-            try {
-                // 创建动画帧请求
-                function animateEq() {
-                    if (isPlaying && audioContext && analyser) {
-                        // 使用音频数据更新均衡器动画
-                        const bufferLength = analyser.frequencyBinCount;
-                        const dataArray = new Uint8Array(bufferLength);
-                        analyser.getByteFrequencyData(dataArray);
-                        
-                        // 只取前8个频率点用于显示
-                        const eqData = [];
-                        for (let i = 0; i < 8 && i < bufferLength; i++) {
-                            eqData.push(dataArray[i]);
-                        }
-                        
-                        // 更新均衡器柱条高度
-                        eqBars.forEach((bar, index) => {
-                            if (index < eqData.length) {
-                                const height = (eqData[index] / 255) * 100;
-                                bar.style.height = `${height}%`;
-                            }
-                        });
-                    } else if (isPlaying) {
-                        // 没有音频分析器时使用随机高度
-                        eqBars.forEach(bar => {
-                            const height = Math.floor(Math.random() * 80) + 20;
-                            bar.style.height = `${height}%`;
-                        });
-                    } else {
-                        // 未播放时使用静态高度
-                        eqBars.forEach((bar, index) => {
-                            const heights = [20, 60, 40, 80, 30, 70, 50];
-                            bar.style.height = `${heights[index % heights.length]}%`;
-                        });
-                    }
-                    
-                    requestAnimationFrame(animateEq);
-                }
-                
-                // 开始动画
-                animateEq();
-            } catch (error) {
-                console.error('启动均衡器动画时出错:', error);
-            }
-        }
-        
-        // 更新均衡器动画
-        function updateEqAnimation() {
-            // 动画由requestAnimationFrame持续更新，这里不需要额外操作
-        }
-        
-        // 显示通知
-        function showNotification(message, type = 'info') {
-            try {
-                // 检查是否已存在通知元素
-                let notification = document.getElementById('music-notification');
-                if (notification) {
-                    notification.remove();
-                }
-                
-                // 创建通知元素
-                notification = document.createElement('div');
-                notification.id = 'music-notification';
-                
-                // 设置通知样式
-                let bgColor, textColor, icon;
-                switch (type) {
-                    case 'success':
-                        bgColor = 'bg-macaron-green/90';
-                        textColor = 'text-dark';
-                        icon = 'fa-check-circle';
-                        break;
-                    case 'error':
-                        bgColor = 'bg-red-100/90';
-                        textColor = 'text-red-800';
-                        icon = 'fa-exclamation-circle';
-                        break;
-                    case 'warning':
-                        bgColor = 'bg-macaron-yellow/90';
-                        textColor = 'text-dark';
-                        icon = 'fa-exclamation-triangle';
-                        break;
-                    default: // info
-                        bgColor = 'bg-macaron-blue/90';
-                        textColor = 'text-dark';
-                        icon = 'fa-info-circle';
-                }
-                
-                notification.className = `fixed bottom-20 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-full shadow-lg z-50 ${bgColor} ${textColor} flex items-center space-x-2 transition-all duration-300 opacity-0`;
-                
-                // 设置通知内容
-                notification.innerHTML = `
-                    <i class="fa ${icon}"></i>
-                    <span>${message}</span>
-                `;
-                
-                // 添加到页面
-                document.body.appendChild(notification);
-                
-                // 显示通知
-                setTimeout(() => {
-                    notification.style.opacity = '1';
-                }, 100);
-                
-                // 3秒后隐藏通知
-                setTimeout(() => {
-                    notification.style.opacity = '0';
-                    setTimeout(() => {
-                        if (notification.parentNode) {
-                            notification.parentNode.removeChild(notification);
-                        }
-                    }, 300);
-                }, 3000);
-            } catch (error) {
-                console.error('显示通知时出错:', error);
-            }
-        }
+
+        // 初始静止状态
+        eqBars.forEach((bar, i) => {
+            bar.style.height = `${20 + (i % 4) * 15}%`;
+        });
+
+        animate();
+    }
+
+    // 模拟频谱动画
+    function simulateEq(preset, frame) {
+        eqBars.forEach((bar, i) => {
+            eqPhase[i].phase += eqPhase[i].speed * preset.speed;
+            const noise = Math.sin(eqPhase[i].phase) * preset.variance;
+            const base  = preset.avg + noise;
+            const h     = Math.max(6, Math.min(98, base + Math.random() * 10 - 5));
+            bar.style.height = `${h}%`;
+        });
+    }
+
+    // ========== 工具函数 ==========
+    function formatTime(sec) {
+        if (!sec || isNaN(sec)) return '0:00';
+        return `${Math.floor(sec / 60)}:${Math.floor(sec % 60).toString().padStart(2, '0')}`;
+    }
+
+    function showNotification(msg, type = 'info') {
+        let n = document.getElementById('music-notification');
+        if (n) n.remove();
+        n = document.createElement('div');
+        n.id = 'music-notification';
+        const colors = { success:'bg-macaron-green/90', error:'bg-red-100/90', warning:'bg-macaron-yellow/90', info:'bg-macaron-blue/90' };
+        const icons  = { success:'fa-check-circle', error:'fa-exclamation-circle', warning:'fa-exclamation-triangle', info:'fa-info-circle' };
+        n.className = `fixed bottom-20 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full shadow-lg z-50 ${colors[type] || colors.info} text-dark flex items-center space-x-2 transition-all duration-300 opacity-0`;
+        n.innerHTML = `<i class="fa ${icons[type] || icons.info}"></i><span>${msg}</span>`;
+        document.body.appendChild(n);
+        requestAnimationFrame(() => n.style.opacity = '1');
+        setTimeout(() => { n.style.opacity = '0'; setTimeout(() => n.remove(), 300); }, 2500);
+    }
     </script>
 </body>
 </html>
