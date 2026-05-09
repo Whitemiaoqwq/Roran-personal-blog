@@ -157,6 +157,9 @@
         @media (min-width: 768px) {
             .sidebar { transform: translateX(0); }
         }
+        .sidebar.sidebar-open {
+            transform: translateX(0) !important;
+        }
 
         /* ========== 音乐按钮 ========== */
         .music-btn { transition: all 0.3s ease; }
@@ -753,33 +756,66 @@
     const sidebar = document.getElementById('sidebar');
     const sidebarOverlay = document.getElementById('sidebar-overlay');
 
+    // 检测侧边栏是否打开（兼容 CSS 与 style 两种设置方式）
+    function isSidebarOpen() {
+        if (sidebar.classList.contains('sidebar-open')) return true;
+        if (sidebar.style.transform === 'translateX(0px)' || sidebar.style.transform === 'translateX(0)') return true;
+        return sidebar.getBoundingClientRect().left === 0;
+    }
+
+    // 打开侧边栏
+    function openSidebar() {
+        sidebar.classList.add('sidebar-open');
+        sidebar.style.transform = 'translateX(0)';
+        if (sidebarOverlay) {
+            sidebarOverlay.classList.remove('hidden');
+        }
+        if (window.innerWidth < 768) {
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    // 关闭侧边栏
+    function closeSidebar() {
+        sidebar.classList.remove('sidebar-open');
+        sidebar.style.transform = 'translateX(-100%)';
+        if (sidebarOverlay) {
+            sidebarOverlay.classList.add('hidden');
+        }
+        document.body.style.overflow = '';
+    }
+
     // 移动端点击覆盖层关闭侧边栏
     if (sidebarOverlay) {
-        sidebarOverlay.addEventListener('click', () => {
-            sidebar.style.transform = 'translateX(-100%)';
-            sidebarOverlay.classList.add('hidden');
-            document.body.style.overflow = '';
-        });
+        sidebarOverlay.addEventListener('click', closeSidebar);
     }
 
     // 移动端点击空白处关闭侧边栏
     document.addEventListener('click', (e) => {
-        if (window.innerWidth < 768 && sidebar && !sidebar.contains(e.target) && sidebar.style.transform === 'translateX(0px)') {
-            sidebar.style.transform = 'translateX(-100%)';
-            if (sidebarOverlay) sidebarOverlay.classList.add('hidden');
-            document.body.style.overflow = '';
+        if (window.innerWidth < 768 && isSidebarOpen() &&
+            !sidebar.contains(e.target) &&
+            !document.getElementById('mobile-menu-toggle')?.contains(e.target)) {
+            closeSidebar();
         }
     });
 
     // 桌面端 hover 显示侧边栏
-    if (window.matchMedia('(min-width: 768px)').matches) {
-        document.querySelector('.sidebar').addEventListener('mouseenter', function() {
-            this.style.transform = 'translateX(0)';
+    const desktopMedia = window.matchMedia('(min-width: 768px)');
+    if (desktopMedia.matches) {
+        sidebar.addEventListener('mouseenter', () => {
+            sidebar.style.transform = 'translateX(0)';
         });
-        document.querySelector('.sidebar').addEventListener('mouseleave', function() {
-            this.style.transform = 'translateX(0)';
+        sidebar.addEventListener('mouseleave', () => {
+            sidebar.style.transform = 'translateX(0)';
         });
     }
+    desktopMedia.addEventListener('change', (e) => {
+        if (e.matches) {
+            sidebar.style.transform = 'translateX(0)';
+        } else {
+            closeSidebar();
+        }
+    });
 
     // 移动端汉堡菜单按钮
     function createMobileMenuToggle() {
@@ -789,18 +825,15 @@
         if (window.innerWidth < 768) {
             const menuToggle = document.createElement('div');
             menuToggle.id = 'mobile-menu-toggle';
-            menuToggle.className = 'fixed top-6 left-6 z-50 bg-white bg-opacity-90 p-3 rounded-full shadow-lg cursor-pointer w-12 h-12 flex items-center justify-center';
+            menuToggle.className = 'fixed top-6 left-6 z-[60] bg-white bg-opacity-90 p-3 rounded-full shadow-lg cursor-pointer w-12 h-12 flex items-center justify-center';
             menuToggle.innerHTML = '<i class="fa fa-bars text-primary"></i>';
             document.body.appendChild(menuToggle);
-            menuToggle.addEventListener('click', () => {
-                if (sidebar.style.transform === 'translateX(0px)') {
-                    sidebar.style.transform = 'translateX(-100%)';
-                    sidebarOverlay.classList.add('hidden');
-                    document.body.style.overflow = '';
+            menuToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (isSidebarOpen()) {
+                    closeSidebar();
                 } else {
-                    sidebar.style.transform = 'translateX(0)';
-                    sidebarOverlay.classList.remove('hidden');
-                    document.body.style.overflow = 'hidden';
+                    openSidebar();
                 }
             });
         }
