@@ -320,7 +320,7 @@
             margin: 0 auto;
         }
         @media (min-width: 768px) {
-            .main-content { margin-left: 16rem; max-width: 640px; }
+            .main-content { max-width: 640px; margin: 0 auto; padding-left: 16rem; }
         }
 
         /* ========== 按钮 ========== */
@@ -788,7 +788,7 @@
 
             const card = fortune.card;
             const shareEl = document.createElement('div');
-            shareEl.style.cssText = 'position:fixed;top:-9999px;left:-9999px;';
+            shareEl.style.cssText = 'position:fixed;top:0;left:0;visibility:hidden;pointer-events:none;';
             shareEl.innerHTML = `
                 <div id="share-card" style="
                     width:340px;
@@ -802,7 +802,7 @@
                 ">
                     <div style="text-align:center;margin-bottom:16px;">
                         <div style="font-size:0.8rem;color:#f59e0b;letter-spacing:0.1em;">TAROT OF THE DAY</div>
-                        <div style="font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,#fbbf24,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:6px 0 2px;">
+                        <div style="font-size:1.6rem;font-weight:800;color:#fbbf24;margin:6px 0 2px;">
                             ${card.nameCN}
                         </div>
                         <div style="font-size:0.7rem;color:#94a3b8;">${card.nameEN} · NO.${String(card.id).padStart(2,'0')}</div>
