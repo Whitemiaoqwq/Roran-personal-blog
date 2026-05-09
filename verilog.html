@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verilog 语法速查</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#91A3B0',
+                        secondary: '#A3B18A',
+                        accent: '#C9A9A6',
+                        tertiary: '#D4A373',
+                        light: '#F5F5F0',
+                        dark: '#585858'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #F5F5F0 0%, #E8E4DF 50%, #C9A9A6 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', 'PingFang SC', sans-serif;
+            color: #585858;
+        }
+
+        /* ========== 侧边栏 ========== */
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            width: 16rem; height: 100%;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(0,0,0,0.08);
+            box-shadow: 4px 0 20px rgba(0,0,0,0.06);
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(-100%);
+            z-index: 40;
+            display: flex;
+            flex-direction: column;
+        }
+        @media (min-width: 768px) {
+            .sidebar { transform: translateX(0); }
+        }
+        .sidebar-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.2);
+            z-index: 30;
+            display: none;
+        }
+        .sidebar-overlay.show { display: block; }
+        @media (min-width: 768px) {
+            .sidebar-overlay { display: none !important; }
+        }
+        .sidebar-brand {
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 0.5rem;
+        }
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            margin: 0.25rem 0.5rem;
+            border-radius: 1rem;
+            transition: all 0.2s ease;
+            color: #585858;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+        .sidebar-nav a:hover { background: rgba(145,163,176,0.1); color: #91A3B0; }
+        .sidebar-nav a.active {
+            background: rgba(145,163,176,0.2);
+            color: #91A3B0;
+            font-weight: 600;
+        }
+        .sidebar-nav a i { width: 2rem; text-align: center; font-size: 1.1rem; color: #91A3B0; }
+        .sidebar-nav a.active i { color: #A3B18A; }
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 1px solid rgba(0,0,0,0.06);
+            text-align: center;
+            font-size: 0.75rem;
+            color: #a0a0a0;
+        }
+        #sidebar-toggle {
+            position: fixed;
+            top: 1rem; left: 1rem;
+            z-index: 50;
+            width: 2.5rem; height: 2.5rem;
+            border-radius: 0.75rem;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(0,0,0,0.08);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #585858;
+            font-size: 1.25rem;
+        }
+        #sidebar-toggle:hover { background: rgba(145,163,176,0.15); }
+        @media (min-width: 768px) {
+            #sidebar-toggle { display: none; }
+        }
+        body { padding-left: 0; transition: padding-left 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
+        @media (min-width: 768px) {
+            body { padding-left: 16rem; }
+        }
+
+        /* ========== 代码块 ========== */
+        .code-block {
+            background: #1e1e1e;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            margin: 0.75rem 0;
+        }
+        .code-header {
+            background: #2d2d2d;
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: #888;
+        }
+        .code-header .dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+        }
+        .code-header .dot-red { background: #ff5f56; }
+        .code-header .dot-yellow { background: #ffbd2e; }
+        .code-header .dot-green { background: #27c93f; }
+        .code-content {
+            padding: 1rem;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.82rem;
+            line-height: 1.7;
+        }
+        pre { margin: 0; white-space: pre; }
+        /* 语法高亮 */
+        .hl-keyword  { color: #569cd6; font-weight: bold; }
+        .hl-type     { color: #4ec9b0; }
+        .hl-comment  { color: #6a9955; font-style: italic; }
+        .hl-string   { color: #ce9178; }
+        .hl-number   { color: #b5cea8; }
+        .hl-function { color: #dcdcaa; }
+        .hl-port     { color: #c586c0; }
+        .hl-param    { color: #9cdcfe; }
+        .hl-op       { color: #d4d4d4; }
+
+        /* ========== 语法卡片 ========== */
+        .syntax-card {
+            background: rgba(255,255,255,0.85);
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
+            backdrop-filter: blur(6px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            transition: all 0.3s ease;
+        }
+        .syntax-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+        .syntax-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #91A3B0;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .syntax-card h3 i { color: #A3B18A; }
+        .syntax-card p {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 0.75rem;
+        }
+
+        /* ========== 分类标签 ========== */
+        .category-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.4rem 0.9rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            background: rgba(145,163,176,0.15);
+            color: #91A3B0;
+        }
+        .category-btn:hover, .category-btn.active {
+            background: #91A3B0;
+            color: white;
+        }
+
+        /* ========== 搜索框 ========== */
+        .search-box {
+            background: rgba(255,255,255,0.9);
+            border: 2px solid rgba(145,163,176,0.2);
+            border-radius: 1rem;
+            padding: 0.75rem 1.25rem;
+            font-size: 1rem;
+            width: 100%;
+            max-width: 600px;
+            transition: all 0.2s ease;
+            outline: none;
+            color: #585858;
+        }
+        .search-box:focus {
+            border-color: #91A3B0;
+            box-shadow: 0 0 0 4px rgba(145,163,176,0.15);
+        }
+        .search-box::placeholder { color: #aaa; }
+
+        /* ========== 快速跳转锚点 ========== */
+        .anchor-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .anchor-nav a {
+            padding: 0.35rem 0.8rem;
+            border-radius: 9999px;
+            font-size: 0.78rem;
+            background: rgba(163,177,138,0.15);
+            color: #A3B18A;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .anchor-nav a:hover {
+            background: #A3B18A;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 侧边栏遮罩 -->
+    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- 侧边栏 -->
+    <nav id="sidebar" class="sidebar">
+        <div class="sidebar-brand">
+            <h2><i class="fa fa-microchip" style="color:#91A3B0; margin-right:6px;"></i>Verilog 速查</h2>
+        </div>
+        <div class="sidebar-nav">
+            <a href="index.html">
+                <i class="fa fa-home"></i><span>首页</span>
+            </a>
+            <a href="toolbox.html">
+                <i class="fa fa-wrench"></i><span>工具箱</span>
+            </a>
+            <div style="height:1px; background:rgba(0,0,0,0.08); margin:0.5rem 0;"></div>
+            <a href="dice.html">
+                <i class="fa fa-dice"></i><span>骰子游戏</span>
+            </a>
+            <a href="serial.html">
+                <i class="fa fa-plug"></i><span>串口调试</span>
+            </a>
+            <a href="verilog.html" class="active">
+                <i class="fa fa-microchip"></i><span>Verilog 速查</span>
+            </a>
+        </div>
+        <div class="sidebar-footer">
+            © 2024 工具箱
+        </div>
+    </nav>
+
+    <!-- 汉堡按钮 -->
+    <button id="sidebar-toggle" class="md:hidden" onclick="toggleSidebar()">
+        <i class="fa fa-bars"></i>
+    </button>
+
+    <!-- 主内容区 -->
+    <main class="min-h-screen pb-20 px-4 md:px-8 pt-20">
+        <div class="max-w-4xl mx-auto">
+
+            <!-- 标题 -->
+            <div class="text-center mb-8">
+                <h1 class="text-3xl md:text-4xl font-bold mb-3" style="color:#585858;">
+                    <i class="fa fa-microchip" style="color:#91A3B0;"></i> Verilog 语法速查
+                </h1>
+                <p class="text-base" style="color:#a0a0a0;">常用语法快速参考，点复制按钮一键复制代码</p>
+            </div>
+
+            <!-- 搜索框 -->
+            <div class="text-center mb-6">
+                <input type="text" id="search-input" class="search-box" placeholder="🔍 搜索关键词，如 module、always、wire..." oninput="filterContent()">
+            </div>
+
+            <!-- 快速跳转 -->
+            <div class="anchor-nav text-center">
+                <a href="#module">模块</a>
+                <a href="#port">端口</a>
+                <a href="#type">数据类型</a>
+                <a href="#always">过程块</a>
+                <a href="#assign">连续赋值</a>
+                <a href="#op">运算符</a>
+                <a href="#ctrl">流程控制</a>
+                <a href="#inst">模块例化</a>
+                <a href="#mem">存储器</a>
+                <a href="#task">任务函数</a>
+                <a href="#pre">编译指令</a>
+            </div>
+
+            <!-- ========== 模块 ========== -->
+            <div class="syntax-card" data-keywords="module 模块">
+                <h3 id="module"><i class="fa fa-cube"></i>模块声明</h3>
+                <p>模块是 Verilog 设计的基本单元，以 module 开头 endmodule 结尾</p>
+                <div class="code-block">
+                    <div class="code-header"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span> module.v</div>
+                    <div class="code-content">
+<pre><span class="hl-comment">// 基本模块结构</span>
+<span class="hl-keyword">module</span> <span class="hl-function">module_name</span> <span class="hl-op">#(</span>
+    <span class="hl-param">parameter</span> <span class="hl-type">WIDTH</span> <span class="hl-op">= </span><span class="hl-number">8</span>  <span class="hl-comment">// 可选参数</span>
+<span class="hl-op">) (</span>
+    <span class="hl-port">input</span>  <span class="hl-keyword">wire</span>             <span class="hl-param">clk</span>,      <span class="hl-comment">// 输入端口</span>
+    <span class="hl-port">input</span>  <span class="hl-keyword">wire</span>             <span class="hl-param">rst_n</span>,    <span class="hl-comment">// 低电平复位</span>
+    <span class="hl-port">input</span>  <span class="hl-keyword">wire</span> <span class="hl-op">[</span><span class="hl-type">WIDTH</span><span class="hl-op">-</span><span class="hl-number">1</span><span class="hl-op">:</span><span class="hl-number">0</span><span class="hl-op">]</span>        <span class="hl-param">data_in</span>,  <span class="hl-comment">// 总线输入</span>
+    <span class="hl-port">output</span> <span class="hl-keyword">reg</span>  <span class="hl-op">[</span><span class="hl-type">WIDTH</span><span class="hl-op">-</span><span class="hl-number">1</span><span class="hl-op">:</span><span class="hl-number">0</span><span class="hl-op">]</span>        <span class="hl-param">data_out</span>, <span class="hl-comment">// 寄存器输出</span>
+    <span class="hl-port">output</span> <span class="hl-keyword">wire</span>            <span class="hl-param">valid</span>     <span class="hl-comment">// 组合逻辑输出</span>
+<span class="hl-op">);</span>
+
+    <span class="hl-comment">// === 内部信号声明 ===</span>
+    <span class="hl-keyword">wire</span> <span class="hl-op">[</span><span class="hl-type">WIDTH</span><span class="hl-op">-</span><span class="hl-number">1</span><span class="hl-op">:</span><span class="hl-number">0</span><span class="hl-op">]</span> temp_wire;
+    <span class="hl-keyword">reg</span>  <span class="hl-op">[</span><span class="hl-number">3</span><span class="hl-op">:</span><span class="hl-number">0</span><span class="hl-op">]</span>   cnt;
+
+    <span class="hl-comment">// === 组合逻辑 ===</span>
+    <span class="hl-keyword">assign</span> temp_wire <span class="hl-op">=</span> data_in <span class="hl-op">&amp;</span> <span class="hl-number">8'h0F</span>;
+    <span class="hl-keyword">assign</span> valid <span class="hl-op">=</span> <span class="hl-op">|</span>data_in;
+
+    <span class="hl-comment">// === 时序逻辑 ===</span>
+    <span class="hl-keyword">always</span> <span class="hl-op">@(</span><span class="hl-keyword">posedge</span> clk <span class="hl-keyword">or</span> <span class="hl-keyword">negedge</span> rst_n<span class="hl-op">) begin</span>
+        <span class="hl-keyword">if</span> <span class="hl-op">(!</span>rst_n<span class="hl-op">) begin</span>
+            data_out <span class="hl-op">&lt;= </span><span class="hl-number">0</span>;
+            cnt      <span class="hl-op">&lt;= </span><span class="hl-number">0</span>;
+        <span class="hl-keyword">end</span> <span class="hl-keyword">else</span> <span class="hl-keyword">begin</span>
+            data_out <span class="hl-op">&lt;= </span>temp_wire;
+            cnt      <span class="hl-op">&lt;= </span>cnt <span class="hl-op">+ </span><span class="hl-number">1</span><span class="hl-op">;</span>
+        <span class="hl-keyword">end</span>
+    <span class="hl-keyword">end</span>
+
+<span class="hl-keyword">endmodule</span></pre>
+                    </div>
+                </div>
+                <button class="copy-btn" onclick="copyCode(this)" style="background:#91A3B0; color:white; border:none; border-radius:0.5rem; padding:0.4rem 1rem; font-size:0.8rem; cursor:pointer; margin-top:0.5rem;">
+                    <i class="fa fa-copy"></i> 复制
+                </button>
+            </div>
+
+            <!-- ========== 端口类型 ========== -->
+            <div class="syntax-card" data-keywords="input output inout port 端口">
+                <h3 id="port"><i class="fa fa-plug"></i>端口类型</h3>
+                <p>模块与外部交互的通道，三种方向：输入、输出、双向</p>
+                <div class="code-block">
+                    <div class="code-header"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span> ports.v</div>
+                    <div class="code-content">
+<pre><span class="hl-comment">// ========== 端口声明方式 ==========</span>
+
+<span class="hl-comment">// 方式一：模块声明时同时声明端口（推荐）</span>
+<span class="hl-keyword">module</span> <span class="hl-function">example1</span> <span class="hl-op">(</span>
+    <span class="hl-port">input</span>              <span class="hl-param">a</span>,           <span class="hl-comment">// 1bit 输入</span>
+    <span class="hl-port">output</span>             <span class="hl-param">b</span>,           <span class="hl-comment">// 1bit 输出</span>
+    <span class="hl-port">inout</span>              <span class="hl-param">c</span>            <span class="hl-comment">// 1bit 双向</span>
+<span class="hl-op">);</span>
+<span class="hl-keyword">endmodule</span>
+
+<span class="hl-comment">// 方式二：分开声明（旧式）</span>
+<span class="hl-keyword">module</span> <span class="hl-function">example2</span><span class="hl-op">(</span>a, b, c<span class="hl-op">);</span>
+    <span class="hl-port">input</span>  a;
+    <span class="hl-port">output</span> b;
+    <span class="hl-port">inout</span>  c;
+<span class="hl-keyword">endmodule</span>
+
+<span class="hl-comment">// ========== 带位宽的端口 ==========</span>
+<span class="hl-keyword">module</span> <span class="hl-function">bus_example</span> <span class="hl-op">(</span>
+    <span class="hl-port">input</span>  <span class="hl-keyword">wire</span> <span class="hl-op">[</span><span class="hl-number">7</span><span class="hl-op">:</span><span class="hl-number">0</span><span class="hl-op">]</span>   data_in,   <span class="hl-comment">// 8bit 输入总线，高位在左</span>
+    <span class="hl-port">output</span> <span class="hl-keyword">reg</span>  <span class="hl-op">[</span><span class="hl-number">15</span><span class="hl-op">:</span><span class="hl-number">0</span><span class="hl-op">]</span>  data_out,  <span class="hl-comment">// 16bit 输出寄存器</span>
+    <span class="hl-port">output</span> <span class="hl-keyword">wire</span> <span class="hl-op">[</span><span class="hl-number">0</span><span class="hl-op">:</span><span class="hl-number">7</span><span class="hl-op">]</span>   rev_data   <span class="hl-comment">// 8bit 低位在左的小端序</span>
+<span class="hl-op">);</span>
+<span class="hl-keyword">endmodule</span>
+
+<span class="hl-comment">// ========== 端口信号类型 ==========</span>
+<span class="hl-port">input</span>  <span class="hl-keyword">wire</span>    sig1;   <span class="hl-comment">// 纯组合逻辑输入</span>
+<span class="hl-port">input</span>  <span class="hl-keyword">reg</span>     sig2;   <span class="hl-comment">// 过程块中的输入（不允许！）</span>
+<span class="hl-port">output</span> <span class="hl-keyword">wire</span>    sig3;   <span class="hl-comment">// 组合逻辑输出（常用 assign）</span>
+<span class="hl-port">output</span> <span class="hl-keyword">reg</span>     sig4;   <span class="hl-comment">// 时序/组合逻辑输出（常用 always）</span></pre>
+                    </div>
+                </div>
+                <button class="copy-btn" onclick="copyCode(this)" style="background:#91A3B0; color:white; border:none; border-radius:0.5rem; padding:0.4rem 1rem; font-size:0.8rem; cursor:pointer; margin-top:0.5rem;">
+                    <i class="fa fa-copy"></i> 复制
+                </button>
+            </div>
+
+            <!-- ========== 数据类型 ========== -->
+            <div class="syntax-card" data-keywords="wire reg integer real parameter localparam 数据类型">
+                <h3 id="type"><i class="fa fa-database"></i>数据类型</h3>
+                <p>Verilog 中最常用的数据类型：wire（线网）、reg（寄存器）、parameter（参数）</p>
+                <div class="code-block">
+                    <div class="code-header"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span> datatype.v</div>
+                    <div class="code-content">
+<pre><span class="hl-comment">// ========== wire（线网）==========</span>
+<span class="hl-comment">// 表示硬件连线，必须被驱动（assign 或由其它信号连接）</span>
+<span class="hl-keyword">wire</span>           single_bit;              <span class="hl-comment">// 1bit 线网</span>
+<span class="hl-keyword">wire</span> <span class="hl-op">[</span><span class="hl-number">3</span><span class="hl-op">:</span><span class="hl-number">0</span><span class="hl-op">]</span>   nibble;                  <span class="hl-comment">// 4bit 总线</span>
+<span class="hl-keyword">wire</span> <span class="hl-op">[</span><span class="hl-number">7</span><span class="hl-op">:</span><span class="hl-number">0</span><span class="hl-op">]</span>   <span class="hl-param">byte</span> <span class="hl-op">= </span><span class="hl-number">8'hA5</span>;      <span class="hl-comment">// 带初始值（综合时被忽略）</span>
+
+<span class="hl-comment">// ========== reg（寄存器）==========</span>
+<span class="hl-comment">// 表示存储单元，只能在 always/initial 块中赋值</span>
+<span class="hl-keyword">reg</span>            flag;
+<span class="hl-keyword">reg</span>  <span class="hl-op">[</span><span class="hl-number">31</span><span class="hl-op">:</span><span class="hl-number">0</span><span class="hl-op">]</span>  counter;
+<span class="hl-keyword">reg</span>  <span class="hl-op">[</span><span class="hl-number">0</span><span class="hl-op">:</span><span class="hl-number">7</span><span class="hl-op">]</span>   <span class="hl-param">little_endian</span>;     <span class="hl-comment">// 小端序定义</span>
+
+<span class="hl-comment">// ========== integer（整数）==========</span>
+<span class="hl-comment">// 至少32bit有符号整数，常用于循环计数和调试</span>
+<span class="hl-keyword">integer</span> i, j;
+<span class="hl-keyword">integer</span> <span class="hl-param">rom</span> <span class="hl-op">[</span><span class="hl-number">0</span><span class="hl-op">:</span><span class="hl-number">255</span><span class="hl-op">]</span>;               <span class="hl-comment">// 整数数组（ROM模型）</span>
+
+<span class="hl-comment">// ========== parameter（参数）==========</span>
+<span class="hl-comment">// 编译时常量，提高代码可复用性</span>
+<span class="hl-keyword">parameter</span>       <span class="hl-type">CLK_FREQ</span>   <span class="hl-op">= </span><span class="hl-number">50_000_000</span>;  <span class="hl-comment">// 50MHz系统</span>
+<span class="hl-keyword">parameter</span>       <span class="hl-type">BIT_WIDTH</span> <span class="hl-op">= </span><span class="hl-number">8</span>;
+<span class="hl-keyword">parameter</span>       <span class="hl-type">ADDR_W</span>    <span class="hl-op">= </span><span class="hl-number">10</span>;
+<span class="hl-keyword">parameter</span>       <span class="hl-type">IDLE</span>      <span class="hl-op">= </span><span class="hl-number">2'b00</span>,
+                <span class="hl-type">READ</span>      <span class="hl-op">= </span><span class="hl-number">2'b01</span>,
+                <span class="hl-type">WRITE</span>     <span class="hl-op">= </span><span class="hl-number">2'b10</span>;       <span class="hl-comment">// 状态机状态定义</span>
+
+<span class="hl-comment">// localparam：本地参数，不可通过例化覆盖</span>
+<span class="hl-keyword">localparam</span>     <span class="hl-type">BURST_LEN</span> <span class="hl-op">= </span><span class="hl-number">16</span>;
+
+<span class="hl-comment">// ========== 数值表示 ==========</span>
+<span class="hl-number">4'b1011</span>    <span class="hl-comment">// 4bit 二进制: 1011</span>
+<span class="hl-number">8'hA5</span>      <span class="hl-comment">// 8bit 十六进制: 10100101</span>
+<span class="hl-number">12'd1023</span>  <span class="hl-comment">// 12bit 十进制: 001111111111</span>
+<span class="hl-number">16'bx</span>      <span class="hl-comment">// 16bit 不定态</span>
+<span class="hl-number">8'bz</span>       <span class="hl-comment">// 8bit 高阻态</span>
+<span class="hl-number">'hFF</span>       <span class="hl-comment">// 默认位宽（至少32bit）的十六进制</span>
+<span class="hl-number">32'd100</span>    <span class="hl-comment">// 显式32bit十进制</span></pre>
+                    </div>
+                </div>
+                <button class="copy-btn" onclick="copyCode(this)" style="background:#91A3B0; color:white; border:none; border-radius:0.5rem; padding:0.4rem 1rem; font-size:0.8rem; cursor:pointer; margin-top:0.5rem;">
+                    <i class="fa fa-copy"></i> 复制
+                </button>
+            </div>
+
+            <!-- ========== always 过程块 ========== -->
+            <div class="syntax-card" data-keywords="always initial 过程块 时序 组合 敏感列表">
+                <h3 id="always"><i class="fa fa-clock-o"></i>always 与 initial 过程块</h3>
+                <p>always 块描述组合逻辑或时序逻辑；initial 块仅在仿真开始时执行一次</p>
+                <div class="code-block">
+                    <div class="code-header"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span> process.v</div>
+                    <div class="code-content">
+<pre><span class="hl-comment">// ========== 时序逻辑 always 块 ==========</span>
+<span class="hl-comment">// 记得描述复位！同步复位或异步复位</span>
+<span class="hl-keyword">always</span> <span class="hl-op">@(</span><span class="hl-keyword">posedge</span> clk<span class="hl-op">) begin</span>          <span class="hl-comment">// 同步复位</span>
+<span class="hl-comment">// always @(posedge clk or posedge rst) begin  // 异步复位（同时监听复位信号边沿）</span>
+    <span class="hl-keyword">if</span> <span class="hl-op">(</span>rst<span class="hl-op">) begin</span>
+        q <span class="hl-op">&lt;= </span><span class="hl-number">1'b0</span>;
+    <span class="hl-keyword">end</span> <span class="hl-keyword">else</span> <span class="hl-keyword">begin</span>
+        q <span class="hl-op">&lt;= </span>d;
+    <span class="hl-keyword">end</span>
+<span class="hl-keyword">end</span>
+
+<span class="hl-comment">// ========== 组合逻辑 always 块 ==========</span>
+<span class="hl-comment">// 敏感列表要完整！推荐使用 @* 自动敏感列表</span>
+<span class="hl-keyword">always</span> <span class="hl-op">@*</span> <span class="hl-op">begin</span>
+    <span class="hl-keyword">case</span> <span class="hl-op">(</span>state<span class="hl-op">)</span>
+        <span class="hl-type">IDLE</span>:  <span class="hl-param">next</span> <span class="hl-op">= </span><span class="hl-type">READ</span>;
+        <span class="hl-type">READ</span>:  <span class="hl-param">next</span> <span class="hl-op">= </span><span class="hl-type">WRITE</span>;
+        <span class="hl-type">WRITE</span>: <span class="hl-param">next</span> <span class="hl-op">= </span><span class="hl-type">IDLE</span>;
+        <span class="hl-keyword">default</span>: <span class="hl-param">next</span> <span class="hl-op">= </span><span class="hl-type">IDLE</span>;
+    <span class="hl-keyword">endcase</span>
+<span class="hl-keyword">end</span>
+
+<span class="hl-comment">// ========== 完整敏感列表写法 ==========</span>
+<span class="hl-keyword">always</span> <span class="hl-op">@(</span>a <span class="hl-keyword">or</span> b <span class="hl-keyword">or</span> sel<span class="hl-op">)</span> begin          <span class="hl-comment">// 组合逻辑</span>
+    <span class="hl-keyword">if</span> <span class="hl-op">(</span>sel<span class="hl-op">)</span>
+        y <span class="hl-op">= </span>a;
+    <span class="hl-keyword">else</span>
+        y <span class="hl-op">= </span>b;
+<span class="hl-keyword">end</span>
+
+<span class="hl-comment">// ========== initial 块（仅仿真） ==========</span>
+<span class="hl-keyword">initial</span> begin
+    clk <span class="hl-op">= </span><span class="hl-number">0</span>;
+    rst <span class="hl-op">= </span><span class="hl-number">1</span>;
+    <span class="hl-op">#</span><span class="hl-number">100</span> rst <span class="hl-op">= </span><span class="hl-number">0</span>;   <span class="hl-comment">// #延时，单位为仿真时间单位</span>
+<span class="hl-keyword">end</span>
+
+<span class="hl-comment">// 产生时钟</span>
+<span class="hl-keyword">always</span> <span class="hl-op">#(</span><span class="hl-number">10</span><span class="hl-op">)</span> clk <span class="hl-op">= </span><span class="hl-op">!</span>clk;  <span class="hl-comment">// 每10个时间单位翻转一次</span></pre>
+                    </div>
+                </div>
+                <button class="copy-btn" onclick="copyCode(this)" style="background:#91A3B0; color:white; border:none; border-radius:0.5rem; padding:0.4rem 1rem; font-size:0.8rem; cursor:pointer; margin-top:0.5rem;">
+                    <i class="fa fa-copy"></i> 复制
+                </button>
+            </div>
+
+            <!-- ========== 连续赋值 ========== -->
+            <div class="syntax-card" data-keywords="assign 连续赋值 三元运算符">
+                <h3 id="assign"><i class="fa fa-link"></i>连续赋值 assign</h3>
+                <p>用于组合逻辑，右边信号变化时立即更新左边，always 块外使用</p>
+                <div class="code-block">
+                    <div class="code-header"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span> assign.v</div>
+                    <div class="code-content">
+<pre><span class="hl-comment">// ========== 基本赋值 ==========</span>
+<span class="hl-keyword">assign</span> y <span class="hl-op">=</span> a <span class="hl-op">&amp;</span> b;              <span class="hl-comment">// 与门</span>
+<span class="hl-keyword">assign</span> y <span class="hl-op">=</span> a <span class="hl-op">|</span> b;              <span class="hl-comment">// 或门</span>
+<span class="hl-keyword">assign</span> y <span class="hl-op">=</span> <span class="hl-op">~</span>a;                 <span class="hl-comment">// 非门</span>
+<span class="hl-keyword">assign</span> y <span class="hl-op">=</span> a <span class="hl-op">^</span> b;              <span class="hl-comment">// 异或</span>
+
+<span class="hl-comment">// ========== 多位宽操作 ==========</span>
+<span class="hl-keyword">assign</span> sum  <span class="hl-op">=</span> a <span class="hl-op">+ </span>b;             <span class="hl-comment">// 加法（会自动扩展位宽）</span>
+<span class="hl-keyword">assign</span> diff <span class="hl-op">=</span> a <span class="hl-op">- </span>b;             <span class="hl-comment">// 减法</span>
+<span class="hl-keyword">assign</span> y    <span class="hl-op">=</span> a <span class="hl-op">&gt;&gt;</span> <span class="hl-number">2</span>;            <span class="hl-comment">// 逻辑右移（补0）</span>
+<span class="hl-keyword">assign</span> y    <span class="hl-op">=</span> a <span class="hl-op">&gt;&gt;&gt;</span> <span class="hl-number">2</span>;           <span class="hl-comment">// 算术右移（补符号位）</span>
+<span class="hl-keyword">assign</span> y    <span class="hl-op">=</span> a <span class="hl-op">&lt;&lt;</span> <span class="hl-number">1</span>;            <span class="hl-comment">// 左移（补0）</span>
+
+<span class="hl-comment">// ========== 位拼接 ==========</span>
+<span class="hl-keyword">assign</span> y <span class="hl-op">= {</span>a, b, c<span class="hl-op">}</span>;              <span class="hl-comment">// 拼接：{bit2, bit1, bit0}</span>
+<span class="hl-keyword">assign</span> y <span class="hl-op">= {</span><span class="hl-number">2</span><span class="hl-op">{</span>a<span class="hl-op">}}</span>;              <span class="hl-comment">// 重复：2'b aa</span>
+<span class="hl-keyword">assign</span> y <span class="hl-op">= {</span>a<span class="hl-op">,</span> <span class="hl-number">1'b0</span><span class="hl-op">,</span> b<span class="hl-op">[</span><span class="hl-number">3</span><span class="hl-op">:</span><span class="hl-number">1</span><span class="hl-op">]}</span>;     <span class="hl-comment">// 混合拼接</span>
+
+<span class="hl-comment">// ========== 三元运算符（条件赋值） ==========</span>
+<span class="hl-keyword">assign</span> y <span class="hl-op">= (</span>sel<span class="hl-op">) ? </span>a <span class="hl-op">: </span>b;           <span class="hl-comment">// sel=1选a，sel=0选b，等效二选一mux</span>
+<span class="hl-keyword">assign</span> y <span class="hl-op">= (</span>a <span class="hl-op">&gt; </span>b<span class="hl-op">) ? </span>a <span class="hl-op">: </span>b;       <span class="hl-comment">// 比较后取大者</span>
+<span class="hl-keyword">assign</span> overflow <span class="hl-op">= (</span>a<span class="hl-op">[</span><span class="hl-number">31</span><span class="hl-op">]</span> <span class="hl-op">== </span>b<span class="hl-op">[</span><span class="hl-number">31</span><span class="hl-op">]) &amp;</span> <span class="hl-op">(</span>result<span class="hl-op">[</span><span class="hl-number">31</span><span class="hl-op">]</span> <span class="hl-op">!= </span>a<span class="hl-op">[</span><span class="hl-number">31</span><span class="hl-op">]);</span>  <span class="hl-comment">// 溢出检测</span></pre>
+                    </div>
+                </div>
+                <button class="copy-btn" onclick="copyCode(this)" style="background:#91A3B0; color:white; border:none; border-radius:0.5rem; padding:0.4rem 1rem; font-size:0.8rem; cursor:pointer; margin-top:0.5rem;">
+                    <i class="fa fa-copy"></i> 复制
+                </button>
+            </div>
+
+            <!-- ========== 运算符 ========== -->
+            <div class="syntax-card" data-keywords="operator 运算符 算术 逻辑 位运算 关系 等价">
+                <h3 id="op"><i class="fa fa-superscript"></i>运算符</h3>
+                <p>算术、逻辑、位运算、关系和等价运算符一览</p>
+                <div class="code-block">
+                    <div class="code-header"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span> operators.txt</div>
+                    <div class="code-content">
+<pre><span class="hl-comment">// ========== 算术运算符 ==========</span>
++   <span class="hl-comment">// 加法  a + b</span>
+-   <span class="hl-comment">// 减法  a - b</span>
+*   <span class="hl-comment">// 乘法  a * b</span>
+/   <span class="hl-comment">// 除法（综合可能被优化为移位）  a / b</span>
+%   <span class="hl-comment">// 取模  a % b</span>
+
+<span class="hl-comment">// ========== 位运算符（按位操作，每位单独运算）==========</span>
+&amp;   <span class="hl-comment">// 按位与  a &amp; b</span>
+|   <span class="hl-comment">// 按位或  a | b</span>
+^   <span class="hl-comment">// 按位异或  a ^ b</span>
+~   <span class="hl-comment">// 按位取反  ~a</span>
+~^  <span class="hl-comment">// 按位同或（异或非）</span>
+
+<span class="hl-comment">// ========== 逻辑运算符（返回1bit真假）==========</span>
+&amp;&amp;  <span class="hl-comment">// 逻辑与  a &amp;&amp; b   （结果：0或1）</span>
+||  <span class="hl-comment">// 逻辑或  a || b   （结果：0或1）</span>
+!   <span class="hl-comment">// 逻辑非  !a       （结果：0或1）</span>
+
+<span class="hl-comment">// ========== 关系运算符 ==========</span>
+&lt;   <span class="hl-comment">// 小于</span>
+&gt;   <span class="hl-comment">// 大于</span>
+&lt;=  <span class="hl-comment">// 小于等于</span>
+&gt;=  <span class="hl-comment">// 大于等于</span>
+
+<span class="hl-comment">// ========== 等价运算符 ==========</span>
+==  <span class="hl-comment">// 相等（x和z参与比较，结果可能为x）</span>
+!=  <span class="hl-comment">// 不等</span>
+=== <span class="hl-comment">// 绝对等于（x和z严格比较，仅仿真用）</span>
+!== <span class="hl-comment">// 绝对不等</span>
+
+<span class="hl-comment">// ========== 移位运算符 ==========</span>
+&lt;&lt;  <span class="hl-comment">// 逻辑左移  a &lt;&lt; n  （低位补0）</span>
+&gt;&gt;  <span class="hl-comment">// 逻辑右移  a &gt;&gt; n  （高位补0）</span>
+&lt;&lt;&lt; <span class="hl-comment">// 算术左移  a &lt;&lt;&lt; n （低位补0，等同逻辑左移）</span>
+&gt;&gt;&gt; <span class="hl-comment">// 算术右移  a &gt;&gt;&gt; n （高位补符号位，有符号数用）</span>
+
+<span class="hl-comment">// ========== 归约运算符（一元，对所有位归约）==========</span>
+&amp;   a   <span class="hl-comment">// 归约与：所有位相与，&amp;a[3]&amp;a[2]&amp;a[1]&amp;a[0]</span>
+~&amp;  a   <span class="hl-comment">// 归约与非</span>
+|   a   <span class="hl-comment">// 归约或</span>
+~|  a   <span class="hl-comment">// 归约或非</span>
+^   a   <span class="hl-comment">// 归约异或（奇偶校验）</span>
+~^  a   <span class="hl-comment">// 归约同或</span>
+
+<span class="hl-comment">// ========== 拼接与重复 ==========</span>
+{ }   <span class="hl-comment">// 拼接 {a, b, c[1:0]}</span>
+{{ }} <span class="hl-comment">// 重复 {{n}{a}} 等价于 {a,a,...,a}(n个)</span>
+
+<span class="hl-comment">// ========== 条件运算符 ==========</span>
+?:  <span class="hl-comment">// 三元：cond ? true_val : false_val</span></pre>
+                    </div>
+                </div>
+                <button class="copy-btn" onclick="copyCode(this)" style="background:#91A3B0; color:white; border:none; border-radius:0.5rem; padding:0.4rem 1rem; font-size:0.8rem; cursor:pointer; margin-top:0.5rem;">
+                    <i class="fa fa-copy"></i> 复制
+                </button>
+            </div>
+
+            <!-- ========== 流程控制 ========== -->
+            <div class="syntax-card" data-keywords="if else case for while repeat forever 流程控制 条件">
+                <h3 id="ctrl"><i class="fa fa-code-branch"></i>流程控制语句</h3>
+                <p>if-else、case、for、while 等过程块内使用的控制语句</p>
+                <div class="code-block">
+                    <div class="code-header"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span> control.v</div>
+                    <div class="code-content">
+<pre><span class="hl-comment">// ========== if-else ==========</span>
+<span class="hl-keyword">if</span> <span class="hl-op">(</span>a <span class="hl-op">&gt; </span><span class="hl-number">8</span><span class="hl-op">)</span> begin
+    y <span class="hl-op">= </span><span class="hl-number">1</span>;
+<span class="hl-keyword">end</span> <span class="hl-keyword">else if</span> <span class="hl-op">(</span>a <span class="hl-op">== </span><span class="hl-number">8</span><span class="hl-op">)</span> begin
+    y <span class="hl-op">= </span><span class="hl-number">0</span>;
+<span class="hl-keyword">end</span> <span class="hl-keyword">else</span> begin
+    y <span class="hl-op">= </span><span class="hl-number">-1</span>;
+<span class="hl-keyword">end</span>
+
+<span class="hl-comment">// ========== case / casez / casex ==========</span>
+<span class="hl-comment">// case  : 严格比较，x/z 参与比较</span>
+<span class="hl-comment">// casez : z 被当作不关心（? 可以代替）</span>
+<span class="hl-comment">// casex : x 和 z 都被当作不关心（极少用，不推荐）</span>
+<span class="hl-keyword">always</span> <span class="hl-op">@*</span> <span class="hl-op">{</span>
+    <span class="hl-keyword">case</span> <span class="hl-op">(</span>sel<span class="hl-op">)</span>
+        <span class="hl-number">2'b00</span>:   y <span class="hl-op">= </span>a;
+        <span class="hl-number">2'b01</span>:   y <span class="hl-op">= </span>b;
+        <span class="hl-number">2'b1?</span>:    y <span class="hl-op">= </span>c;     <span class="hl-comment">// casez: ? 表示不关心</span>
+        <span class="hl-keyword">default</span>:  y <span class="hl-op">= </span><span class="hl-number">0</span>;
+    <span class="hl-keyword">endcase</span>
+<span class="hl-op">}</span>
+
+<span class="hl-comment">// ========== for 循环 ==========</span>
+<span class="hl-keyword">integer</span> i;
+<span class="hl-keyword">always</span> <span class="hl-op">@*</span> <span class="hl-op">{</span>
+    <span class="hl-keyword">for</span> <span class="hl-op">(</span>i <span class="hl-op">= </span><span class="hl-number">0</span>; i <span class="hl-op">&lt; </span><span class="hl-number">8</span>; i <span class="hl-op">= </span>i<span class="hl-op">+</span><span class="hl-number">1</span><span class="hl-op">)</span> begin
+        result<span class="hl-op">[</span>i<span class="hl-op">]</span> <span class="hl-op">= </span>a<span class="hl-op">[</span>i<span class="hl-op">]</span> <span class="hl-op">&amp;</span> enable;
+    <span class="hl-keyword">end</span>
+<span class="hl-op">}</span>
+
+<span class="hl-comment">// ========== while 循环 ==========</span>
+<span class="hl-keyword">integer</span> j;
+<span class="hl-keyword">initial</span> begin
+    j <span class="hl-op">= </span><span class="hl-number">0</span>;
+    <span class="hl-keyword">while</span> <span class="hl-op">(</span>j <span class="hl-op">&lt; </span><span class="hl-number">16</span><span class="hl-op">)</span> begin
+        rom<span class="hl-op">[</span>j<span class="hl-op">]</span> <span class="hl-op">= </span>j <span class="hl-op">* </span><span class="hl-number">2</span>;
+        j <span class="hl-op">= </span>j <span class="hl-op">+ </span><span class="hl-number">1</span>;
+    <span class="hl-keyword">end</span>
+<span class="hl-keyword">end</span>
+
+<span class="hl-comment">// ========== repeat / forever ==========</span>
+<span class="hl-keyword">initial</span> begin
+    <span class="hl-keyword">repeat</span> <span class="hl-op">(</span><span class="hl-number">5</span><span class="hl-op">)</span> <span class="hl-op">#(</span><span class="hl-number">10</span><span class="hl-op">)</span> data <span class="hl-op">= </span>data <span class="hl-op">+ </span><span class="hl-number">1</span>;  <span class="hl-comment">// 重复5次，间隔10时间单位</span>
+<span class="hl-keyword">end</span>
+
+<span class="hl-comment">// forever 会无限循环（需配合 disable 跳出，仅仿真用）</span>
+<span class="hl-keyword">initial</span> begin
+    forever <span class="hl-op">#(</span><span class="hl-number">5</span><span class="hl-op">)</span> clk <span class="hl-op">= </span><span class="hl-op">!</span>clk;
+<span class="hl-keyword">end</span>
+
+<span class="hl-comment">// ========== 块名与 disable ==========</span>
+<span class="hl-function">break_block</span>: <span class="hl-keyword">begin</span> : <span class="hl-function">break_block</span>
+    <span class="hl-keyword">forever</span> begin
+        <span class="hl-keyword">if</span> <span class="hl-op">(</span>cond<span class="hl-op">)</span> <span class="hl-keyword">disable</span> <span class="hl-function">break_block</span>;  <span class="hl-comment">// 跳出命名块</span>
+    <span class="hl-keyword">end</span>
+<span class="hl-keyword">end</span></pre>
+                    </div>
+                </div>
+                <button class="copy-btn" onclick="copyCode(this)" style="background:#91A3B0; color:white; border:none; border-radius:0.5rem; padding:0.4rem 1rem; font-size:0.8rem; cursor:pointer; margin-top:0.5rem;">
+                    <i class="fa fa-copy"></i> 复制
+                </button>
+            </div>
+
+            <!-- ========== 模块例化 ========== -->
+            <div class="syntax-card" data-keywords="module instantiation 例化 例化 参数覆盖">
+                <h3 id="inst"><i class="fa fa-copy"></i>模块例化</h3>
+                <p>将模块实例化为硬件电路，模块间连接的桥梁</p>
+                <div class="code-block">
+                    <div class="code-header"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span> inst.v</div>
+                    <div class="code-content">
+<pre><span class="hl-comment">// ========== 位置关联（按顺序）==========</span>
+my_module u0 <span class="hl-op">(</span>
+    clk,
+    rst_n,
+    data_in,
+    data_out
+<span class="hl-op">);</span>
+
+<span class="hl-comment">// ========== 名称关联（推荐，不易出错）==========</span>
+my_module <span class="hl-op">#(</span>
+    <span class="hl-param">.WIDTH</span><span class="hl-op">(</span><span class="hl-type">WIDTH</span><span class="hl-op">)</span>,       <span class="hl-comment">// 参数传递</span>
+    <span class="hl-param">.DEPTH</span><span class="hl-op">(</span><span class="hl-type">DEPTH</span><span class="hl-op">)</span>
+<span class="hl-op">)</span> u1 <span class="hl-op">(</span>
+    <span class="hl-param">.clk</span><span class="hl-op">(</span>sys_clk<span class="hl-op">)</span>,
+    <span class="hl-param">.rst_n</span><span class="hl-op">(</span>sys_rst<span class="hl-op">)</span>,
+    <span class="hl-param">.data_in</span><span class="hl-op">(</span>din<span class="hl-op">)</span>,
+    <span class="hl-param">.data_out</span><span class="hl-op">(</span>dout<span class="hl-op">)</span>
+<span class="hl-op">);</span>
+
+<span class="hl-comment">// ========== 悬空端口 ==========</span>
+<span class="hl-comment">// 未连接的端口自动悬空（综合优化）</span>
+my_module u2 <span class="hl-op">(</span>
+    .clk<span class="hl-op">(</span>clk<span class="hl-op">)</span>,
+    .rst_n<span class="hl-op">()</span>,           <span class="hl-comment">// 悬空（不连接）</span>
+    .data_in<span class="hl-op">(</span>din<span class="hl-op">)</span>,
+    .data_out<span class="hl-op">()</span>            <span class="hl-comment">// 悬空</span>
+<span class="hl-op">);</span>
+
+<span class="hl-comment">// ========== 未连接端口赋默认值 ==========</span>
+<span class="hl-comment">// 某些工具支持 .port_name() 留空，或直接不写</span></pre>
+                    </div>
+                </div>
+                <button class="copy-btn" onclick="copyCode(this)" style="background:#91A3B0; color:white; border:none; border-radius:0.5rem; padding:0.4rem 1rem; font-size:0.8rem; cursor:pointer; margin-top:0.5rem;">
+                    <i class="fa fa-copy"></i> 复制
+                </button>
+            </div>
+
+            <!-- ========== 存储器 ========== -->
+            <div class="syntax-card" data-keywords="memory reg ram rom 存储器 数组">
+                <h3 id="mem"><i class="fa fa-th-large"></i>存储器（数组）</h3>
+                <p>一维数组（存储器）和二维数组的表达方式</p>
+                <div class="code-block">
+                    <div class="code-header"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span> memory.v</div>
+                    <div class="code-content">
+<pre><span class="hl-comment">// ========== 一维存储器（word数组）==========</span>
+<span class="hl-keyword">reg</span> <span class="hl-op">[</span><span class="hl-number">7</span><span class="hl-op">:</span><span class="hl-number">0</span><span class="hl-op">]</span> ram <span class="hl-op">[</span><span class="hl-number">0</span><span class="hl-op">:</span><span class="hl-number">255</span><span class="hl-op">]</span>;  <span class="hl-comment">// 256个8bit字的存储器（RAM模型）</span>
+<span class="hl-keyword">reg</span> <span class="hl-op">[</span><span class="hl-number">31</span><span class="hl-op">:</span><span class="hl-number">0</span><span class="hl-op">]</span> rom <span class="hl-op">[</span><span class="hl-number">0</span><span class="hl-op">:</span><span class="hl-number">1023</span><span class="hl-op">]</span>; <span class="hl-comment">// 1024个32bit字的ROM</span>
+
+<span class="hl-comment">// ========== 读写操作 ==========</span>
+<span class="hl-comment">// 读（组合逻辑，读无需时钟）</span>
+<span class="hl-keyword">wire</span> <span class="hl-op">[</span><span class="hl-number">7</span><span class="hl-op">:</span><span class="hl-number">0</span><span class="hl-op">]</span> data_r <span class="hl-op">= </span>ram<span class="hl-op">[</span>addr<span class="hl-op">]</span>;
+
+<span class="hl-comment">// 写（时序逻辑）</span>
+<span class="hl-keyword">always</span> <span class="hl-op">@(</span><span class="hl-keyword">posedge</span> clk<span class="hl-op">) begin</span>
+    <span class="hl-keyword">if</span> <span class="hl-op">(</span>we<span class="hl-op">)</span> begin
+        ram<span class="hl-op">[</span>addr<span class="hl-op">]</span> <span class="hl-op">&lt;= </span>data_in;
+    <span class="hl-keyword">end</span>
+<span class="hl-keyword">end</span>
+
+<span class="hl-comment">// ========== 二维数组（展开为矩阵）==========</span>
+<span class="hl-keyword">reg</span> <span class="hl-op">[</span><span class="hl-number">7</span><span class="hl-op">:</span><span class="hl-number">0</span><span class="hl-op">]</span> matrix <span class="hl-op">[</span><span class="hl-number">0</span><span class="hl-op">:</span><span class="hl-number">3</span><span class="hl-op">][</span><span class="hl-number">0</span><span class="hl-op">:</span><span class="hl-number">7</span><span class="hl-op">]</span>;  <span class="hl-comment">// 4行8列，每格8bit</span>
+<span class="hl-comment">// matrix[2][5] 表示第2行第5列的8bit数据</span>
+matrix<span class="hl-op">[</span>i<span class="hl-op">][</span>j<span class="hl-op">]</span> <span class="hl-op">&lt;= </span>value;        <span class="hl-comment">// 访问某行某列</span>
+
+<span class="hl-comment">// ========== bit/piece select（位选/段选）==========</span>
+data<span class="hl-op">[</span><span class="hl-number">3</span><span class="hl-op">]</span>           <span class="hl-comment">// 单独选1bit</span>
+data<span class="hl-op">[</span><span class="hl-number">7</span><span class="hl-op">:</span><span class="hl-number">4</span><span class="hl-op">]</span>         <span class="hl-comment">// 选 [7:4] 共4bit，高位在左</span>
+data<span class="hl-op">[</span><span class="hl-number">0</span><span class="hl-op">+:</span><span class="hl-number">4</span><span class="hl-op">]</span>        <span class="hl-comment">// 从0开始选4bit，等价 [3:0]</span>
+data<span class="hl-op">[</span><span class="hl-number">7</span><span class="hl-op">-:8]</span>        <span class="hl-comment">// 从7开始选8bit（变址），等价 [7:0]</span></pre>
+                    </div>
+                </div>
+                <button class="copy-btn" onclick="copyCode(this)" style="background:#91A3B0; color:white; border:none; border-radius:0.5rem; padding:0.4rem 1rem; font-size:0.8rem; cursor:pointer; margin-top:0.5rem;">
+                    <i class="fa fa-copy"></i> 复制
+                </button>
+            </div>
+
+            <!-- ========== 任务与函数 ========== -->
+            <div class="syntax-card" data-keywords="task function function 自动函数 automatic">
+                <h3 id="task"><i class="fa fa-cogs"></i>任务（task）与函数（function）</h3>
+                <p>task 可包含时序控制和多语句；function 仅实现组合逻辑，必须在单一时钟内完成</p>
+                <div class="code-block">
+                    <div class="code-header"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span> taskfunc.v</div>
+                    <div class="code-content">
+<pre><span class="hl-comment">// ========== function（组合逻辑，自动推断）==========</span>
+<span class="hl-comment">// 必须有输入，至少一个输出，不能有时延 # 或阻塞 wait</span>
+<span class="hl-keyword">function</span> <span class="hl-op">[</span><span class="hl-number">7</span><span class="hl-op">:</span><span class="hl-number">0</span><span class="hl-op">]</span> <span class="hl-function">parity</span><span class="hl-op">;</span>
+    <span class="hl-keyword">input</span> <span class="hl-op">[</span><span class="hl-number">7</span><span class="hl-op">:</span><span class="hl-number">0</span><span class="hl-op">]</span> data;
+    <span class="hl-keyword">integer</span> i;
+    <span class="hl-keyword">begin</span>
+        parity <span class="hl-op">= </span><span class="hl-number">0</span>;
+        <span class="hl-keyword">for</span> <span class="hl-op">(</span>i<span class="hl-op">=0;</span> i<span class="hl-op">&lt;8;</span> i<span class="hl-op">=i+1)</span>
+            parity <span class="hl-op">= </span>parity <span class="hl-op">^ </span>data<span class="hl-op">[</span>i<span class="hl-op">]</span>;  <span class="hl-comment">// 异或归约求奇偶</span>
+    <span class="hl-keyword">end</span>
+<span class="hl-keyword">endfunction</span>
+
+<span class="hl-comment">// 调用</span>
+<span class="hl-keyword">wire</span> <span class="hl-op">[</span><span class="hl-number">7</span><span class="hl-op">:</span><span class="hl-number">0</span><span class="hl-op">]</span> p <span class="hl-op">= </span><span class="hl-function">parity</span><span class="hl-op">(</span>data_byte<span class="hl-op">)</span>;
+
+<span class="hl-comment">// ========== task（可含时序，更灵活）==========</span>
+<span class="hl-keyword">task</span> <span class="hl-function">send_byte</span><span class="hl-op">;</span>
+    <span class="hl-keyword">input</span> <span class="hl-op">[</span><span class="hl-number">7</span><span class="hl-op">:</span><span class="hl-number">0</span><span class="hl-op">]</span> data;
+    <span class="hl-keyword">integer</span> i;
+    <span class="hl-keyword">begin</span>
+        <span class="hl-keyword">for</span> <span class="hl-op">(</span>i<span class="hl-op">=0;</span> i<span class="hl-op">&lt;8;</span> i<span class="hl-op">=i+1)</span> begin
+            tx_line <span class="hl-op">&lt;= </span>data<span class="hl-op">[</span>i<span class="hl-op">]</span>;    <span class="hl-comment">// 逐bit发送</span>
+            <span class="hl-op">#(</span>period<span class="hl-op">)</span>;                        <span class="hl-comment">// 延时（task中可用）</span>
+        <span class="hl-keyword">end</span>
+    <span class="hl-keyword">end</span>
+<span class="hl-keyword">endtask</span>
+
+<span class="hl-comment">// 调用</span>
+<span class="hl-keyword">initial</span> <span class="hl-function">send_byte</span><span class="hl-op">(</span><span class="hl-number">8'hA5</span><span class="hl-op">)</span>;
+
+<span class="hl-comment">// ========== automatic task/function（仿真中常用）==========</span>
+<span class="hl-keyword">function</span> <span class="hl-keyword">automatic</span> <span class="hl-op">[</span><span class="hl-number">31</span><span class="hl-op">:</span><span class="hl-number">0</span><span class="hl-op">]</span> <span class="hl-function">gcd</span><span class="hl-op">;</span>  <span class="hl-comment">// 可重入，每次调用独立栈</span>
+    <span class="hl-keyword">input</span> <span class="hl-op">[</span><span class="hl-number">31</span><span class="hl-op">:</span><span class="hl-number">0</span><span class="hl-op">]</span> a, b;
+    <span class="hl-keyword">begin</span>
+        <span class="hl-keyword">while</span> <span class="hl-op">(</span>a <span class="hl-op">!= </span>b<span class="hl-op">)</span> begin
+            <span class="hl-keyword">if</span> <span class="hl-op">(</span>a <span class="hl-op">&gt; </span>b<span class="hl-op">)</span> a <span class="hl-op">= </span>a <span class="hl-op">- </span>b;
+            <span class="hl-keyword">else</span>         b <span class="hl-op">= </span>b <span class="hl-op">- </span>a;
+        <span class="hl-keyword">end</span>
+        gcd <span class="hl-op">= </span>a;
+    <span class="hl-keyword">end</span>
+<span class="hl-keyword">endfunction</span></pre>
+                    </div>
+                </div>
+                <button class="copy-btn" onclick="copyCode(this)" style="background:#91A3B0; color:white; border:none; border-radius:0.5rem; padding:0.4rem 1rem; font-size:0.8rem; cursor:pointer; margin-top:0.5rem;">
+                    <i class="fa fa-copy"></i> 复制
+                </button>
+            </div>
+
+            <!-- ========== 编译指令 ========== -->
+            <div class="syntax-card" data-keywords="`define `include `timescale `ifdef 编译指令 宏">
+                <h3 id="pre"><i class="fa fa-terminal"></i>编译指令</h3>
+                <p>以反引号 ` 开头，在编译时生效，不加分号结尾</p>
+                <div class="code-block">
+                    <div class="code-header"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span> directive.v</div>
+                    <div class="code-content">
+<pre><span class="hl-comment">// ========== `define — 文本宏 ==========</span>
+<span class="hl-op">`</span><span class="hl-keyword">define</span> <span class="hl-type">CLK_PERIOD</span> <span class="hl-number">20</span>              <span class="hl-comment">// 定义常量</span>
+<span class="hl-op">`</span><span class="hl-keyword">define</span> <span class="hl-type">DATA_W</span>     <span class="hl-number">8</span>                <span class="hl-comment">// 总线位宽宏</span>
+<span class="hl-op">`</span><span class="hl-keyword">define</span> <span class="hl-type">MSG</span>        <span class="hl-string">"Error"</span>         <span class="hl-comment">// 字符串宏</span>
+<span class="hl-op">`</span><span class="hl-keyword">define</span> <span class="hl-type">MAX</span><span class="hl-op">(</span>a, b<span class="hl-op">)</span> <span class="hl-op">(</span>a<span class="hl-op">&gt;</span>b<span class="hl-op">?</span>a<span class="hl-op">:</span>b<span class="hl-op">)</span>      <span class="hl-comment">// 带参数的宏函数</span>
+<span class="hl-comment">// 使用：#`CLK_PERIOD   或   y = `MAX(x, z)</span>
+<span class="hl-comment">// 取消定义：`undef CLK_PERIOD</span>
+
+<span class="hl-comment">// ========== `include — 文件包含 ==========</span>
+<span class="hl-op">`</span><span class="hl-keyword">include</span> <span class="hl-string">"../../defines.v"</span>     <span class="hl-comment">// 包含公共定义文件</span>
+<span class="hl-op">`</span><span class="hl-keyword">include</span> <span class="hl-string">&lt;header.vh&gt;</span>        <span class="hl-comment">// 尖括号表示库搜索路径</span>
+
+<span class="hl-comment">// ========== `timescale — 时间尺度（仿真用）==========</span>
+<span class="hl-op">`</span><span class="hl-keyword">timescale</span> <span class="hl-number">1ns</span><span class="hl-op">/</span><span class="hl-number">1ps</span>              <span class="hl-comment">// 时间单位1ns，精度1ps</span>
+<span class="hl-comment">// 延时 #10 表示 10ns；精度决定四舍五入</span>
+
+<span class="hl-comment">// ========== 条件编译 ==========</span>
+<span class="hl-op">`</span><span class="hl-keyword">ifdef</span> <span class="hl-type">DEBUG</span>
+    <span class="hl-keyword">always</span> <span class="hl-op">@(</span><span class="hl-keyword">posedge</span> clk<span class="hl-op">)</span> $display<span class="hl-op">(</span><span class="hl-string">"pc=%h"</span>, pc<span class="hl-op">)</span>;
+<span class="hl-op">`</span><span class="hl-keyword">endif</span>
+
+<span class="hl-op">`</span><span class="hl-keyword">ifndef</span> <span class="hl-type">SAFE_MODE</span>          <span class="hl-comment">// if not defined</span>
+    <span class="hl-keyword">define</span> <span class="hl-type">SAFE_MODE</span>           <span class="hl-comment">// 未定义则自动定义</span>
+<span class="hl-op">`</span><span class="hl-keyword">endif</span>
+
+<span class="hl-comment">// ========== 其他常用指令 ==========</span>
+<span class="hl-op">`</span><span class="hl-keyword">default_nettype</span> <span class="hl-keyword">wire</span>          <span class="hl-comment">// 未声明信号默认wire（建议加，防止意外）</span>
+<span class="hl-op">`</span><span class="hl-keyword">celldefine</span> / <span class="hl-op">`</span><span class="hl-keyword">endcelldefine</span>   <span class="hl-comment">// 标记模块为库单元</span>
+<span class="hl-op">`</span><span class="hl-keyword">resetall</span>                      <span class="hl-comment">// 重置所有编译指令为默认值</span></pre>
+                    </div>
+                </div>
+                <button class="copy-btn" onclick="copyCode(this)" style="background:#91A3B0; color:white; border:none; border-radius:0.5rem; padding:0.4rem 1rem; font-size:0.8rem; cursor:pointer; margin-top:0.5rem;">
+                    <i class="fa fa-copy"></i> 复制
+                </button>
+            </div>
+
+            <!-- 页脚 -->
+            <div class="text-center mt-10" style="color:#bbb; font-size:0.8rem;">
+                <p>Verilog 语法速查 · 工具箱 &nbsp;·&nbsp; 🐾</p>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // ========== 侧边栏切换 ==========
+        function toggleSidebar() {
+            const sb = document.getElementById('sidebar');
+            const ov = document.getElementById('sidebar-overlay');
+            if (!sb || !ov) return;
+            const isOpen = sb.style.transform === 'translateX(0px)';
+            if (isOpen) {
+                sb.style.transform = 'translateX(-100%)';
+                ov.classList.remove('show');
+            } else {
+                sb.style.transform = 'translateX(0)';
+                ov.classList.add('show');
+            }
+        }
+
+        // ========== 复制代码 ==========
+        function copyCode(btn) {
+            const block = btn.closest('.syntax-card').querySelector('.code-content pre');
+            const text = block.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<i class="fa fa-check"></i> 已复制!';
+                btn.style.background = '#A3B18A';
+                setTimeout(() => {
+                    btn.innerHTML = orig;
+                    btn.style.background = '#91A3B0';
+                }, 1500);
+            });
+        }
+
+        // ========== 搜索过滤 ==========
+        function filterContent() {
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.syntax-card');
+            cards.forEach(card => {
+                const keywords = card.dataset.keywords || '';
+                const title = card.querySelector('h3').innerText.toLowerCase();
+                const content = card.innerText.toLowerCase();
+                const match = query === '' || keywords.includes(query) || title.includes(query) || content.includes(query);
+                card.style.display = match ? '' : 'none';
+            });
+        }
+
+        // ========== 点击锚点平滑滚动 ==========
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', e => {
+                e.preventDefault();
+                const target = document.querySelector(a.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
