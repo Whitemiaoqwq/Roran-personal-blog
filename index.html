@@ -357,6 +357,30 @@
             50% { opacity: 1; transform: scale(1.3); }
         }
 
+        /* 星星扩散动画 */
+        .star-burst {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.9);
+            pointer-events: none;
+            z-index: 1;
+            animation: starBurst 0.8s ease-out forwards;
+        }
+        @keyframes starBurst {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+                box-shadow: 0 0 0 0 rgba(255,255,255,0.6);
+            }
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+                box-shadow: 0 0 0 15px rgba(255,255,255,0);
+            }
+        }
+
         /* ========== 页脚 ========== */
         footer {
             position: relative;
@@ -641,6 +665,57 @@
         document.body.appendChild(star);
     }
     for (let i = 0; i < 30; i++) createStar();
+
+    // ========== 星星扩散动效（10秒最多1个） ==========
+    let burstTimeout;
+    function scheduleBurst() {
+        // 随机等待 8~12 秒
+        const delay = 8000 + Math.random() * 4000;
+        burstTimeout = setTimeout(() => {
+            triggerStarBurst();
+            scheduleBurst();
+        }, delay);
+    }
+
+    function triggerStarBurst() {
+        const stars = document.querySelectorAll('.star');
+        if (stars.length === 0) return;
+
+        // 随机选一个在可视范围内的星星
+        const visibleStars = Array.from(stars).filter(star => {
+            const rect = star.getBoundingClientRect();
+            return rect.top >= 0 && rect.bottom <= window.innerHeight &&
+                   rect.left >= 0 && rect.right <= window.innerWidth;
+        });
+
+        if (visibleStars.length === 0) return;
+
+        const targetStar = visibleStars[Math.floor(Math.random() * visibleStars.length)];
+        const rect = targetStar.getBoundingClientRect();
+
+        // 创建扩散元素
+        const burst = document.createElement('div');
+        burst.className = 'star-burst';
+        burst.style.left = rect.left + rect.width / 2 + 'px';
+        burst.style.top = rect.top + rect.height / 2 + 'px';
+        burst.style.width = rect.width + 'px';
+        burst.style.height = rect.height + 'px';
+        document.body.appendChild(burst);
+
+        // 动画结束后移除
+        setTimeout(() => burst.remove(), 800);
+    }
+
+    scheduleBurst();
+
+    // 页面隐藏时暂停，节省性能
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            clearTimeout(burstTimeout);
+        } else {
+            scheduleBurst();
+        }
+    });
 
     // ========== 音乐控制 ==========
     const musicControl = document.getElementById('music-control');
