@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>串口调试工具 - 蘿嵐的工具箱</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#91A3B0',
+                        secondary: '#A3B18A',
+                        accent: '#C9A9A6',
+                        tertiary: '#D4A373',
+                        light: '#F5F5F0',
+                        dark: '#585858'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        * { box-sizing: border-box; }
+        
+        body {
+            background: linear-gradient(135deg, #f0f4f8 0%, #e8edf2 50%, #f0f4f8 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .terminal {
+            background: #1e1e1e;
+            color: #00ff00;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
+        .terminal::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .terminal::-webkit-scrollbar-track {
+            background: #2d2d2d;
+        }
+        
+        .terminal::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 4px;
+        }
+        
+        .serial-input {
+            background: #2d2d2d;
+            border: 1px solid #444;
+            color: #00ff00;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        }
+        
+        .serial-input:focus {
+            outline: none;
+            border-color: #91A3B0;
+        }
+        
+        .hex-view {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .status-dot.connected {
+            background: #2ecc71;
+            box-shadow: 0 0 8px #2ecc71;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-dot.disconnected {
+            background: #e74c3c;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #91A3B0;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        /* 十六进制高亮 */
+        .hex-byte {
+            display: inline-block;
+            padding: 1px 4px;
+            border-radius: 2px;
+        }
+        
+        .hex-byte.received {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+        }
+        
+        .hex-byte.sent {
+            background: rgba(52, 152, 219, 0.2);
+            color: #3498db;
+        }
+        
+        /* 自动滚动区域 */
+        .auto-scroll {
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="bg-white/90 backdrop-blur-sm shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="index.html" class="flex items-center space-x-2">
+                <i class="fa fa-wrench text-primary text-2xl"></i>
+                <span class="text-xl font-bold text-dark">蘿嵐的工具箱</span>
+            </a>
+            
+            <div class="hidden md:flex space-x-6">
+                <a href="index.html" class="nav-link text-dark hover:text-primary transition-colors">首页</a>
+                <a href="dice.html" class="nav-link text-dark hover:text-primary transition-colors">骰子游戏</a>
+                <a href="serial.html" class="nav-link text-primary font-medium">串口调试</a>
+            </div>
+            
+            <button id="menu-toggle" class="md:hidden text-dark text-2xl focus:outline-none">
+                <i class="fa fa-bars"></i>
+            </button>
+        </div>
+        
+        <!-- 移动端菜单 -->
+        <div id="mobile-menu" class="md:hidden hidden bg-white/95 backdrop-blur-sm border-t">
+            <div class="container mx-auto px-4 py-2 flex flex-col">
+                <a href="index.html" class="py-3 border-b nav-link text-dark">首页</a>
+                <a href="dice.html" class="py-3 border-b nav-link text-dark">骰子游戏</a>
+                <a href="serial.html" class="py-3 nav-link text-primary font-medium">串口调试</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容 -->
+    <main class="container mx-auto px-4 py-6">
+        <!-- 标题 -->
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-dark mb-2">
+                <i class="fa fa-plug text-primary mr-2"></i>串口调试工具
+            </h1>
+            <p class="text-gray-500">基于 Web Serial API 的浏览器串口通信调试工具</p>
+        </div>
+
+        <!-- 串口设置区域 -->
+        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-md p-6 mb-6">
+            <h2 class="text-lg font-bold text-dark mb-4 flex items-center">
+                <i class="fa fa-cog text-primary mr-2"></i>串口设置
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- 串口选择 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-2">串口端口</label>
+                    <div class="flex gap-2">
+                        <select id="port-select" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary">
+                            <option value="">选择串口...</option>
+                        </select>
+                        <button id="refresh-btn" onclick="refreshPorts()" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors" title="刷新串口">
+                            <i class="fa fa-refresh"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 波特率 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-2">波特率</label>
+                    <select id="baud-rate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary">
+                        <option value="9600">9600</option>
+                        <option value="19200">19200</option>
+                        <option value="38400">38400</option>
+                        <option value="57600">57600</option>
+                        <option value="115200" selected>115200</option>
+                        <option value="230400">230400</option>
+                        <option value="460800">460800</option>
+                        <option value="921600">921600</option>
+                    </select>
+                </div>
+                
+                <!-- 数据位 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-2">数据位</label>
+                    <select id="data-bits" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary">
+                        <option value="7">7 位</option>
+                        <option value="8" selected>8 位</option>
+                    </select>
+                </div>
+                
+                <!-- 停止位 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-2">停止位</label>
+                    <select id="stop-bits" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary">
+                        <option value="1" selected>1 位</option>
+                        <option value="2">2 位</option>
+                    </select>
+                </div>
+                
+                <!-- 校验位 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-2">校验位</label>
+                    <select id="parity" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary">
+                        <option value="none" selected>无</option>
+                        <option value="even">偶校验</option>
+                        <option value="odd">奇校验</option>
+                    </select>
+                </div>
+                
+                <!-- 流控制 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-2">流控制</label>
+                    <select id="flow-control" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary">
+                        <option value="none" selected>无</option>
+                        <option value="hardware">硬件流控</option>
+                        <option value="software">软件流控</option>
+                    </select>
+                </div>
+                
+                <!-- 连接按钮 -->
+                <div class="flex items-end">
+                    <button id="connect-btn" onclick="toggleConnection()" disabled
+                        class="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fa fa-plug mr-2"></i>连接
+                    </button>
+                </div>
+                
+                <!-- 连接状态 -->
+                <div class="flex items-end">
+                    <div class="w-full px-4 py-2 bg-gray-100 rounded-lg">
+                        <div class="flex items-center gap-2">
+                            <span id="status-dot" class="status-dot disconnected"></span>
+                            <span id="status-text" class="text-sm text-gray-600">未连接</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据统计 -->
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 mb-6">
+            <div class="stat-card bg-white/90 backdrop-blur-sm rounded-xl shadow p-4 text-center">
+                <div class="text-2xl font-bold text-green-500" id="stat-sent-pkts">0</div>
+                <div class="text-xs text-gray-500 mt-1">发送包数</div>
+            </div>
+            <div class="stat-card bg-white/90 backdrop-blur-sm rounded-xl shadow p-4 text-center">
+                <div class="text-2xl font-bold text-green-500" id="stat-sent-bytes">0</div>
+                <div class="text-xs text-gray-500 mt-1">发送字节</div>
+            </div>
+            <div class="stat-card bg-white/90 backdrop-blur-sm rounded-xl shadow p-4 text-center">
+                <div class="text-2xl font-bold text-blue-500" id="stat-recv-pkts">0</div>
+                <div class="text-xs text-gray-500 mt-1">接收包数</div>
+            </div>
+            <div class="stat-card bg-white/90 backdrop-blur-sm rounded-xl shadow p-4 text-center">
+                <div class="text-2xl font-bold text-blue-500" id="stat-recv-bytes">0</div>
+                <div class="text-xs text-gray-500 mt-1">接收字节</div>
+            </div>
+            <div class="stat-card bg-white/90 backdrop-blur-sm rounded-xl shadow p-4 text-center">
+                <div class="text-2xl font-bold text-purple-500" id="stat-errors">0</div>
+                <div class="text-xs text-gray-500 mt-1">错误数</div>
+            </div>
+            <div class="stat-card bg-white/90 backdrop-blur-sm rounded-xl shadow p-4 text-center">
+                <div class="text-2xl font-bold text-orange-500" id="stat-err-rate">0%</div>
+                <div class="text-xs text-gray-500 mt-1">错误率</div>
+            </div>
+            <div class="stat-card bg-white/90 backdrop-blur-sm rounded-xl shadow p-4 text-center col-span-2">
+                <div class="text-2xl font-bold text-primary" id="stat-uptime">00:00:00</div>
+                <div class="text-xs text-gray-500 mt-1">连接时长</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- 左侧：终端显示 + 发送区域 -->
+            <div class="lg:col-span-8 space-y-6">
+                <!-- 终端显示 -->
+                <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-md overflow-hidden">
+                    <div class="flex justify-between items-center p-4 border-b bg-gray-50">
+                        <h2 class="text-lg font-bold text-dark flex items-center">
+                            <i class="fa fa-terminal text-primary mr-2"></i>数据终端
+                        </h2>
+                        <div class="flex gap-2">
+                            <button onclick="clearTerminal()" class="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors">
+                                <i class="fa fa-trash-o mr-1"></i>清空
+                            </button>
+                            <button onclick="toggleHexView()" id="hex-view-btn" class="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors">
+                                <i class="fa fa-code mr-1"></i>HEX
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 时间戳开关 -->
+                    <div class="px-4 py-2 border-b bg-gray-50/50 flex items-center gap-4 text-sm">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="show-timestamp" class="w-4 h-4 accent-primary" checked>
+                            <span class="text-gray-600">显示时间戳</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="show-direction" class="w-4 h-4 accent-primary" checked>
+                            <span class="text-gray-600">显示方向</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="auto-scroll" class="w-4 h-4 accent-primary" checked>
+                            <span class="text-gray-600">自动滚动</span>
+                        </label>
+                    </div>
+                    
+                    <div id="terminal" class="terminal h-[400px] p-4 auto-scroll overflow-y-auto">
+                        <span class="text-gray-500">[系统] 等待连接串口设备...</span>
+                    </div>
+                </div>
+
+                <!-- 发送区域 -->
+                <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-md p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-bold text-dark flex items-center">
+                            <i class="fa fa-paper-plane text-primary mr-2"></i>发送数据
+                        </h2>
+                        <div class="flex gap-2">
+                            <label class="flex items-center gap-2 text-sm cursor-pointer">
+                                <input type="radio" name="send-mode" value="text" checked class="accent-primary">
+                                <span class="text-gray-600">文本</span>
+                            </label>
+                            <label class="flex items-center gap-2 text-sm cursor-pointer">
+                                <input type="radio" name="send-mode" value="hex" class="accent-primary">
+                                <span class="text-gray-600">HEX</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-3">
+                        <textarea id="send-input" rows="3" placeholder="输入要发送的数据..." 
+                            class="serial-input flex-1 px-4 py-3 rounded-lg resize-none"></textarea>
+                    </div>
+                    
+                    <div class="flex justify-between items-center mt-4">
+                        <div class="flex gap-3">
+                            <label class="flex items-center gap-2 text-sm">
+                                <input type="checkbox" id="append-crlf" checked class="w-4 h-4 accent-primary">
+                                <span class="text-gray-600">追加换行 (CRLF)</span>
+                            </label>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="sendData()" id="send-btn" disabled
+                                class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                <i class="fa fa-paper-plane mr-2"></i>发送
+                            </button>
+                            <button onclick="sendRepeat()" id="repeat-btn" disabled
+                                class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                <i class="fa fa-repeat mr-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 重复发送设置 -->
+                    <div class="mt-3 p-3 bg-gray-50 rounded-lg">
+                        <label class="flex items-center gap-4 text-sm">
+                            <input type="checkbox" id="repeat-enable" class="w-4 h-4 accent-primary">
+                            <span class="text-gray-600">自动重复发送</span>
+                            <input type="number" id="repeat-interval" value="1000" min="100" max="10000" 
+                                class="w-20 px-2 py-1 border border-gray-300 rounded text-center">
+                            <span class="text-gray-600">毫秒/次</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：数据统计详情 + 保存 -->
+            <div class="lg:col-span-4 space-y-6">
+                <!-- 快捷命令 -->
+                <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-md p-6">
+                    <h2 class="text-lg font-bold text-dark mb-4 flex items-center">
+                        <i class="fa fa-bolt text-primary mr-2"></i>快捷命令
+                    </h2>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="sendCommand('AT\r\n')" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm transition-colors">AT</button>
+                        <button onclick="sendCommand('AT+VERSION\r\n')" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm transition-colors">AT+VERSION</button>
+                        <button onclick="sendCommand('AT+RST\r\n')" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm transition-colors">AT+RST</button>
+                        <button onclick="sendCommand('AT+GMR\r\n')" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm transition-colors">AT+GMR</button>
+                        <button onclick="sendCommand('AT+CWMODE?\r\n')" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm transition-colors">AT+CWMODE?</button>
+                        <button onclick="sendCommand('AT+CIFSR\r\n')" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm transition-colors">AT+CIFSR</button>
+                        <button onclick="sendCommand('\xFF\xFE\x01')" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm transition-colors">HEX: FF FE 01</button>
+                        <button onclick="sendCommand('\x55\xAA\x00\x00')" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm transition-colors">HEX: 55 AA 00 00</button>
+                    </div>
+                    <div class="mt-3">
+                        <input type="text" id="custom-command" placeholder="自定义命令..." 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary">
+                        <div class="flex gap-2 mt-2">
+                            <label class="flex items-center gap-1 text-xs cursor-pointer">
+                                <input type="radio" name="custom-mode" value="text" checked>
+                                <span>文本</span>
+                            </label>
+                            <label class="flex items-center gap-1 text-xs cursor-pointer">
+                                <input type="radio" name="custom-mode" value="hex">
+                                <span>HEX</span>
+                            </label>
+                            <button onclick="sendCustomCommand()" class="ml-auto px-3 py-1 bg-primary text-white rounded text-sm hover:bg-opacity-90">
+                                发送
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 统计详情 -->
+                <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-md p-6">
+                    <h2 class="text-lg font-bold text-dark mb-4 flex items-center">
+                        <i class="fa fa-pie-chart text-primary mr-2"></i>通信统计
+                    </h2>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600 text-sm">
+                                <i class="fa fa-long-arrow-up text-green-500 mr-1"></i>发送速率
+                            </span>
+                            <span class="font-medium" id="stat-send-rate">0 B/s</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600 text-sm">
+                                <i class="fa fa-long-arrow-down text-blue-500 mr-1"></i>接收速率
+                            </span>
+                            <span class="font-medium" id="stat-recv-rate">0 B/s</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600 text-sm">
+                                <i class="fa fa-clock-o text-gray-500 mr-1"></i>最后发送
+                            </span>
+                            <span class="font-medium text-sm" id="stat-last-send">--</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600 text-sm">
+                                <i class="fa fa-clock-o text-gray-500 mr-1"></i>最后接收
+                            </span>
+                            <span class="font-medium text-sm" id="stat-last-recv">--</span>
+                        </div>
+                    </div>
+                    <button onclick="resetStats()" class="w-full mt-4 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm transition-colors">
+                        <i class="fa fa-refresh mr-1"></i>重置统计
+                    </button>
+                </div>
+
+                <!-- 数据导出 -->
+                <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-md p-6">
+                    <h2 class="text-lg font-bold text-dark mb-4 flex items-center">
+                        <i class="fa fa-download text-primary mr-2"></i>数据导出
+                    </h2>
+                    <div class="space-y-2">
+                        <button onclick="exportLog('txt')" class="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm transition-colors">
+                            <i class="fa fa-file-text-o mr-2"></i>导出为 TXT
+                        </button>
+                        <button onclick="exportLog('hex')" class="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm transition-colors">
+                            <i class="fa fa-file-code-o mr-2"></i>导出为 HEX
+                        </button>
+                        <button onclick="exportLog('csv')" class="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm transition-colors">
+                            <i class="fa fa-file-excel-o mr-2"></i>导出为 CSV
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 浏览器兼容性提示 -->
+        <div id="browser-warning" class="hidden bg-yellow-100 border border-yellow-400 text-yellow-800 rounded-lg p-4 mt-6">
+            <div class="flex items-center">
+                <i class="fa fa-exclamation-triangle text-2xl mr-3"></i>
+                <div>
+                    <h3 class="font-bold">浏览器不支持 Web Serial API</h3>
+                    <p class="text-sm mt-1">请使用以下浏览器访问：</p>
+                    <ul class="text-sm mt-1 list-disc list-inside">
+                        <li>Google Chrome 89+</li>
+                        <li>Microsoft Edge 89+</li>
+                        <li>Opera 75+</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-white/80 backdrop-blur-sm mt-12 py-6 border-t">
+        <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
+            <p>© 2024 蘿嵐的工具箱 | 串口调试工具</p>
+        </div>
+    </footer>
+
+    <script>
+        // ========== 全局变量 ==========
+        let port = null;
+        let reader = null;
+        let writer = null;
+        let isConnected = false;
+        let keepReading = false;
+        let hexView = false;
+        let repeatInterval = null;
+        
+        // 统计数据
+        let stats = {
+            sentPkts: 0,
+            sentBytes: 0,
+            recvPkts: 0,
+            recvBytes: 0,
+            errors: 0,
+            startTime: null,
+            lastSendTime: null,
+            lastRecvTime: null,
+            recentSendBytes: [],
+            recentRecvBytes: []
+        };
+        
+        // 日志数据
+        let logData = [];
+        
+        // ========== 初始化 ==========
+        function init() {
+            // 检查浏览器支持
+            if (!('serial' in navigator)) {
+                document.getElementById('browser-warning').classList.remove('hidden');
+                document.getElementById('connect-btn').disabled = true;
+            } else {
+                refreshPorts();
+            }
+            
+            // 移动端菜单
+            const menuToggle = document.getElementById('menu-toggle');
+            const mobileMenu = document.getElementById('mobile-menu');
+            menuToggle.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            // 定期更新统计
+            setInterval(updateRateStats, 1000);
+            setInterval(updateUptime, 1000);
+        }
+        
+        // ========== 刷新串口列表 ==========
+        async function refreshPorts() {
+            try {
+                const ports = await navigator.serial.getPorts();
+                const select = document.getElementById('port-select');
+                select.innerHTML = '<option value="">选择串口...</option>';
+                
+                if (ports.length === 0) {
+                    // 尝试获取可用端口
+                    const availablePorts = await navigator.serial.getPorts();
+                    select.innerHTML = '<option value="">未检测到串口设备</option>';
+                } else {
+                    ports.forEach((p, i) => {
+                        const option = document.createElement('option');
+                        option.value = i;
+                        option.text = `串口设备 ${i + 1}`;
+                        select.appendChild(option);
+                    });
+                }
+                
+                document.getElementById('connect-btn').disabled = ports.length === 0;
+            } catch (err) {
+                console.error('刷新串口失败:', err);
+            }
+        }
+        
+        // ========== 连接/断开 ==========
+        async function toggleConnection() {
+            if (isConnected) {
+                await disconnect();
+            } else {
+                await connect();
+            }
+        }
+        
+        async function connect() {
+            try {
+                // 请求串口
+                port = await navigator.serial.requestPort();
+                
+                const baudRate = parseInt(document.getElementById('baud-rate').value);
+                const dataBits = parseInt(document.getElementById('data-bits').value);
+                const stopBits = parseInt(document.getElementById('stop-bits').value);
+                const parity = document.getElementById('parity').value;
+                const flowControl = document.getElementById('flow-control').value;
+                
+                await port.open({
+                    baudRate: baudRate,
+                    dataBits: dataBits,
+                    stopBits: stopBits,
+                    parity: parity,
+                    flowControl: flowControl
+                });
+                
+                isConnected = true;
+                keepReading = true;
+                
+                // 更新UI
+                updateConnectionUI(true);
+                logMessage('[系统] 串口连接成功', 'success');
+                
+                // 开始读取
+                startReading();
+                
+                // 保存到端口列表
+                await refreshPorts();
+                
+            } catch (err) {
+                logMessage(`[错误] 连接失败: ${err.message}`, 'error');
+                console.error('连接失败:', err);
+            }
+        }
+        
+        async function disconnect() {
+            keepReading = false;
+            
+            if (reader) {
+                await reader.cancel();
+                reader = null;
+            }
+            
+            if (writer) {
+                await writer.close();
+                writer = null;
+            }
+            
+            if (port) {
+                await port.close();
+                port = null;
+            }
+            
+            isConnected = false;
+            updateConnectionUI(false);
+            logMessage('[系统] 串口已断开', 'info');
+            
+            // 停止重复发送
+            if (repeatInterval) {
+                clearInterval(repeatInterval);
+                repeatInterval = null;
+            }
+        }
+        
+        function updateConnectionUI(connected) {
+            const btn = document.getElementById('connect-btn');
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            const sendBtn = document.getElementById('send-btn');
+            const repeatBtn = document.getElementById('repeat-btn');
+            
+            if (connected) {
+                btn.innerHTML = '<i class="fa fa-power-off mr-2"></i>断开';
+                btn.classList.remove('bg-primary');
+                btn.classList.add('bg-red-500');
+                statusDot.classList.remove('disconnected');
+                statusDot.classList.add('connected');
+                statusText.textContent = '已连接';
+                sendBtn.disabled = false;
+                repeatBtn.disabled = false;
+                
+                stats.startTime = new Date();
+            } else {
+                btn.innerHTML = '<i class="fa fa-plug mr-2"></i>连接';
+                btn.classList.remove('bg-red-500');
+                btn.classList.add('bg-primary');
+                statusDot.classList.remove('connected');
+                statusDot.classList.add('disconnected');
+                statusText.textContent = '未连接';
+                sendBtn.disabled = true;
+                repeatBtn.disabled = true;
+            }
+        }
+        
+        // ========== 读取数据 ==========
+        async function startReading() {
+            while (keepReading && port && port.readable) {
+                try {
+                    reader = port.readable.getReader();
+                    const decoder = new TextDecoder();
+                    
+                    while (keepReading) {
+                        const { value, done } = await reader.read();
+                        
+                        if (done) break;
+                        
+                        if (value) {
+                            const text = decoder.decode(value, { stream: true });
+                            handleReceivedData(value, text);
+                        }
+                    }
+                } catch (err) {
+                    if (err.name !== 'AbortError') {
+                        stats.errors++;
+                        updateStats();
+                        logMessage(`[错误] 读取数据: ${err.message}`, 'error');
+                    }
+                } finally {
+                    if (reader) {
+                        reader.releaseLock();
+                        reader = null;
+                    }
+                }
+            }
+        }
+        
+        function handleReceivedData(bytes, text) {
+            stats.recvPkts++;
+            stats.recvBytes += bytes.length;
+            stats.lastRecvTime = new Date();
+            stats.recentRecvBytes.push({ time: Date.now(), bytes: bytes.length });
+            
+            logData.push({
+                time: stats.lastRecvTime,
+                direction: 'recv',
+                data: bytes
+            });
+            
+            if (hexView) {
+                const hex = Array.from(bytes).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+                logHexMessage(hex, 'recv');
+            } else {
+                logMessage(text, 'recv');
+            }
+            
+            updateStats();
+        }
+        
+        // ========== 发送数据 ==========
+        async function sendData() {
+            if (!isConnected || !port) return;
+            
+            const input = document.getElementById('send-input');
+            const mode = document.querySelector('input[name="send-mode"]:checked').value;
+            const appendCRLF = document.getElementById('append-crlf').checked;
+            
+            let data;
+            let bytes;
+            
+            if (mode === 'hex') {
+                const hexStr = input.value.replace(/\s+/g, '');
+                bytes = [];
+                for (let i = 0; i < hexStr.length; i += 2) {
+                    bytes.push(parseInt(hexStr.substr(i, 2), 16));
+                }
+            } else {
+                data = input.value;
+                if (appendCRLF) {
+                    data += '\r\n';
+                }
+                bytes = new TextEncoder().encode(data);
+            }
+            
+            try {
+                writer = port.writable.getWriter();
+                await writer.write(bytes);
+                writer.releaseLock();
+                writer = null;
+                
+                stats.sentPkts++;
+                stats.sentBytes += bytes.length;
+                stats.lastSendTime = new Date();
+                stats.recentSendBytes.push({ time: Date.now(), bytes: bytes.length });
+                
+                logData.push({
+                    time: stats.lastSendTime,
+                    direction: 'sent',
+                    data: bytes
+                });
+                
+                if (hexView) {
+                    const hex = Array.from(bytes).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+                    logHexMessage(hex, 'sent');
+                } else {
+                    logMessage(data || `HEX: ${Array.from(bytes).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ')}`, 'sent');
+                }
+                
+                updateStats();
+                
+            } catch (err) {
+                stats.errors++;
+                updateStats();
+                logMessage(`[错误] 发送失败: ${err.message}`, 'error');
+            }
+        }
+        
+        async function sendCommand(cmd) {
+            if (!isConnected || !port) {
+                logMessage('[系统] 请先连接串口', 'warning');
+                return;
+            }
+            
+            try {
+                const bytes = new TextEncoder().encode(cmd);
+                writer = port.writable.getWriter();
+                await writer.write(bytes);
+                writer.releaseLock();
+                writer = null;
+                
+                stats.sentPkts++;
+                stats.sentBytes += bytes.length;
+                stats.lastSendTime = new Date();
+                
+                logData.push({
+                    time: stats.lastSendTime,
+                    direction: 'sent',
+                    data: bytes
+                });
+                
+                logMessage(cmd.replace(/\r?\n/g, '\\r\\n'), 'sent');
+                updateStats();
+                
+            } catch (err) {
+                stats.errors++;
+                updateStats();
+                logMessage(`[错误] 发送失败: ${err.message}`, 'error');
+            }
+        }
+        
+        async function sendCustomCommand() {
+            const input = document.getElementById('custom-command');
+            const mode = document.querySelector('input[name="custom-mode"]:checked').value;
+            
+            if (!input.value.trim()) return;
+            
+            if (mode === 'hex') {
+                // 解析HEX字符串
+                const hexStr = input.value.replace(/\s+/g, '');
+                let cmd = '';
+                for (let i = 0; i < hexStr.length; i += 2) {
+                    cmd += String.fromCharCode(parseInt(hexStr.substr(i, 2), 16));
+                }
+                input.value = cmd;
+                await sendCommand(cmd);
+            } else {
+                await sendCommand(input.value + '\r\n');
+            }
+            
+            input.value = '';
+        }
+        
+        // ========== 重复发送 ==========
+        function sendRepeat() {
+            const enable = document.getElementById('repeat-enable').checked;
+            const interval = parseInt(document.getElementById('repeat-interval').value);
+            
+            if (enable && isConnected) {
+                if (repeatInterval) clearInterval(repeatInterval);
+                repeatInterval = setInterval(sendData, interval);
+                logMessage(`[系统] 开始每 ${interval}ms 重复发送`, 'info');
+            } else {
+                if (repeatInterval) {
+                    clearInterval(repeatInterval);
+                    repeatInterval = null;
+                    logMessage('[系统] 停止重复发送', 'info');
+                }
+            }
+        }
+        
+        // ========== 日志显示 ==========
+        function logMessage(text, type = 'info') {
+            const terminal = document.getElementById('terminal');
+            const showTimestamp = document.getElementById('show-timestamp').checked;
+            const showDirection = document.getElementById('show-direction').checked;
+            
+            const time = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+            
+            let prefix = '';
+            if (showTimestamp) prefix += `<span class="text-gray-500">[${time}]</span> `;
+            if (showDirection && type === 'recv') prefix += '<span class="text-blue-400">← </span>';
+            if (showDirection && type === 'sent') prefix += '<span class="text-green-400">→ </span>';
+            
+            let className = 'text-green-400';
+            if (type === 'error') className = 'text-red-400';
+            if (type === 'warning') className = 'text-yellow-400';
+            if (type === 'success') className = 'text-cyan-400';
+            if (type === 'info') className = 'text-gray-400';
+            
+            const line = document.createElement('div');
+            line.innerHTML = `${prefix}<span class="${className}">${escapeHtml(text)}</span>`;
+            terminal.appendChild(line);
+            
+            if (document.getElementById('auto-scroll').checked) {
+                terminal.scrollTop = terminal.scrollHeight;
+            }
+        }
+        
+        function logHexMessage(hex, direction) {
+            const terminal = document.getElementById('terminal');
+            const showTimestamp = document.getElementById('show-timestamp').checked;
+            
+            const time = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+            
+            let prefix = '';
+            if (showTimestamp) prefix += `<span class="text-gray-500">[${time}]</span> `;
+            prefix += direction === 'recv' ? '<span class="text-blue-400">← </span>' : '<span class="text-green-400">→ </span>';
+            
+            const line = document.createElement('div');
+            line.innerHTML = `${prefix}<span class="hex-byte ${direction}">${hex}</span>`;
+            terminal.appendChild(line);
+            
+            if (document.getElementById('auto-scroll').checked) {
+                terminal.scrollTop = terminal.scrollHeight;
+            }
+        }
+        
+        function clearTerminal() {
+            document.getElementById('terminal').innerHTML = '<span class="text-gray-500">[系统] 终端已清空</span>';
+        }
+        
+        function toggleHexView() {
+            hexView = !hexView;
+            const btn = document.getElementById('hex-view-btn');
+            btn.classList.toggle('bg-primary', hexView);
+            btn.classList.toggle('text-white', hexView);
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // ========== 统计更新 ==========
+        function updateStats() {
+            document.getElementById('stat-sent-pkts').textContent = stats.sentPkts;
+            document.getElementById('stat-sent-bytes').textContent = formatBytes(stats.sentBytes);
+            document.getElementById('stat-recv-pkts').textContent = stats.recvPkts;
+            document.getElementById('stat-recv-bytes').textContent = formatBytes(stats.recvBytes);
+            document.getElementById('stat-errors').textContent = stats.errors;
+            
+            const totalPkts = stats.sentPkts + stats.recvPkts;
+            const errRate = totalPkts > 0 ? ((stats.errors / totalPkts) * 100).toFixed(1) : 0;
+            document.getElementById('stat-err-rate').textContent = errRate + '%';
+            
+            if (stats.lastSendTime) {
+                document.getElementById('stat-last-send').textContent = 
+                    stats.lastSendTime.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+            }
+            if (stats.lastRecvTime) {
+                document.getElementById('stat-last-recv').textContent = 
+                    stats.lastRecvTime.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+            }
+        }
+        
+        function updateRateStats() {
+            const now = Date.now();
+            const oneSecondAgo = now - 1000;
+            
+            // 过滤最近的字节数
+            stats.recentSendBytes = stats.recentSendBytes.filter(item => item.time > oneSecondAgo);
+            stats.recentRecvBytes = stats.recentRecvBytes.filter(item => item.time > oneSecondAgo);
+            
+            const sendRate = stats.recentSendBytes.reduce((sum, item) => sum + item.bytes, 0);
+            const recvRate = stats.recentRecvBytes.reduce((sum, item) => sum + item.bytes, 0);
+            
+            document.getElementById('stat-send-rate').textContent = formatBytes(sendRate) + '/s';
+            document.getElementById('stat-recv-rate').textContent = formatBytes(recvRate) + '/s';
+        }
+        
+        function updateUptime() {
+            if (!stats.startTime) return;
+            
+            const diff = new Date() - stats.startTime;
+            const hours = Math.floor(diff / 3600000);
+            const minutes = Math.floor((diff % 3600000) / 60000);
+            const seconds = Math.floor((diff % 60000) / 1000);
+            
+            document.getElementById('stat-uptime').textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        function resetStats() {
+            stats = {
+                sentPkts: 0,
+                sentBytes: 0,
+                recvPkts: 0,
+                recvBytes: 0,
+                errors: 0,
+                startTime: stats.startTime,
+                lastSendTime: null,
+                lastRecvTime: null,
+                recentSendBytes: [],
+                recentRecvBytes: []
+            };
+            updateStats();
+            document.getElementById('stat-send-rate').textContent = '0 B/s';
+            document.getElementById('stat-recv-rate').textContent = '0 B/s';
+            document.getElementById('stat-last-send').textContent = '--';
+            document.getElementById('stat-last-recv').textContent = '--';
+            logMessage('[系统] 统计数据已重置', 'info');
+        }
+        
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+        
+        // ========== 数据导出 ==========
+        function exportLog(format) {
+            if (logData.length === 0) {
+                logMessage('[系统] 没有可导出的数据', 'warning');
+                return;
+            }
+            
+            let content = '';
+            let filename = '';
+            let mimeType = '';
+            
+            const time = new Date().toLocaleString('zh-CN').replace(/[/:]/g, '-');
+            
+            if (format === 'txt') {
+                content = logData.map(item => {
+                    const time = item.time.toLocaleString('zh-CN');
+                    const dir = item.direction === 'recv' ? '←' : '→';
+                    const text = new TextDecoder().decode(item.data);
+                    return `[${time}] ${dir} ${text}`;
+                }).join('\n');
+                filename = `serial_log_${time}.txt`;
+                mimeType = 'text/plain';
+            } else if (format === 'hex') {
+                content = logData.map(item => {
+                    const time = item.time.toLocaleString('zh-CN');
+                    const dir = item.direction === 'recv' ? '←' : '→';
+                    const hex = Array.from(item.data).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+                    return `[${time}] ${dir} ${hex}`;
+                }).join('\n');
+                filename = `serial_log_${time}.hex`;
+                mimeType = 'text/plain';
+            } else if (format === 'csv') {
+                content = '时间,方向,数据 (HEX),字节数\n';
+                content += logData.map(item => {
+                    const time = item.time.toLocaleString('zh-CN');
+                    const dir = item.direction === 'recv' ? '接收' : '发送';
+                    const hex = Array.from(item.data).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+                    return `"${time}","${dir}","${hex}",${item.data.length}`;
+                }).join('\n');
+                filename = `serial_log_${time}.csv`;
+                mimeType = 'text/csv';
+            }
+            
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            logMessage(`[系统] 已导出 ${filename}`, 'success');
+        }
+        
+        // ========== 启动 ==========
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
