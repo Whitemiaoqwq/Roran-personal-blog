@@ -585,20 +585,12 @@
 
         // ========== 初始化 ==========
         function init() {
-            const record = getRecord();
-            if (record.date === todayStr() && record.answer) {
-                // 今日已翻过，显示上次的答案
-                showAnswer(record.answer, record.page, false);
-                isOpened = true;
-                document.getElementById('click-hint').classList.add('hidden');
-                document.getElementById('action-buttons').classList.remove('hidden');
-            }
             renderHistory();
         }
 
         // ========== 翻开书本 ==========
         function openBook() {
-            if (isOpened) return;
+            if (isOpened) return; // 防止动画过程中重复点击
 
             // 随机选答案
             const idx = Math.floor(Math.random() * ANSWERS.length);
@@ -648,6 +640,7 @@
             cover.classList.remove('open');
 
             setTimeout(() => {
+                isOpened = false; // 重置标志，允许再次翻书
                 openBook();
             }, 500);
         }
