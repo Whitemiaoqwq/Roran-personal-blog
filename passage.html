@@ -63,8 +63,15 @@
     <style>
         /* 基础样式 */
         body {
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
+        /* 主题颜色备用定义（防止 Tailwind CDN 未生成对应类） */
+        body.bg-day-bg   { background-color: #ffffff !important; }
+        body.bg-eye-bg   { background-color: #eaf5e9 !important; }
+        body.bg-night-bg { background-color: #2c3e50 !important; }
+        body.text-day-text   { color: #333333 !important; }
+        body.text-eye-text   { color: #2d4829 !important; }
+        body.text-night-text { color: #ecf0f1 !important; }
         
         /* 章节侧边栏动画 */
         .chapter-sidebar {
@@ -774,6 +781,13 @@
             readingArea.style.fontSize = `${fontSize}%`;
         }
         
+        // 主题颜色映射（备用，确保切换一定生效）
+        const themeColors = {
+            day:   { bg: '#ffffff', text: '#333333' },
+            eye:   { bg: '#eaf5e9', text: '#2d4829' },
+            night: { bg: '#2c3e50', text: '#ecf0f1' }
+        };
+
         // 设置主题
         function setTheme(theme) {
             // 移除所有主题类
@@ -781,8 +795,14 @@
             document.body.classList.remove('bg-eye-bg', 'text-eye-text');
             document.body.classList.remove('bg-night-bg', 'text-night-text');
 
-            // 添加当前主题类
+            // 添加当前主题类（依赖 Tailind CDN 生成）
             document.body.classList.add(`bg-${theme}-bg`, `text-${theme}-text`);
+
+            // 同时用 inline style 设置颜色（备用方案，确保一定生效）
+            if (themeColors[theme]) {
+                document.body.style.backgroundColor = themeColors[theme].bg;
+                document.body.style.color = themeColors[theme].text;
+            }
 
             // 更新按钮激活态
             themeDay.classList.remove('active');

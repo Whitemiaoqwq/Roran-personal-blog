@@ -79,18 +79,42 @@
             height: 6px;
             background-color: rgba(0, 0, 0, 0.1);
             border-radius: 3px;
-            overflow: hidden;
+            overflow: visible;
             cursor: pointer;
-            transition: background-color 0.2s ease;
+            transition: height 0.15s ease, background-color 0.2s ease;
+            position: relative;
         }
         .progress-bar:hover { background-color: rgba(0, 0, 0, 0.15); }
+        .progress-bar.dragging { height: 10px; }
         
         .progress-fill {
             height: 100%;
             background: linear-gradient(90deg, #b9d8e0, #6dae8d);
             width: 0%;
-            transition: width 0.1s linear;
+            transition: width 0.05s linear;
             border-radius: 3px;
+            position: relative;
+        }
+        
+        .progress-thumb {
+            position: absolute;
+            right: -7px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 14px;
+            height: 14px;
+            background: #6dae8d;
+            border-radius: 50%;
+            box-shadow: 0 0 6px rgba(109,174,141,0.5);
+            opacity: 0;
+            transition: opacity 0.15s ease, transform 0.15s ease;
+        }
+        .progress-bar.dragging .progress-thumb,
+        .progress-bar:hover .progress-thumb {
+            opacity: 1;
+        }
+        .progress-bar.dragging .progress-thumb {
+            transform: translateY(-50%) scale(1.3);
         }
         
         /* 音量条样式 */
@@ -98,18 +122,42 @@
             height: 4px;
             background-color: rgba(0, 0, 0, 0.1);
             border-radius: 2px;
-            overflow: hidden;
+            overflow: visible;
             cursor: pointer;
-            transition: background-color 0.2s ease;
+            transition: height 0.15s ease, background-color 0.2s ease;
+            position: relative;
         }
         .volume-bar:hover { background-color: rgba(0, 0, 0, 0.15); }
+        .volume-bar.dragging { height: 8px; }
         
         .volume-fill {
             height: 100%;
             background: linear-gradient(90deg, #f8cad5, #d8b9e0);
             width: 80%;
             border-radius: 2px;
-            transition: width 0.1s linear;
+            transition: width 0.05s linear;
+            position: relative;
+        }
+        
+        .volume-thumb {
+            position: absolute;
+            right: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: #d8b9e0;
+            border-radius: 50%;
+            box-shadow: 0 0 6px rgba(216,185,224,0.5);
+            opacity: 0;
+            transition: opacity 0.15s ease, transform 0.15s ease;
+        }
+        .volume-bar.dragging .volume-thumb,
+        .volume-bar:hover .volume-thumb {
+            opacity: 1;
+        }
+        .volume-bar.dragging .volume-thumb {
+            transform: translateY(-50%) scale(1.3);
         }
         
         /* 音乐列表滚动条 */
@@ -256,7 +304,9 @@
                             <span id="total-time">00:00</span>
                         </div>
                         <div class="progress-bar" id="progress-bar">
-                            <div class="progress-fill" id="progress-fill"></div>
+                            <div class="progress-fill" id="progress-fill">
+                                <div class="progress-thumb" id="progress-thumb"></div>
+                            </div>
                         </div>
                     </div>
                     
@@ -285,7 +335,9 @@
                             <i class="fa fa-volume-up text-xl"></i>
                         </button>
                         <div class="volume-bar w-48 md:w-64" id="volume-bar">
-                            <div class="volume-fill" id="volume-fill"></div>
+                            <div class="volume-fill" id="volume-fill">
+                                <div class="volume-thumb" id="volume-thumb"></div>
+                            </div>
                         </div>
                     </div>
                     
@@ -558,6 +610,26 @@
         }
     }
 
+    // ========== 拖动辅助函数 ==========
+    function initDrag(barEl, onDragCb) {
+        if (!barEl) return;
+        let dragging = false;
+        const getX = (e) => e.touches ? e.touches[0].clientX : e.clientX;
+        const onStart = (e) => {
+            dragging = true;
+            barEl.classList.add('dragging');
+            onDragCb(getX(e));
+        };
+        const onMove = (e) => { if (!dragging) return; onDragCb(getX(e)); };
+        const onEnd = () => { dragging = false; barEl.classList.remove('dragging'); };
+        barEl.addEventListener('mousedown', onStart);
+        barEl.addEventListener('touchstart', (e) => { e.preventDefault(); onStart(e); }, { passive: false });
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('touchmove', (e) => { if (dragging) { e.preventDefault(); onMove(e); } }, { passive: false });
+        document.addEventListener('mouseup', onEnd);
+        document.addEventListener('touchend', onEnd);
+    }
+
     // ========== 绑定事件 ==========
     function bindEvents() {
         dom.sidebarToggle?.addEventListener('click', toggleSidebar);
@@ -568,7 +640,15 @@
         dom.nextBtn?.addEventListener('click', playNext);
         dom.miniPrev?.addEventListener('click', playPrevious);
         dom.miniNext?.addEventListener('click', playNext);
-        dom.progressBar?.addEventListener('click', updateProgressByClick);
+        // 进度条拖动（支持点击+拖动跟随）
+        initDrag(dom.progressBar, (clientX) => {
+            if (!dom.progressBar || isNaN(audio.duration)) return;
+            const rect = dom.progressBar.getBoundingClientRect();
+            const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+            audio.currentTime = pos * audio.duration;
+            if (dom.progressFill) dom.progressFill.style.width = `${pos * 100}%`;
+            if (dom.currentTime) dom.currentTime.textContent = formatTime(audio.currentTime);
+        });
         dom.musicSearch?.addEventListener('input', e => renderMusicList(e.target.value));
         dom.repeatBtn?.addEventListener('click', changeRepeatMode);
         dom.shuffleAll?.addEventListener('click', shuffleAndPlayAll);
@@ -582,8 +662,16 @@
                 dom.repeatBtn?.classList.add('text-macaron-pink');
             }
         });
+        // 音量条拖动（支持点击+拖动跟随）
+        initDrag(dom.volumeBar, (clientX) => {
+            if (!dom.volumeBar) return;
+            const rect = dom.volumeBar.getBoundingClientRect();
+            volume = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+            if (!isMuted) audio.volume = volume;
+            if (dom.volumeFill) dom.volumeFill.style.width = `${volume * 100}%`;
+            if (isMuted && volume > 0) { isMuted = false; dom.muteBtn && (dom.muteBtn.innerHTML = '<i class="fa fa-volume-up text-xl"></i>'); }
+        });
         dom.muteBtn?.addEventListener('click', toggleMute);
-        dom.volumeBar?.addEventListener('click', updateVolumeByClick);
         document.querySelectorAll('.eq-preset').forEach(btn => {
             btn.addEventListener('click', () => setEqPreset(btn.dataset.preset));
         });
