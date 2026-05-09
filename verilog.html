@@ -63,6 +63,19 @@
         .dice-icon-6 .dot:nth-child(5) { bottom: 0.18rem; left: 0.18rem; }
         .dice-icon-6 .dot:nth-child(6) { bottom: 0.18rem; right: 0.18rem; }
 
+        /* ========== 今日运势图标（莫兰迪色系） ========== */
+        .fortune-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.5rem;
+            height: 1.5rem;
+            font-size: 0.95rem;
+            color: #A3B18A;
+            flex-shrink: 0;
+            filter: drop-shadow(0 0 2px rgba(163,177,138,0.4));
+        }
+
         /* ========== 侧边栏 ========== */
         .sidebar {
             position: fixed;
@@ -312,6 +325,9 @@
             </a>
             <a href="verilog.html" class="active">
                 <i class="fa fa-microchip"></i><span>Verilog 速查</span>
+            </a>
+            <a href="fortune.html">
+                <span class="fortune-icon">◆</span><span>今日运势</span>
             </a>
         </div>
         <div class="sidebar-footer">
