@@ -149,12 +149,14 @@
             100% { transform: translate(20px, 30px) scale(1.08); }
         }
 
-        /* ========== 侧边栏 ========== */
+        /* ========== 侧边栏（桌面端默认显示） ========== */
         .sidebar {
             transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
-            transform: translateX(-85%);
+            transform: translateX(-100%);
         }
-        .sidebar:hover { transform: translateX(0); }
+        @media (min-width: 768px) {
+            .sidebar { transform: translateX(0); }
+        }
 
         /* ========== 音乐按钮 ========== */
         .music-btn { transition: all 0.3s ease; }
@@ -399,8 +401,11 @@
         <source src="static/music/hanabi.flac" type="audio/flac">
     </audio>
     
+    <!-- 侧边栏覆盖层（移动端点击关闭） -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-30 z-30 hidden md:hidden" style="backdrop-filter: blur(2px);"></div>
+
     <!-- 侧边栏 -->
-    <div class="sidebar fixed top-0 left-0 h-full w-64 bg-white bg-opacity-92 rounded-r-3xl shadow-xl z-40 flex flex-col" style="backdrop-filter: blur(8px);">
+    <div id="sidebar" class="sidebar fixed top-0 left-0 h-full w-64 bg-white bg-opacity-92 rounded-r-3xl shadow-xl z-40 flex flex-col" style="backdrop-filter: blur(8px);">
         <div class="p-6 text-center border-b border-gray-100">
             <h2 class="text-xl font-bold text-primary">导航菜单</h2>
         </div>
@@ -662,23 +667,65 @@
     });
 
     // ========== 侧边栏移动端 ==========
-    const sidebar = document.querySelector('.sidebar');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
 
+    // 移动端点击覆盖层关闭侧边栏
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.style.transform = 'translateX(-100%)';
+            sidebarOverlay.classList.add('hidden');
+            document.body.style.overflow = '';
+        });
+    }
+
+    // 移动端点击空白处关闭侧边栏
     document.addEventListener('click', (e) => {
-        if (window.innerWidth < 768 && !sidebar.contains(e.target) && sidebar.style.transform === 'translateX(0px)') {
-            sidebar.style.transform = 'translateX(-85%)';
+        if (window.innerWidth < 768 && sidebar && !sidebar.contains(e.target) && sidebar.style.transform === 'translateX(0px)') {
+            sidebar.style.transform = 'translateX(-100%)';
+            if (sidebarOverlay) sidebarOverlay.classList.add('hidden');
+            document.body.style.overflow = '';
         }
     });
 
-    if (window.innerWidth < 768) {
-        const menuToggle = document.createElement('div');
-        menuToggle.className = 'fixed top-6 left-6 z-30 bg-white bg-opacity-90 p-3 rounded-full shadow-lg cursor-pointer w-12 h-12 flex items-center justify-center';
-        menuToggle.innerHTML = '<i class="fa fa-bars text-primary"></i>';
-        document.body.appendChild(menuToggle);
-        menuToggle.addEventListener('click', () => {
-            sidebar.style.transform = sidebar.style.transform === 'translateX(0px)' ? 'translateX(-85%)' : 'translateX(0)';
+    // 桌面端 hover 显示侧边栏
+    if (window.matchMedia('(min-width: 768px)').matches) {
+        document.querySelector('.sidebar').addEventListener('mouseenter', function() {
+            this.style.transform = 'translateX(0)';
+        });
+        document.querySelector('.sidebar').addEventListener('mouseleave', function() {
+            this.style.transform = 'translateX(0)';
         });
     }
+
+    // 移动端汉堡菜单按钮
+    function createMobileMenuToggle() {
+        const existing = document.getElementById('mobile-menu-toggle');
+        if (existing) existing.remove();
+
+        if (window.innerWidth < 768) {
+            const menuToggle = document.createElement('div');
+            menuToggle.id = 'mobile-menu-toggle';
+            menuToggle.className = 'fixed top-6 left-6 z-50 bg-white bg-opacity-90 p-3 rounded-full shadow-lg cursor-pointer w-12 h-12 flex items-center justify-center';
+            menuToggle.innerHTML = '<i class="fa fa-bars text-primary"></i>';
+            document.body.appendChild(menuToggle);
+            menuToggle.addEventListener('click', () => {
+                if (sidebar.style.transform === 'translateX(0px)') {
+                    sidebar.style.transform = 'translateX(-100%)';
+                    sidebarOverlay.classList.add('hidden');
+                    document.body.style.overflow = '';
+                } else {
+                    sidebar.style.transform = 'translateX(0)';
+                    sidebarOverlay.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                }
+            });
+        }
+    }
+    createMobileMenuToggle();
+
+    // 窗口大小变化时重新检查
+    window.addEventListener('resize', createMobileMenuToggle);
     </script>
 </body>
 </html>
