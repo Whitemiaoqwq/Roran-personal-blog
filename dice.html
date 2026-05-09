@@ -218,26 +218,17 @@
         
         /* D4 - 三角形 */
         .dice-flat.d4 {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--dice-color), color-mix(in srgb, var(--dice-color) 70%, #000));
             clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-            border-radius: 8px 8px 8px 8px;
+            border-radius: 4px;
         }
         
         /* D6 - 正方形圆角 */
         .dice-flat.d6 {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--dice-color), color-mix(in srgb, var(--dice-color) 70%, #000));
             border-radius: 12px;
         }
         
         /* D8 - 菱形 (rotate 45deg) */
         .dice-flat.d8 {
-            width: 56px;
-            height: 56px;
-            background: linear-gradient(135deg, var(--dice-color), color-mix(in srgb, var(--dice-color) 70%, #000));
             transform: rotate(45deg);
             border-radius: 8px;
             font-size: 0.9rem;
@@ -249,27 +240,18 @@
         
         /* D10 - 五边形 */
         .dice-flat.d10 {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--dice-color), color-mix(in srgb, var(--dice-color) 70%, #000));
             clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
             border-radius: 4px;
         }
         
         /* D12 - 六边形变体 */
         .dice-flat.d12 {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--dice-color), color-mix(in srgb, var(--dice-color) 70%, #000));
             clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
             border-radius: 4px;
         }
         
         /* D20 - 圆形 */
         .dice-flat.d20 {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--dice-color), color-mix(in srgb, var(--dice-color) 70%, #000));
             border-radius: 50%;
         }
         
@@ -613,7 +595,10 @@
 
         // ========== 创建扁平化骰子HTML ==========
         function createFlatDice(color, iconType, result, size = 60) {
-            const halfSize = size / 2;
+            // 直接计算深色版本用于渐变
+            const darkColor = adjustColor(color, -30);
+            const gradient = `linear-gradient(135deg, ${color}, ${darkColor})`;
+            
             const d8Correction = iconType === 'd8' ? 'transform:rotate(45deg);' : '';
             const labelCorrection = iconType === 'd8' ? 'transform:rotate(-45deg);' : '';
             const clipPath = getClipPath(iconType);
@@ -621,7 +606,7 @@
             
             return `
                 <div class="dice-flat ${iconType}" 
-                     style="--dice-color: ${color}; width: ${size}px; height: ${size}px; ${d8Correction} clip-path: ${clipPath}; border-radius: ${borderRadius};">
+                     style="background: ${gradient}; width: ${size}px; height: ${size}px; ${d8Correction} clip-path: ${clipPath}; border-radius: ${borderRadius};">
                     <span class="dice-label" style="${labelCorrection} font-size: ${size > 50 ? '1.1rem' : '0.9rem'};">${result}</span>
                 </div>
             `;
