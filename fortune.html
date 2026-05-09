@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>今日运势 - 蘿嵐的工具箱</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1',
+                        primaryHover: '#4f46e5',
+                        accent: '#f59e0b',
+                        dark: '#0f172a',
+                        panel: '#1e293b',
+                        cardBg: 'rgba(30,41,59,0.8)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 40%, #0f172a 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            color: #e2e8f0;
+        }
+
+        /* ========== 侧边栏（暗色主题） ========== */
+        .sidebar-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 30;
+            display: none;
+        }
+        .sidebar-overlay.show { display: block; }
+        #sidebar-toggle {
+            position: fixed;
+            top: 1rem; left: 1rem;
+            z-index: 50;
+            width: 2.5rem; height: 2.5rem;
+            border-radius: 0.75rem;
+            background: rgba(30,41,59,0.9);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(99,102,241,0.3);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            color: #94a3b8;
+            font-size: 1.25rem;
+            transition: all 0.2s ease;
+        }
+        #sidebar-toggle:hover { background: rgba(99,102,241,0.2); color: #e2e8f0; }
+        @media (min-width: 768px) { #sidebar-toggle { display: none; } }
+
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            width: 16rem; height: 100%;
+            background: linear-gradient(180deg, rgba(15,23,42,0.98), rgba(30,27,75,0.98));
+            backdrop-filter: blur(12px);
+            border-right: 1px solid rgba(99,102,241,0.2);
+            box-shadow: 4px 0 24px rgba(0,0,0,0.4);
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(-100%);
+            z-index: 40;
+            display: flex;
+            flex-direction: column;
+        }
+        @media (min-width: 768px) { .sidebar { transform: translateX(0); } }
+
+        .sidebar-brand {
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(99,102,241,0.15);
+        }
+        .sidebar-brand h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 0.5rem;
+        }
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.7rem 1rem;
+            margin: 0.2rem 0.5rem;
+            border-radius: 0.75rem;
+            transition: all 0.2s ease;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+        .sidebar-nav a:hover {
+            background: rgba(99,102,241,0.12);
+            color: #e2e8f0;
+        }
+        .sidebar-nav a.active {
+            background: linear-gradient(135deg, rgba(99,102,241,0.25), rgba(168,85,247,0.18));
+            color: #a78bfa;
+            font-weight: 600;
+            box-shadow: 0 0 12px rgba(99,102,241,0.15);
+        }
+        .sidebar-nav a i { width: 1.2rem; text-align: center; font-size: 1rem; flex-shrink: 0; }
+
+        .sidebar-footer {
+            padding: 1rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #475569;
+            border-top: 1px solid rgba(99,102,241,0.1);
+        }
+
+        /* ========== d6 自定义骰子图标（暗色主题） ========== */
+        .dice-icon-6 {
+            position: relative;
+            display: inline-flex;
+            width: 1.5rem;
+            height: 1.5rem;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 0.25rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 2px rgba(255,255,255,0.2);
+            flex-shrink: 0;
+        }
+        .dice-icon-6::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%);
+            border-radius: 0.25rem;
+        }
+        .dice-icon-6 .dot {
+            position: absolute;
+            width: 0.28rem;
+            height: 0.28rem;
+            background: #e2e8f0;
+            border-radius: 50%;
+        }
+        .dice-icon-6 .dot:nth-child(1) { top: 0.18rem; left: 0.18rem; }
+        .dice-icon-6 .dot:nth-child(2) { top: 0.18rem; right: 0.18rem; }
+        .dice-icon-6 .dot:nth-child(3) { top: 50%; left: 0.18rem; transform: translateY(-50%); }
+        .dice-icon-6 .dot:nth-child(4) { top: 50%; right: 0.18rem; transform: translateY(-50%); }
+        .dice-icon-6 .dot:nth-child(5) { bottom: 0.18rem; left: 0.18rem; }
+        .dice-icon-6 .dot:nth-child(6) { bottom: 0.18rem; right: 0.18rem; }
+
+        /* ========== 塔罗卡牌样式 ========== */
+        .card-deck {
+            perspective: 1000px;
+            width: 200px;
+            height: 340px;
+            margin: 0 auto;
+            cursor: pointer;
+        }
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        .card-inner.flipped {
+            transform: rotateY(180deg);
+        }
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .card-back {
+            background: linear-gradient(135deg, #1e1b4b, #312e81);
+            border: 2px solid rgba(99,102,241,0.5);
+            box-shadow: 0 0 30px rgba(99,102,241,0.3), inset 0 0 30px rgba(99,102,241,0.1);
+        }
+        .card-back-pattern {
+            width: 80%;
+            height: 80%;
+            border: 2px solid rgba(99,102,241,0.4);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: rgba(99,102,241,0.6);
+        }
+        .card-front {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border: 2px solid rgba(245,158,11,0.5);
+            box-shadow: 0 0 30px rgba(245,158,11,0.2);
+            transform: rotateY(180deg);
+            padding: 1.2rem;
+            text-align: center;
+        }
+        .card-number {
+            font-size: 0.85rem;
+            color: #f59e0b;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.1em;
+        }
+        .card-name-cn {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 0.3rem;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .card-name-en {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-bottom: 0.8rem;
+            letter-spacing: 0.05em;
+        }
+        .card-divider {
+            width: 60%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #f59e0b, transparent);
+            margin: 0.5rem auto;
+        }
+        .card-meaning {
+            font-size: 0.78rem;
+            color: #cbd5e1;
+            line-height: 1.6;
+            margin-top: 0.5rem;
+        }
+        .card-keywords {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.3rem;
+            margin-top: 0.6rem;
+        }
+        .card-keyword {
+            font-size: 0.7rem;
+            padding: 0.15rem 0.5rem;
+            background: rgba(245,158,11,0.15);
+            border: 1px solid rgba(245,158,11,0.3);
+            border-radius: 0.75rem;
+            color: #fbbf24;
+        }
+
+        /* ========== 结果区 ========== */
+        .result-panel {
+            background: cardBg;
+            border: 1px solid rgba(99,102,241,0.2);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+        }
+        .luck-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.35rem 0.9rem;
+            border-radius: 2rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+        .star-filled { color: #fbbf24; }
+        .star-empty { color: #334155; }
+
+        .do-dont-tag {
+            display: inline-block;
+            padding: 0.25rem 0.7rem;
+            border-radius: 0.5rem;
+            font-size: 0.78rem;
+            margin: 0.2rem;
+        }
+        .do-tag { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+        .dont-tag { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+
+        .history-card {
+            background: rgba(15,23,42,0.6);
+            border: 1px solid rgba(99,102,241,0.15);
+            border-radius: 0.75rem;
+            padding: 0.8rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .history-card:hover {
+            border-color: rgba(245,158,11,0.4);
+            box-shadow: 0 0 12px rgba(245,158,11,0.1);
+        }
+        .history-card .day-label {
+            font-size: 0.7rem;
+            color: #64748b;
+        }
+        .history-card .card-name {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #e2e8f0;
+            margin-top: 0.3rem;
+        }
+
+        /* ========== 主内容区 ========== */
+        .main-content {
+            padding: 2rem 1.5rem;
+            max-width: 640px;
+            margin: 0 auto;
+        }
+        @media (min-width: 768px) {
+            .main-content { margin-left: 16rem; max-width: 640px; }
+        }
+
+        /* ========== 按钮 ========== */
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.8rem;
+            border-radius: 0.75rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(99,102,241,0.3);
+        }
+        .btn-primary:hover {
+            box-shadow: 0 6px 20px rgba(99,102,241,0.5);
+            transform: translateY(-1px);
+        }
+        .btn-primary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-secondary {
+            background: rgba(30,41,59,0.8);
+            color: #94a3b8;
+            border: 1px solid rgba(99,102,241,0.2);
+            padding: 0.6rem 1.4rem;
+            border-radius: 0.75rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-secondary:hover {
+            border-color: rgba(99,102,241,0.4);
+            color: #e2e8f0;
+        }
+
+        /* ========== 切换开关 ========== */
+        .toggle-switch {
+            position: relative;
+            width: 2.5rem;
+            height: 1.4rem;
+            background: #1e293b;
+            border-radius: 1rem;
+            cursor: pointer;
+            border: 1px solid rgba(99,102,241,0.3);
+            transition: all 0.2s ease;
+        }
+        .toggle-switch.active {
+            background: rgba(99,102,241,0.3);
+            border-color: #6366f1;
+        }
+        .toggle-knob {
+            position: absolute;
+            top: 0.2rem;
+            left: 0.2rem;
+            width: 1rem;
+            height: 1rem;
+            background: #94a3b8;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+        .toggle-switch.active .toggle-knob {
+            left: 1.3rem;
+            background: #a78bfa;
+        }
+
+        /* ========== 截图区域 ========== */
+        .share-card {
+            background: linear-gradient(135deg, #1e1b4b, #0f172a);
+            border: 1px solid rgba(245,158,11,0.3);
+            border-radius: 1rem;
+            padding: 2rem 1.5rem;
+            max-width: 340px;
+            margin: 0 auto;
+        }
+
+        .hidden { display: none !important; }
+        .fade-in { animation: fadeIn 0.6s ease forwards; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <!-- 侧边栏 -->
+    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <h2>蘿嵐的工具箱</h2>
+        </div>
+        <div class="sidebar-nav">
+            <a href="index.html">
+                <i class="fa fa-home"></i><span>首页</span>
+            </a>
+            <a href="toolbox.html">
+                <i class="fa fa-wrench"></i><span>工具箱</span>
+            </a>
+            <div style="height:1px; background:rgba(99,102,241,0.15); margin:0.5rem 0;"></div>
+            <a href="dice.html">
+                <span class="dice-icon-6"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></span><span>骰子游戏</span>
+            </a>
+            <a href="serial.html">
+                <i class="fa fa-plug"></i><span>串口调试</span>
+            </a>
+            <a href="verilog.html">
+                <i class="fa fa-microchip"></i><span>Verilog 速查</span>
+            </a>
+            <a href="fortune.html" class="active">
+                <i class="fa fa-crystal-ball"></i><span>今日运势</span>
+            </a>
+        </div>
+        <div class="sidebar-footer">
+            © 2024 蘿岚工具箱
+        </div>
+    </nav>
+
+    <!-- 汉堡按钮 -->
+    <button id="sidebar-toggle" class="md:hidden" onclick="toggleSidebar()">
+        <i class="fa fa-bars"></i>
+    </button>
+
+    <!-- 主内容 -->
+    <div class="main-content">
+        <!-- 标题 -->
+        <div class="text-center mb-8 fade-in">
+            <h1 class="text-2xl font-bold mb-2" style="background:linear-gradient(135deg,#a78bfa,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+                <i class="fa fa-crystal-ball"></i> 今日运势
+            </h1>
+            <p class="text-sm" style="color:#94a3b8;">每日一牌，窥见今日天机</p>
+            <p id="today-date" class="text-xs mt-1" style="color:#64748b;"></p>
+        </div>
+
+        <!-- 抽卡区域 -->
+        <div id="draw-section" class="text-center mb-8">
+            <div class="card-deck" id="card-deck" onclick="drawCard()">
+                <div class="card-inner" id="card-inner">
+                    <div class="card-face card-back">
+                        <div class="card-back-pattern">
+                            <i class="fa fa-star"></i>
+                        </div>
+                    </div>
+                    <div class="card-face card-front" id="card-front">
+                        <!-- 牌面内容由JS填充 -->
+                    </div>
+                </div>
+            </div>
+            <p id="draw-hint" class="text-sm mt-4" style="color:#94a3b8;">点击卡牌，揭开今日运势 ↑</p>
+            <div id="already-drawn" class="hidden mt-4">
+                <span class="luck-badge" style="background:rgba(99,102,241,0.15);color:#a78bfa;border:1px solid rgba(99,102,241,0.3);">
+                    <i class="fa fa-check-circle"></i> 今日已抽，明日再来
+                </span>
+            </div>
+        </div>
+
+        <!-- 运势结果 -->
+        <div id="result-section" class="hidden fade-in">
+            <!-- 幸运元素 -->
+            <div class="result-panel mb-6">
+                <h3 class="text-base font-bold mb-4" style="color:#a78bfa;">
+                    <i class="fa fa-clover mr-2"></i>幸运元素
+                </h3>
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                    <div class="flex items-center gap-2" style="color:#cbd5e1;">
+                        <span style="color:#f59e0b;"><i class="fa fa-palette"></i></span>
+                        <span>幸运颜色：<strong id="lucky-color" style="color:#fbbf24;"></strong></span>
+                    </div>
+                    <div class="flex items-center gap-2" style="color:#cbd5e1;">
+                        <span style="color:#f59e0b;"><i class="fa fa-hashtag"></i></span>
+                        <span>幸运数字：<strong id="lucky-number" style="color:#fbbf24;"></strong></span>
+                    </div>
+                    <div class="flex items-center gap-2" style="color:#cbd5e1;">
+                        <span style="color:#f59e0b;"><i class="fa fa-clock-o"></i></span>
+                        <span>幸运时段：<strong id="lucky-time" style="color:#fbbf24;"></strong></span>
+                    </div>
+                    <div class="flex items-center gap-2" style="color:#cbd5e1;">
+                        <span style="color:#f59e0b;"><i class="fa fa-compass"></i></span>
+                        <span>幸运方位：<strong id="lucky-direction" style="color:#fbbf24;"></strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 今日宜忌 -->
+            <div class="result-panel mb-6">
+                <h3 class="text-base font-bold mb-4" style="color:#a78bfa;">
+                    <i class="fa fa-calendar-check-o mr-2"></i>今日宜忌
+                </h3>
+                <div class="mb-3">
+                    <div class="text-xs font-semibold mb-2" style="color:#34d399;">宜</div>
+                    <div id="do-list"></div>
+                </div>
+                <div>
+                    <div class="text-xs font-semibold mb-2" style="color:#f87171;">忌</div>
+                    <div id="dont-list"></div>
+                </div>
+            </div>
+
+            <!-- 开运建议 -->
+            <div class="result-panel mb-6">
+                <h3 class="text-base font-bold mb-4" style="color:#a78bfa;">
+                    <i class="fa fa-lightbulb-o mr-2"></i>开运建议
+                </h3>
+                <p id="advice-text" class="text-sm leading-relaxed" style="color:#cbd5e1;"></p>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="flex items-center justify-center gap-3 mb-8 flex-wrap">
+                <button class="btn-secondary" onclick="shareCard()">
+                    <i class="fa fa-camera mr-1"></i> 保存分享图
+                </button>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs" style="color:#64748b;">音效</span>
+                    <div class="toggle-switch" id="sound-toggle" onclick="toggleSound()">
+                        <div class="toggle-knob"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 历史记录 -->
+        <div id="history-section" class="mb-8 hidden">
+            <h3 class="text-base font-bold mb-4" style="color:#a78bfa;">
+                <i class="fa fa-history mr-2"></i>最近运势
+            </h3>
+            <div id="history-list" class="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                <!-- 历史卡片由JS填充 -->
+            </div>
+        </div>
+
+        <div class="text-center text-xs pb-8" style="color:#475569;">
+            © 2024 蘿岚工具箱 · 今日运势 · 仅供娱乐
+        </div>
+    </div>
+
+    <!-- 音效（翻牌声） -->
+    <audio id="flip-sound" preload="auto">
+        <source src="https://cdn.pixabay.com/audio/2024/11/04/audio_299f41e8e2.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // ========== 大阿卡纳22张牌库 ==========
+        const TAROT_DECK = [
+            { id:0,  nameCN:'愚者',  nameEN:'The Fool',      keywords:['新的开始','自由','冒险'], meaning:'今天是适合跳出舒适圈的一天。保持好奇心，未知中藏着惊喜。' },
+            { id:1,  nameCN:'魔术师', nameEN:'The Magician',   keywords:['创造力','自信','行动力'], meaning:'你拥有把想法变为现实的能力。相信自己的双手，今天效率超高。' },
+            { id:2,  nameCN:'女祭司', nameEN:'The High Priestess', keywords:['直觉','静思','内在智慧'], meaning:'今天适合相信直觉多过逻辑。安静独处能帮你找到答案。' },
+            { id:3,  nameCN:'女皇',  nameEN:'The Empress',    keywords:['丰盛','美感','滋养'], meaning:'今天是被好运包围的一天。适合享受美食、打理外表，好好爱自己。' },
+            { id:4,  nameCN:'皇帝',  nameEN:'The Emperor',    keywords:['掌控','秩序','领导力'], meaning:'今天适合做决策、定计划。你的理性头脑在线，别浪费这个好状态。' },
+            { id:5,  nameCN:'教皇',  nameEN:'The Hierophant',  keywords:['传统','指引','学习'], meaning:'今天适合请教前辈或查阅资料。虚心学习会为你打开新大门。' },
+            { id:6,  nameCN:'恋人',  nameEN:'The Lovers',     keywords:['爱情','选择','和谐'], meaning:'今天人际关系和谐，适合表达情感。如果面临选择，跟着心走。' },
+            { id:7,  nameCN:'战车',  nameEN:'The Chariot',    keywords:['意志','胜利','前进'], meaning:'今天战斗力拉满！设定好目标就全力冲刺，没什么能阻挡你。' },
+            { id:8,  nameCN:'力量',  nameEN:'Strength',       keywords:['勇气','耐心','柔韧'], meaning:'真正的力量来自内心的柔软与坚持。今天用善意化解矛盾吧。' },
+            { id:9,  nameCN:'隐士',  nameEN:'The Hermit',     keywords:['独处','反思','内省'], meaning:'今天适合给自己按下暂停键。独处不是孤独，是充电。' },
+            { id:10, nameCN:'命运之轮', nameEN:'Wheel of Fortune', keywords:['转折','机遇','命运'], meaning:'今天可能会有意外之喜。保持开放心态，转机就在转角处。' },
+            { id:11, nameCN:'正义',  nameEN:'Justice',        keywords:['公平','真相','因果'], meaning:'今天适合处理需要公正判断的事。你的决定会被看见并尊重。' },
+            { id:12, nameCN:'倒吊人', nameEN:'The Hanged Man',  keywords:['放下','换个角度','等待'], meaning:'今天不宜强求。换个角度看问题，答案会自己浮现。' },
+            { id:13, nameCN:'死神',  nameEN:'Death',          keywords:['结束','蜕变','新生'], meaning:'今天适合和过去的纠结告别。结束是另一种开始，别怕。' },
+            { id:14, nameCN:'节制',  nameEN:'Temperance',     keywords:['平衡','耐心','调和'], meaning:'今天适合中庸之道。过犹不及，找到那个舒适的节奏。' },
+            { id:15, nameCN:'恶魔',  nameEN:'The Devil',      keywords:['诱惑','束缚','觉醒'], meaning:'今天要警惕惯性思维和不良诱惑。觉察即解脱。' },
+            { id:16, nameCN:'塔',    nameEN:'The Tower',      keywords:['突变','破旧立新','觉醒'], meaning:'今天可能会有突发状况，但破而后立，反而是转机的开始。' },
+            { id:17, nameCN:'星星',  nameEN:'The Star',       keywords:['希望','灵感','治愈'], meaning:'今天是充满希望的一天。相信明天会更好，这份信念本身就是力量。' },
+            { id:18, nameCN:'月亮',  nameEN:'The Moon',       keywords:['迷惑','潜意识','直觉'], meaning:'今天事情未必如表面所见。别急着下结论，让真相慢慢浮现。' },
+            { id:19, nameCN:'太阳',  nameEN:'The Sun',        keywords:['快乐','成功','活力'], meaning:'今天运气超好！阳光心态会吸引更多好事发生，尽情享受吧。' },
+            { id:20, nameCN:'审判',  nameEN:'Judgement',      keywords:['觉醒','召唤','复盘'], meaning:'今天适合复盘过去、做出决断。那个被你搁置的决定，是时候面对了。' },
+            { id:21, nameCN:'世界',  nameEN:'The World',      keywords:['圆满','达成','旅行'], meaning:'今天是大功告成的一天！为自己鼓掌，然后准备迎接下一个篇章。' },
+        ];
+
+        const LUCKY_COLORS = ['金色','紫色','蓝色','绿色','红色','白色','银色','橙色','粉色','青色'];
+        const LUCKY_TIMES = ['卯时(5-7点)','辰时(7-9点)','巳时(9-11点)','午时(11-13点)','未时(13-15点)','申时(15-17点)','酉时(17-19点)','戌时(19-21点)'];
+        const LUCKY_DIRECTIONS = ['正东','正南','正西','正北','东南','西南','东北','西北'];
+        const DO_LIST_POOL = [
+            ['表白','签约','出行','学习','运动','整理','联络老友','尝试新餐厅','晒太阳','写日记',
+             '种植物','听音乐','帮别人一个忙','早退休息','喝足够的水','深呼吸冥想','清理手机相册','发一条真诚的消息'],
+            ['投资','争吵','熬夜','做重大决定','借大笔钱','开始新恋情','签长期合同','搬家','动手术','远行'],
+        ];
+        const ADVICE_POOL = [
+            '今天的你比昨天更接近想要的生活，别停。',
+            '一杯热茶，一首好歌，今天就是好日子。',
+            '把手机放下半小时，看看窗外，你会发现今天其实不错。',
+            '对陌生人也温柔一点吧，善意的涟漪会回到你身上。',
+            '今天的你有一种特别的魅力，别浪费，去见想见的人。',
+            '如果今天感觉累了，那就早点休息。努力的你也值得被温柔对待。',
+            '意外的小插曲可能是今天最好的部分，放轻松。',
+            '今天适合做那件你一直拖延的事，做完了你会感谢自己。',
+        ];
+
+        const todayStr = () => new Date().toISOString().slice(0,10);
+
+        // ========== 基于日期的伪随机（保证同一天结果一致）==========
+        function daySeedRandom(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = ((hash << 5) - hash) + str.charCodeAt(i);
+                hash |= 0;
+            }
+            return Math.abs(hash);
+        }
+        function seededPick(arr, seed, offset=0) {
+            return arr[(seed + offset) % arr.length];
+        }
+
+        // ========== 获取今日运势（基于日期，保证一致性）==========
+        function getTodaysFortune() {
+            const seed = daySeedRandom(todayStr());
+            const card = TAROT_DECK[seed % TAROT_DECK.length];
+            const luckyColor = seededPick(LUCKY_COLORS, seed, 1);
+            const luckyNumber = ((seed % 9) + 1);
+            const luckyTime = seededPick(LUCKY_TIMES, seed, 2);
+            const luckyDirection = seededPick(LUCKY_DIRECTIONS, seed, 3);
+            const advice = seededPick(ADVICE_POOL, seed, 4);
+
+            // 宜忌：从牌意推导
+            const doPool = DO_LIST_POOL[0];
+            const dontPool = DO_LIST_POOL[1];
+            const doItems = [doPool[(seed+0)%doPool.length], doPool[(seed+3)%doPool.length], doPool[(seed+7)%doPool.length]];
+            const dontItems = [dontPool[(seed+1)%dontPool.length], dontPool[(seed+4)%dontPool.length]];
+
+            return { card, luckyColor, luckyNumber, luckyTime, luckyDirection, advice, doItems, dontItems };
+        }
+
+        // ========== LocalStorage 管理 ==========
+        function getRecord() {
+            try {
+                return JSON.parse(localStorage.getItem('fortune_record') || '{}');
+            } catch { return {}; }
+        }
+        function saveRecord(data) {
+            localStorage.setItem('fortune_record', JSON.stringify(data));
+        }
+
+        // ========== 初始化 ==========
+        let soundEnabled = localStorage.getItem('fortune_sound') !== 'off';
+
+        function init() {
+            // 显示日期
+            const now = new Date();
+            const weekDays = ['日','一','二','三','四','五','六'];
+            document.getElementById('today-date').textContent =
+                `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 星期${weekDays[now.getDay()]}`;
+
+            // 音效开关
+            if (soundEnabled) document.getElementById('sound-toggle').classList.add('active');
+
+            const record = getRecord();
+
+            if (record.date === todayStr() && record.fortune) {
+                // 今日已抽
+                showResult(record.fortune, false);
+                document.getElementById('draw-hint').classList.add('hidden');
+                document.getElementById('already-drawn').classList.remove('hidden');
+            }
+
+            // 显示历史
+            renderHistory();
+        }
+
+        // ========== 抽卡 ==========
+        function drawCard() {
+            const record = getRecord();
+
+            // 限抽检查
+            if (record.date === todayStr() && record.fortune) {
+                return; // 已抽过，不允许再抽
+            }
+
+            const fortune = getTodaysFortune();
+
+            // 翻牌动画
+            const inner = document.getElementById('card-inner');
+            const deck = document.getElementById('card-deck');
+
+            // 禁用点击
+            deck.style.pointerEvents = 'none';
+
+            // 音效
+            if (soundEnabled) {
+                const audio = document.getElementById('flip-sound');
+                audio.currentTime = 0;
+                audio.play().catch(()=>{});
+            }
+
+            // 填充卡面
+            const card = fortune.card;
+            document.getElementById('card-front').innerHTML = `
+                <div class="card-number">NO.${String(card.id).padStart(2,'0')}</div>
+                <div class="card-name-cn">${card.nameCN}</div>
+                <div class="card-name-en">${card.nameEN}</div>
+                <div class="card-divider"></div>
+                <div class="card-meaning">${card.meaning}</div>
+                <div class="card-keywords">
+                    ${card.keywords.map(k => `<span class="card-keyword">${k}</span>`).join('')}
+                </div>
+            `;
+
+            // 翻牌
+            inner.classList.add('flipped');
+
+            // 保存记录
+            record.date = todayStr();
+            record.fortune = fortune;
+            saveRecord(record);
+
+            // 显示结果（延迟，等翻牌动画）
+            setTimeout(() => {
+                showResult(fortune, true);
+                deck.style.pointerEvents = 'none'; // 保持不可点击
+                document.getElementById('draw-hint').classList.add('hidden');
+                renderHistory();
+            }, 900);
+        }
+
+        // ========== 显示结果 ==========
+        function showResult(fortune, animate) {
+            document.getElementById('result-section').classList.remove('hidden');
+            if (animate) document.getElementById('result-section').classList.add('fade-in');
+
+            document.getElementById('lucky-color').textContent = fortune.luckyColor;
+            document.getElementById('lucky-number').textContent = fortune.luckyNumber;
+            document.getElementById('lucky-time').textContent = fortune.luckyTime;
+            document.getElementById('lucky-direction').textContent = fortune.luckyDirection;
+            document.getElementById('advice-text').textContent = fortune.advice;
+
+            document.getElementById('do-list').innerHTML =
+                fortune.doItems.map(i => `<span class="do-dont-tag do-tag">${i}</span>`).join('');
+            document.getElementById('dont-list').innerHTML =
+                fortune.dontItems.map(i => `<span class="do-dont-tag dont-tag">${i}</span>`).join('');
+        }
+
+        // ========== 渲染历史 ==========
+        function renderHistory() {
+            const record = getRecord();
+            if (!record.history || record.history.length === 0) {
+                document.getElementById('history-section').classList.add('hidden');
+                return;
+            }
+            document.getElementById('history-section').classList.remove('hidden');
+            const container = document.getElementById('history-list');
+            container.innerHTML = record.history.slice(-7).reverse().map(h => {
+                const card = TAROT_DECK.find(c => c.id === h.cardId) || TAROT_DECK[0];
+                return `
+                    <div class="history-card">
+                        <div class="day-label">${h.date}</div>
+                        <div class="card-name">${card.nameCN}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ========== 保存历史（在抽卡后调用）==========
+        // 已集成到 drawCard 的 saveRecord 中，这里补充历史记录逻辑
+        // 重写 saveRecord 逻辑：
+        (function patchHistory() {
+            const _origGetRecord = getRecord;
+            // 在 drawCard 成功后将今日记录加入 history
+        })();
+
+        // 在 init 前补丁：抽卡后写入 history
+        const _origSaveRecord = saveRecord;
+        // 直接在 drawCard 里处理
+
+        // ========== 分享截图 ==========
+        function shareCard() {
+            const fortune = getRecord().fortune;
+            if (!fortune) return;
+
+            const card = fortune.card;
+            const shareEl = document.createElement('div');
+            shareEl.style.cssText = 'position:fixed;top:-9999px;left:-9999px;';
+            shareEl.innerHTML = `
+                <div id="share-card" style="
+                    width:340px;
+                    background:linear-gradient(135deg,#1e1b4b,#0f172a);
+                    border:1px solid rgba(245,158,11,0.5);
+                    border-radius:16px;
+                    padding:28px 20px;
+                    font-family:'Segoe UI',sans-serif;
+                    color:#e2e8f0;
+                    box-sizing:border-box;
+                ">
+                    <div style="text-align:center;margin-bottom:16px;">
+                        <div style="font-size:0.8rem;color:#f59e0b;letter-spacing:0.1em;">TAROT OF THE DAY</div>
+                        <div style="font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,#fbbf24,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:6px 0 2px;">
+                            ${card.nameCN}
+                        </div>
+                        <div style="font-size:0.7rem;color:#94a3b8;">${card.nameEN} · NO.${String(card.id).padStart(2,'0')}</div>
+                    </div>
+                    <div style="width:60%;height:1px;background:linear-gradient(90deg,transparent,#f59e0b,transparent);margin:10px auto;"></div>
+                    <div style="font-size:0.78rem;color:#cbd5e1;line-height:1.7;text-align:center;margin:8px 0;">
+                        ${card.meaning}
+                    </div>
+                    <div style="display:flex;justify-content:center;gap:6px;margin:8px 0 12px;">
+                        ${card.keywords.map(k=>`<span style="font-size:0.68rem;padding:2px 8px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);border-radius:12px;color:#fbbf24;">${k}</span>`).join('')}
+                    </div>
+                    <div style="display:flex;justify-content:space-around;font-size:0.72rem;color:#94a3b8;margin-top:10px;">
+                        <span>🎨 ${fortune.luckyColor}</span>
+                        <span>🔢 ${fortune.luckyNumber}</span>
+                    </div>
+                    <div style="text-align:center;font-size:0.65rem;color:#64748b;margin-top:14px;">
+                        ${todayStr()} · 蘿岚工具箱
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(shareEl);
+
+            // 使用 canvas 截图
+            if (window.html2canvas) {
+                html2canvas(shareEl.firstElementChild).then(canvas => {
+                    canvas.toBlob(blob => {
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `今日运势_${todayStr()}.png`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                    });
+                    document.body.removeChild(shareEl);
+                });
+            } else {
+                // 动态加载 html2canvas
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+                script.onload = () => {
+                    html2canvas(shareEl.firstElementChild).then(canvas => {
+                        canvas.toBlob(blob => {
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `今日运势_${todayStr()}.png`;
+                            a.click();
+                            URL.revokeObjectURL(url);
+                        });
+                        document.body.removeChild(shareEl);
+                    });
+                };
+                document.head.appendChild(script);
+            }
+        }
+
+        // ========== 音效开关 ==========
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('sound-toggle').classList.toggle('active', soundEnabled);
+            localStorage.setItem('fortune_sound', soundEnabled ? 'on' : 'off');
+        }
+
+        // ========== 侧边栏 ==========
+        function toggleSidebar() {
+            const sb = document.getElementById('sidebar');
+            const ov = document.getElementById('sidebar-overlay');
+            const open = sb.style.transform === 'translateX(0px)' || sb.getBoundingClientRect().left === 0;
+            if (open) {
+                sb.style.transform = 'translateX(-100%)';
+                ov.classList.remove('show');
+            } else {
+                sb.style.transform = 'translateX(0)';
+                ov.classList.add('show');
+            }
+        }
+
+        // ========== 补丁：drawCard 里保存历史记录 ==========
+        // 重写 saveRecord 部分，在 drawCard 成功时追加 history
+        const _realDrawCard = drawCard;
+        // 直接修改 drawCard 函数内的逻辑（上面已经内联了）
+        // 需要确保 history 被保存
+
+        // 在页面加载后补丁 saveRecord
+        window.addEventListener('DOMContentLoaded', () => {
+            // 重写：抽卡后把记录加入 history
+            const origDrawCard = drawCard;
+            // 已经用内联方式处理了，这里补充 history 逻辑
+        });
+
+        // 简化：直接在 init 前注入 history 保存逻辑
+        (function fixHistorySave() {
+            const _origGetRecord = getRecord;
+            // 劫持：在 drawCard 超时回调里保存 history
+            // 直接在 drawCard 函数里改更可靠，这里用另一种方式：
+        })();
+
+        // 直接重写：在 drawCard 的 setTimeout 内加入 history 保存
+        // 由于函数已经定义，我们在 init 后重新绑定
+        setTimeout(() => {
+            // 给 drawCard 打补丁（通过重写 onclick）
+            const deck = document.getElementById('card-deck');
+            if (deck) {
+                deck.onclick = function() {
+                    const record = getRecord();
+                    if (record.date === todayStr() && record.fortune) return;
+
+                    const fortune = getTodaysFortune();
+                    const inner = document.getElementById('card-inner');
+                    const deckEl = document.getElementById('card-deck');
+                    deckEl.style.pointerEvents = 'none';
+
+                    if (soundEnabled) {
+                        const audio = document.getElementById('flip-sound');
+                        audio.currentTime = 0;
+                        audio.play().catch(()=>{});
+                    }
+
+                    const card = fortune.card;
+                    document.getElementById('card-front').innerHTML = `
+                        <div class="card-number">NO.${String(card.id).padStart(2,'0')}</div>
+                        <div class="card-name-cn">${card.nameCN}</div>
+                        <div class="card-name-en">${card.nameEN}</div>
+                        <div class="card-divider"></div>
+                        <div class="card-meaning">${card.meaning}</div>
+                        <div class="card-keywords">
+                            ${card.keywords.map(k => `<span class="card-keyword">${k}</span>`).join('')}
+                        </div>
+                    `;
+                    inner.classList.add('flipped');
+
+                    // 保存（含 history）
+                    record.date = todayStr();
+                    record.fortune = fortune;
+                    if (!record.history) record.history = [];
+                    // 去重（同一天不重复添加）
+                    if (!record.history.find(h => h.date === todayStr())) {
+                        record.history.push({ date: todayStr(), cardId: card.id });
+                        if (record.history.length > 7) record.history = record.history.slice(-7);
+                    }
+                    saveRecord(record);
+
+                    setTimeout(() => {
+                        showResult(fortune, true);
+                        document.getElementById('draw-hint').classList.add('hidden');
+                        renderHistory();
+                    }, 900);
+                };
+            }
+        }, 0);
+
+        init();
+    </script>
+</body>
+</html>

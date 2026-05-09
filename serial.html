@@ -34,6 +34,38 @@
             color: #e2e8f0;
         }
 
+        /* ========== d6 自定义骰子图标（暗色主题） ========== */
+        .dice-icon-6 {
+            position: relative;
+            display: inline-flex;
+            width: 1.5rem;
+            height: 1.5rem;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 0.25rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 2px rgba(255,255,255,0.2);
+            flex-shrink: 0;
+        }
+        .dice-icon-6::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%);
+            border-radius: 0.25rem;
+        }
+        .dice-icon-6 .dot {
+            position: absolute;
+            width: 0.28rem;
+            height: 0.28rem;
+            background: #e2e8f0;
+            border-radius: 50%;
+        }
+        .dice-icon-6 .dot:nth-child(1) { top: 0.18rem; left: 0.18rem; }
+        .dice-icon-6 .dot:nth-child(2) { top: 0.18rem; right: 0.18rem; }
+        .dice-icon-6 .dot:nth-child(3) { top: 50%; left: 0.18rem; transform: translateY(-50%); }
+        .dice-icon-6 .dot:nth-child(4) { top: 50%; right: 0.18rem; transform: translateY(-50%); }
+        .dice-icon-6 .dot:nth-child(5) { bottom: 0.18rem; left: 0.18rem; }
+        .dice-icon-6 .dot:nth-child(6) { bottom: 0.18rem; right: 0.18rem; }
+
         /* ========== 侧边栏（暗色主题） ========== */
         .sidebar-overlay {
             position: fixed; inset: 0;
@@ -336,15 +368,13 @@
         </a>
         <div style="height:1px; background:rgba(0,0,0,0.08); margin:0.5rem 0;"></div>
         <a href="dice.html">
-            <i class="fa fa-dice"></i><span>骰子游戏</span>
+            <span class="dice-icon-6"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></span><span>骰子游戏</span>
         </a>
         <a href="serial.html" class="active">
             <i class="fa fa-plug"></i><span>串口调试</span>
         </a>
         <a href="verilog.html">
             <i class="fa fa-microchip"></i><span>Verilog 速查</span>
-        </a>
-            <i class="fa fa-plug"></i><span>串口调试</span>
         </a>
     </div>
     <div class="sidebar-footer">
