@@ -28,34 +28,46 @@
     
     <style>
         * { box-sizing: border-box; }
-        
+
         body {
-            background: linear-gradient(135deg, #f0f4f8 0%, #e8edf2 50%, #f0f4f8 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 40%, #0f172a 100%);
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #e2e8f0;
         }
-        
-        /* ========== 导航栏 ========== */
-        .nav-link {
-            position: relative;
-            transition: color 0.3s ease;
+
+        /* ========== 顶部导航栏 ========== */
+        .top-nav {
+            background: rgba(15,23,42,0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(99,102,241,0.2);
         }
-        
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: #91A3B0;
-            transition: width 0.3s ease;
+        .nav-brand {
+            background: linear-gradient(135deg, #818cf8, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        
-        .nav-link:hover::after {
-            width: 100%;
+        .nav-dropdown {
+            background: rgba(30,41,59,0.97);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(99,102,241,0.2);
+            border-radius: 0.75rem;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.4);
         }
-        
+        .nav-dropdown a {
+            transition: all 0.2s ease;
+            border-radius: 0.5rem;
+        }
+        .nav-dropdown a:hover {
+            background: rgba(99,102,241,0.15);
+            color: #a5b4fc !important;
+        }
+        .nav-dropdown a.active-link {
+            background: rgba(99,102,241,0.2);
+            color: #818cf8 !important;
+        }
+
         /* ========== 骰子类型卡片 ========== */
         .dice-type-card {
             transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -323,38 +335,27 @@
     </style>
 </head>
 <body>
-    <!-- 导航栏 -->
-    <nav class="bg-white/90 backdrop-blur-sm shadow-sm sticky top-0 z-50">
+    <!-- 顶部导航栏 -->
+    <nav class="top-nav sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <a href="index.html" class="flex items-center space-x-2">
-                <i class="fa fa-dice text-primary text-2xl"></i>
-                <span class="text-xl font-bold text-dark">蘿嵐的博客</span>
+                <i class="fa fa-wrench text-2xl" style="color:#818cf8;"></i>
+                <span class="text-xl font-bold" style="color:#e2e8f0;">蘿岚工具箱</span>
             </a>
-            
             <div class="hidden md:flex space-x-6">
-                <a href="index.html" class="nav-link text-dark hover:text-primary transition-colors">首页</a>
-                <a href="passage.html" class="nav-link text-dark hover:text-primary transition-colors">记事簿</a>
-                <a href="music.html" class="nav-link text-dark hover:text-primary transition-colors">音乐馆</a>
-                <a href="note.html" class="nav-link text-dark hover:text-primary transition-colors">日记</a>
-                <a href="photos.html" class="nav-link text-dark hover:text-primary transition-colors">摄影集</a>
-                <a href="dice.html" class="nav-link text-primary font-medium">骰子游戏</a>
+                <a href="index.html"  class="nav-link" style="color:#94a3b8;">首页</a>
+                <a href="dice.html"  class="nav-link" style="color:#818cf8; font-weight:600;">骰子游戏</a>
+                <a href="serial.html" class="nav-link" style="color:#94a3b8;">串口调试</a>
             </div>
-            
-            <!-- 移动端菜单按钮 -->
-            <button id="menu-toggle" class="md:hidden text-dark text-2xl focus:outline-none">
+            <button id="menu-toggle" class="md:hidden text-2xl focus:outline-none" style="color:#94a3b8;">
                 <i class="fa fa-bars"></i>
             </button>
         </div>
-        
-        <!-- 移动端菜单 -->
-        <div id="mobile-menu" class="md:hidden hidden bg-white/95 backdrop-blur-sm border-t">
+        <div id="mobile-menu" class="hidden md:hidden" style="background:rgba(15,23,42,0.95); border-top:1px solid rgba(99,102,241,0.2);">
             <div class="container mx-auto px-4 py-2 flex flex-col">
-                <a href="index.html" class="py-3 border-b nav-link text-dark">首页</a>
-                <a href="passage.html" class="py-3 border-b nav-link text-dark">记事簿</a>
-                <a href="music.html" class="py-3 border-b nav-link text-dark">音乐馆</a>
-                <a href="note.html" class="py-3 border-b nav-link text-dark">日记</a>
-                <a href="photos.html" class="py-3 border-b nav-link text-dark">摄影集</a>
-                <a href="dice.html" class="py-3 nav-link text-primary font-medium">骰子游戏</a>
+                <a href="index.html"  class="py-3 border-b" style="color:#94a3b8;">首页</a>
+                <a href="dice.html"  class="py-3 border-b" style="color:#818cf8; font-weight:600;">骰子游戏</a>
+                <a href="serial.html" class="py-3" style="color:#94a3b8;">串口调试</a>
             </div>
         </div>
     </nav>

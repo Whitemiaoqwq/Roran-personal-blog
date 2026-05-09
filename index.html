@@ -396,10 +396,46 @@
             position: relative;
             z-index: 10;
         }
+
+        /* ========== 顶部导航栏（蘿岚工具箱） ========== */
+        .top-nav {
+            background: linear-gradient(135deg, rgba(15,23,42,0.92), rgba(30,27,75,0.92));
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(99,102,241,0.2);
+        }
+        .nav-link { transition: color 0.2s ease; }
+        .nav-link:hover { color: #c7d2fe !important; }
+        #mobile-menu a { transition: color 0.2s ease; }
+        #mobile-menu a:hover { color: #c7d2fe !important; }
     </style>
 </head>
 
 <body class="font-cute text-dark">
+
+    <!-- 顶部导航栏 -->
+    <nav class="top-nav sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="index.html" class="flex items-center space-x-2">
+                <i class="fa fa-wrench text-2xl" style="color:#818cf8;"></i>
+                <span class="text-xl font-bold" style="color:#e2e8f0;">蘿岚工具箱</span>
+            </a>
+            <div class="hidden md:flex space-x-6">
+                <a href="index.html"  class="nav-link" style="color:#818cf8; font-weight:600;">首页</a>
+                <a href="dice.html"  class="nav-link" style="color:#94a3b8;">骰子游戏</a>
+                <a href="serial.html" class="nav-link" style="color:#94a3b8;">串口调试</a>
+            </div>
+            <button id="menu-toggle" class="md:hidden text-2xl focus:outline-none" style="color:#94a3b8;" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+                <i class="fa fa-bars"></i>
+            </button>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden" style="background:rgba(15,23,42,0.95); border-top:1px solid rgba(99,102,241,0.2);">
+            <div class="container mx-auto px-4 py-2 flex flex-col">
+                <a href="index.html"  class="py-3 border-b" style="color:#818cf8; font-weight:600;" onclick="document.getElementById('mobile-menu').classList.add('hidden')">首页</a>
+                <a href="dice.html"  class="py-3 border-b" style="color:#94a3b8;" onclick="document.getElementById('mobile-menu').classList.add('hidden')">骰子游戏</a>
+                <a href="serial.html" class="py-3" style="color:#94a3b8;" onclick="document.getElementById('mobile-menu').classList.add('hidden')">串口调试</a>
+            </div>
+        </div>
+    </nav>
 
     <!-- 页面加载遮罩 -->
     <div id="page-loader">
