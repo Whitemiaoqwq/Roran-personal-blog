@@ -784,8 +784,10 @@
             if (!fortune) return;
 
             const card = fortune.card;
+
+            // 用 opacity:0 且放在屏幕左侧（保证 html2canvas 能渲染到内容）
             const shareEl = document.createElement('div');
-            shareEl.style.cssText = 'position:fixed;top:0;left:0;visibility:hidden;pointer-events:none;';
+            shareEl.style.cssText = 'position:fixed;top:0;left:-4000px;opacity:0;pointer-events:none;z-index:-1;';
             shareEl.innerHTML = `
                 <div id="share-card" style="
                     width:340px;
@@ -816,42 +818,45 @@
                         <span>🔢 ${fortune.luckyNumber}</span>
                     </div>
                     <div style="text-align:center;font-size:0.65rem;color:#64748b;margin-top:14px;">
-                        ${todayStr()} · 蘿岚工具箱
+                        ${todayStr()} · 蘿嵐工具箱
                     </div>
                 </div>
             `;
             document.body.appendChild(shareEl);
 
-            // 使用 canvas 截图
-            if (window.html2canvas) {
-                html2canvas(shareEl.firstElementChild).then(canvas => {
+            const targetEl = shareEl.firstElementChild;
+
+            function doCapture() {
+                html2canvas(targetEl, {
+                    backgroundColor: null,
+                    scale: 2,
+                    useCORS: true,
+                }).then(canvas => {
                     canvas.toBlob(blob => {
+                        if (!blob) return;
                         const url = URL.createObjectURL(blob);
                         const a = document.createElement('a');
                         a.href = url;
                         a.download = `今日运势_${todayStr()}.png`;
+                        document.body.appendChild(a);
                         a.click();
+                        document.body.removeChild(a);
                         URL.revokeObjectURL(url);
-                    });
+                        // 等下载触发后再移除 DOM
+                        setTimeout(() => document.body.removeChild(shareEl), 300);
+                    }, 'image/png');
+                }).catch(() => {
                     document.body.removeChild(shareEl);
                 });
+            }
+
+            if (window.html2canvas) {
+                doCapture();
             } else {
-                // 动态加载 html2canvas
                 const script = document.createElement('script');
                 script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
-                script.onload = () => {
-                    html2canvas(shareEl.firstElementChild).then(canvas => {
-                        canvas.toBlob(blob => {
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = `今日运势_${todayStr()}.png`;
-                            a.click();
-                            URL.revokeObjectURL(url);
-                        });
-                        document.body.removeChild(shareEl);
-                    });
-                };
+                script.onload = doCapture;
+                script.onerror = () => { document.body.removeChild(shareEl); };
                 document.head.appendChild(script);
             }
         }
