@@ -570,8 +570,10 @@
         const todayStr = () => new Date().toISOString().slice(0,10);
 
         let isOpened = false;
+        let isAnimating = false;   // 防止动画重叠
         let currentAnswer = '';
         let currentPage = '';
+        let resetClickTimes = [];  // 记录"再问一次"点击时间戳
 
         // ========== LocalStorage ==========
         function getRecord() {
@@ -633,6 +635,22 @@
 
         // ========== 重置（不清除记录，只是动画重播）==========
         function resetBook() {
+            const now = Date.now();
+
+            // —— 连续点击检测：2秒内点击3次触发彩蛋 ——
+            resetClickTimes.push(now);
+            // 只保留2秒内的点击
+            resetClickTimes = resetClickTimes.filter(ts => now - ts < 2000);
+            if (resetClickTimes.length >= 3) {
+                resetClickTimes = [];  // 重置计数
+                triggerEasterEgg();
+                return;
+            }
+
+            // —— 正常流程：防止动画重叠 ——
+            if (isAnimating) return;
+            isAnimating = true;
+
             const cover = document.getElementById('book-cover');
             const page = document.getElementById('book-page');
 
@@ -640,8 +658,42 @@
             cover.classList.remove('open');
 
             setTimeout(() => {
-                isOpened = false; // 重置标志，允许再次翻书
+                isOpened = false;
+                isAnimating = false;
                 openBook();
+            }, 500);
+        }
+
+        // ========== 彩蛋：连续快速点击触发 ==========
+        function triggerEasterEgg() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const cover = document.getElementById('book-cover');
+            const page = document.getElementById('book-page');
+
+            // 先合上书
+            page.classList.remove('show');
+            cover.classList.remove('open');
+
+            setTimeout(() => {
+                // 显示彩蛋答案
+                currentAnswer = "#error code = RORAN : 这是一个彩蛋！";
+                currentPage = "???";
+
+                document.getElementById('page-number').textContent = `第 ${currentPage} 页`;
+                document.getElementById('answer-text').textContent = currentAnswer;
+
+                cover.classList.add('open');
+                setTimeout(() => {
+                    page.classList.add('show');
+                    isOpened = true;
+                    isAnimating = false;
+
+                    // 显示按钮
+                    document.getElementById('click-hint').classList.add('hidden');
+                    document.getElementById('action-buttons').classList.remove('hidden');
+                }, 400);
             }, 500);
         }
 
