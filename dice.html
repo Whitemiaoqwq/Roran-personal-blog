@@ -737,26 +737,40 @@
             const results = [];
             let total = 0;
             
-            // 先播放射击动画
+            // 先计算每个骰子的点数
+            dicePool.forEach(dice => {
+                let result;
+                if (dice.type === 'd10x10') {
+                    result = Math.floor(Math.random() * 10) * 10;
+                } else {
+                    result = Math.floor(Math.random() * dice.sides) + 1;
+                }
+                results.push({
+                    type: dice.name,
+                    sides: dice.sides,
+                    result: result,
+                    color: dice.color,
+                    id: dice.id,
+                    diceType: dice.type
+                });
+                total += result;
+            });
+            
+            // 把点数写入骰子池对应的DOM元素
+            const poolEl = document.getElementById('dice-pool');
+            const wrappers = poolEl.querySelectorAll('.dice-wrapper');
+            wrappers.forEach((wrapper, i) => {
+                const diceEl = wrapper.querySelector('.dice-3d');
+                if (diceEl && results[i]) {
+                    diceEl.dataset.result = results[i].result;
+                    diceEl.dataset.type = results[i].diceType;
+                }
+            });
+            
+            // 再播动画（动画结束时会读取 dataset.result）
             animateDiceRolling();
             
             setTimeout(() => {
-                dicePool.forEach(dice => {
-                    let result;
-                    if (dice.type === 'd10x10') {
-                        result = Math.floor(Math.random() * 10) * 10;
-                    } else {
-                        result = Math.floor(Math.random() * dice.sides) + 1;
-                    }
-                    results.push({
-                        type: dice.name,
-                        sides: dice.sides,
-                        result: result,
-                        color: dice.color
-                    });
-                    total += result;
-                });
-                
                 const finalTotal = total + modifier;
                 displayRollResults(results, total, finalTotal);
                 addToHistory(results, total, finalTotal);
@@ -769,12 +783,31 @@
             }, 1200);
         }
         
+        // D6骰子：点数 -> 最终旋转角度（让对应点数的面朝前）
+        // 面定义：face-1前(0,0) face-2后(180,0) face-3左(-90,0) face-4右(90,0) face-5上(0,90) face-6下(0,-90)
+        // 要让某面朝前，容器需取相反角度
+        const d6Rotations = {
+            1: 'rotateY(0deg) rotateX(0deg)',      // 面1朝前
+            6: 'rotateY(180deg) rotateX(0deg)',    // 面2朝前（点数6）
+            3: 'rotateY(90deg) rotateX(0deg)',     // 面3朝前（点数3）
+            4: 'rotateY(-90deg) rotateX(0deg)',    // 面4朝前（点数4）
+            2: 'rotateY(0deg) rotateX(-90deg)',     // 面5朝前（点数2）
+            5: 'rotateY(0deg) rotateX(90deg)'      // 面6朝前（点数5）
+        };
+        
         function animateDiceRolling() {
             const poolEl = document.getElementById('dice-pool');
             const diceEls = poolEl.querySelectorAll('.dice-3d');
             diceEls.forEach(el => {
                 el.classList.add('rolling');
-                el.style.setProperty('--final-rotation', 'rotateX(0deg) rotateY(0deg)');
+                // 实际点数存在 el.dataset.result 里
+                const result = parseInt(el.dataset.result) || 1;
+                const type = el.dataset.type || 'D6';
+                if (type === 'D6' && d6Rotations[result]) {
+                    el.style.setProperty('--final-rotation', d6Rotations[result]);
+                } else {
+                    el.style.setProperty('--final-rotation', 'rotateX(0deg) rotateY(0deg)');
+                }
             });
             
             setTimeout(() => {
