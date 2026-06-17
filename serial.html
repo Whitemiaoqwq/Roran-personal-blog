@@ -157,8 +157,10 @@
             color: #91A3B0;
             font-weight: 600;
         }
-        .sidebar-nav a i { width: 1.5rem; text-align: center; font-size: 1rem; color: #91A3B0; }
-        .sidebar-nav a.active i { color: #A3B18A; }
+        .sidebar-nav a i,
+        .sidebar-nav a .sidebar-icon { width: 2rem; text-align: center; font-size: 1.1rem; color: #91A3B0; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .sidebar-nav a.active i,
+        .sidebar-nav a.active .sidebar-icon { color: #A3B18A; }
 
         .sidebar-footer {
             padding: 1rem;
@@ -392,10 +394,10 @@
             <i class="fa fa-microchip"></i><span>Verilog 速查</span>
         </a>
         <a href="fortune.html">
-            <span class="fortune-icon" style="color:#A3B18A;">◆</span><span>今日运势</span>
+            <span class="sidebar-icon" style="color:#A3B18A; font-size:1rem;">◆</span><span>今日运势</span>
         </a>
         <a href="answer-book.html">
-            <i class="fa fa-book" style="color:#91A3B0;"></i><span>答案之书</span>
+            <i class="fa fa-book" style="color:#A3B18A;"></i><span>答案之书</span>
         </a>
 
     </div>

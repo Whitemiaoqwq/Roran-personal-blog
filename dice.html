@@ -142,8 +142,10 @@
             color: #91A3B0;
             font-weight: 600;
         }
-        .sidebar-nav a i { width: 2rem; text-align: center; font-size: 1.1rem; color: #91A3B0; }
-        .sidebar-nav a.active i { color: #A3B18A; }
+        .sidebar-nav a i,
+        .sidebar-nav a .sidebar-icon { width: 2rem; text-align: center; font-size: 1.1rem; color: #91A3B0; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .sidebar-nav a.active i,
+        .sidebar-nav a.active .sidebar-icon { color: #A3B18A; }
         .sidebar-footer {
             padding: 1rem;
             border-top: 1px solid rgba(0,0,0,0.06);
@@ -247,7 +249,7 @@
         
         /* ========== 结果展示动画 ========== */
         .result-card {
-            animation: resultSlideIn 0.5s ease-out;
+            animation: resultLanding 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
             transition: all 0.3s ease;
         }
         
@@ -256,17 +258,24 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.1);
         }
         
-        @keyframes resultSlideIn {
+        @keyframes resultLanding {
             0% { 
                 opacity: 0; 
-                transform: translateY(20px) scale(0.8); 
+                transform: translateY(-25px) scale(0.5) rotate(-5deg); 
             }
-            60% { 
-                transform: translateY(-5px) scale(1.05); 
+            50% { 
+                opacity: 1;
+                transform: translateY(5px) scale(1.06) rotate(1deg); 
+            }
+            70% { 
+                transform: translateY(-3px) scale(0.98) rotate(-0.5deg); 
+            }
+            85% {
+                transform: translateY(1px) scale(1.01) rotate(0.2deg);
             }
             100% { 
                 opacity: 1; 
-                transform: translateY(0) scale(1); 
+                transform: translateY(0) scale(1) rotate(0deg); 
             }
         }
         
@@ -316,6 +325,22 @@
                 opacity: 0;
                 transform: scale(0) translateY(-50px);
             }
+        }
+
+        /* 增强粒子爆发 */
+        @keyframes particleBurst {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--dx), var(--dy)) scale(0.3);
+            }
+        }
+
+        .particle.burst {
+            animation: particleBurst 0.8s ease-out forwards;
         }
         
         /* ========== 扁平化骰子样式 ========== */
@@ -401,20 +426,126 @@
             100% { opacity: 1; transform: scale(1); }
         }
         
-        /* 投掷动画 - 扁平化弹跳 */
-        @keyframes diceBounce {
-            0% { transform: translateY(0) scale(1); }
-            15% { transform: translateY(-25px) scale(1.1); }
-            30% { transform: translateY(0) scale(0.95); }
-            45% { transform: translateY(-15px) scale(1.05); }
-            60% { transform: translateY(0) scale(0.98); }
-            75% { transform: translateY(-8px) scale(1.02); }
-            90% { transform: translateY(0) scale(0.99); }
-            100% { transform: translateY(0) scale(1); }
+        /* ========== 投掷动画增强（物理感重写） ========== */
+
+        /* 预投掷：手持摇晃感，前轻→中重→尾轻 */
+        @keyframes diceShake {
+            0%   { transform: translateX(0)   translateY(0)   rotate(0deg); }
+            10%  { transform: translateX(-2px) translateY(1px)  rotate(-2deg); }
+            20%  { transform: translateX(3px)  translateY(-1px) rotate(2deg); }
+            30%  { transform: translateX(-5px) translateY(1px)  rotate(-4deg); }
+            40%  { transform: translateX(5px)  translateY(-2px) rotate(5deg); }
+            50%  { transform: translateX(-4px) translateY(1px)  rotate(-3deg); }
+            60%  { transform: translateX(3px)  translateY(0)    rotate(2deg); }
+            70%  { transform: translateX(-2px) translateY(0)    rotate(-1deg); }
+            82%  { transform: translateX(1px)  translateY(0)    rotate(0.5deg); }
+            100% { transform: translateX(0)   translateY(0)    rotate(0deg); }
         }
-        
-        .dice-flat.rolling {
-            animation: diceBounce 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+        .dice-pool-item.pre-roll {
+            animation: diceShake 0.35s ease-in-out !important;
+        }
+
+        /* 投掷抛物线 + 旋转减速 */
+        @keyframes diceThrow {
+            0% {
+                transform: translateY(0) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1);
+            }
+            /* 出手加速段（0-18%）：快速上升，旋转最快 */
+            18% {
+                transform: translateY(-70px) rotateX(400deg) rotateY(200deg) rotateZ(100deg) scale(1.15);
+            }
+            /* 上升减速段（18-38%）：到达顶点附近，旋转明显变慢 */
+            38% {
+                transform: translateY(-105px) rotateX(800deg) rotateY(420deg) rotateZ(210deg) scale(1.2);
+            }
+            /* 下落加速段（38-65%）：重力加速，旋转继续但更慢 */
+            65% {
+                transform: translateY(-20px) rotateX(1080deg) rotateY(620deg) rotateZ(310deg) scale(1.05);
+            }
+            /* 第一次撞击（65-72%）：触地弹起 */
+            72% {
+                transform: translateY(0) rotateX(1180deg) rotateY(690deg) rotateZ(345deg) scale(0.95);
+            }
+            78% {
+                transform: translateY(-22px) rotateX(1240deg) rotateY(730deg) rotateZ(368deg) scale(1.02);
+            }
+            /* 第二次弹跳（78-86%）：高度减半 */
+            86% {
+                transform: translateY(0) rotateX(1290deg) rotateY(760deg) rotateZ(385deg) scale(0.98);
+            }
+            91% {
+                transform: translateY(-7px) rotateX(1315deg) rotateY(775deg) rotateZ(393deg) scale(1);
+            }
+            /* 第三次微弹 + 静止（91-100%） */
+            96% {
+                transform: translateY(0) rotateX(1330deg) rotateY(785deg) rotateZ(398deg) scale(1);
+            }
+            100% {
+                transform: translateY(0) rotateX(1340deg) rotateY(790deg) rotateZ(400deg) scale(1);
+            }
+        }
+
+        .dice-pool-item.rolling-3d {
+            animation: diceThrow 1.3s cubic-bezier(0.23, 0.01, 0.32, 1) !important;
+            z-index: 20;
+            position: relative;
+        }
+
+        /* 骰子池透视 */
+        #dice-pool.is-rolling {
+            perspective: 800px;
+            overflow: visible !important;
+        }
+
+        /* 屏幕震动：撞击感，短促有力 */
+        @keyframes screenShake {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            72% { transform: translateX(-3px) translateY(2px); }  /* 主撞击 */
+            78% { transform: translateX(2px) translateY(-1px); }
+            86% { transform: translateX(-1px) translateY(1px); }  /* 次撞击 */
+            93% { transform: translateX(1px) translateY(0); }
+        }
+
+        main.screen-shake {
+            animation: screenShake 0.7s ease-out;
+        }
+
+        /* 数字快速切换闪烁 */
+        @keyframes numberFlash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.35; }
+        }
+
+        .dice-label.cycling {
+            animation: numberFlash 0.08s ease-in-out infinite;
+        }
+
+        /* 骰子飞行阴影：随高度变化 */
+        .dice-shadow {
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 8px;
+            background: radial-gradient(ellipse, rgba(0,0,0,0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -1;
+            animation: shadowFly 1.3s cubic-bezier(0.23, 0.01, 0.32, 1);
+        }
+
+        @keyframes shadowFly {
+            0%   { transform: translateX(-50%) scaleX(1);   opacity: 0.25; }
+            18%  { transform: translateX(-50%) scaleX(1.6); opacity: 0.12; }
+            38%  { transform: translateX(-50%) scaleX(2.2); opacity: 0.05; }
+            65%  { transform: translateX(-50%) scaleX(1.4); opacity: 0.15; }
+            72%  { transform: translateX(-50%) scaleX(1);   opacity: 0.28; }
+            78%  { transform: translateX(-50%) scaleX(1.3); opacity: 0.1; }
+            86%  { transform: translateX(-50%) scaleX(1);   opacity: 0.22; }
+            91%  { transform: translateX(-50%) scaleX(1.1); opacity: 0.12; }
+            100% { transform: translateX(-50%) scaleX(1);   opacity: 0.25; }
         }
         
         /* 骰子类型选择器中的icon */
@@ -438,6 +569,94 @@
             font-weight: 700;
             color: white;
             text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        /* ========== 快速模式开关 ========== */
+        .quick-toggle-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 12px;
+            user-select: none;
+        }
+        .quick-toggle-wrap label {
+            font-size: 0.85rem;
+            color: #888;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .quick-toggle-wrap label.active {
+            color: #91A3B0;
+            font-weight: 600;
+        }
+        .quick-toggle {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            cursor: pointer;
+        }
+        .quick-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .quick-toggle .slider {
+            position: absolute;
+            inset: 0;
+            background: #d1d5db;
+            border-radius: 24px;
+            transition: background 0.3s;
+        }
+        .quick-toggle .slider::before {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            left: 3px;
+            top: 3px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+        .quick-toggle input:checked + .slider {
+            background: linear-gradient(135deg, #91A3B0, #A3B18A);
+        }
+        .quick-toggle input:checked + .slider::before {
+            transform: translateX(20px);
+        }
+
+        /* 快速模式大数字结果 */
+        .quick-result {
+            animation: quickPop 0.2s ease-out;
+        }
+        @keyframes quickPop {
+            0% { transform: scale(0.85); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .quick-result .quick-total {
+            font-size: 5rem;
+            font-weight: 900;
+            line-height: 1;
+            background: linear-gradient(135deg, #91A3B0, #A3B18A);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .quick-result .quick-detail {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .quick-result .quick-dice-chip {
+            font-size: 1.1rem;
+            font-weight: 700;
+            padding: 4px 14px;
+            border-radius: 999px;
+            color: #fff;
         }
     </style>
 </head>
@@ -468,7 +687,7 @@
                 <i class="fa fa-microchip"></i><span>Verilog 速查</span>
             </a>
             <a href="fortune.html">
-                <span class="fortune-icon">◆</span><span>今日运势</span>
+                <span class="sidebar-icon" style="color:#A3B18A; font-size:1rem;">◆</span><span>今日运势</span>
             </a>
             <a href="answer-book.html">
                 <i class="fa fa-book" style="color:#A3B18A;"></i><span>答案之书</span>
@@ -540,6 +759,16 @@
                         <button onclick="changeModifier(-1)" class="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors text-sm font-bold">-</button>
                         <span id="modifier-value" class="w-10 text-center font-bold text-dark">0</span>
                         <button onclick="changeModifier(1)" class="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors text-sm font-bold">+</button>
+                    </div>
+
+                    <!-- 快速模式开关 -->
+                    <div class="quick-toggle-wrap">
+                        <label id="quick-label-off" for="quick-mode" class="active">动画模式</label>
+                        <div class="quick-toggle">
+                            <input type="checkbox" id="quick-mode" onchange="toggleQuickMode()">
+                            <span class="slider"></span>
+                        </div>
+                        <label id="quick-label-on" for="quick-mode">快速模式</label>
                     </div>
                 </div>
 
@@ -702,6 +931,35 @@
             osc.stop(now + 0.2);
         }
 
+        // 骰子飞出音效（风声呼啸）
+        function playWhooshSound() {
+            const ctx = getAudioCtx();
+            const now = ctx.currentTime;
+            const bufferSize = Math.floor(ctx.sampleRate * 0.4);
+            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2);
+            }
+            const source = ctx.createBufferSource();
+            source.buffer = buffer;
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(800, now);
+            filter.frequency.exponentialRampToValueAtTime(3500, now + 0.15);
+            filter.frequency.exponentialRampToValueAtTime(400, now + 0.4);
+            filter.Q.value = 1.5;
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0.001, now);
+            gain.gain.linearRampToValueAtTime(0.1, now + 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+            source.connect(filter);
+            filter.connect(gain);
+            gain.connect(ctx.destination);
+            source.start(now);
+            source.stop(now + 0.4);
+        }
+
         // ========== 侧边栏控制 ==========
         function toggleSidebar() {
             const sb = document.getElementById('sidebar');
@@ -744,6 +1002,14 @@
         let dicePool = [];
         let modifier = 0;
         let history = [];
+        let quickMode = false;
+
+        // ========== 快速模式切换 ==========
+        function toggleQuickMode() {
+            quickMode = document.getElementById('quick-mode').checked;
+            document.getElementById('quick-label-off').classList.toggle('active', !quickMode);
+            document.getElementById('quick-label-on').classList.toggle('active', quickMode);
+        }
 
         // ========== 初始化 ==========
         function init() {
@@ -961,12 +1227,10 @@
             const btn = document.getElementById('roll-button');
             btn.disabled = true;
             btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>投掷中...';
-            playRollSound();
-            
-            const results = [];
-            let total = 0;
             
             // 计算每个骰子的点数
+            const results = [];
+            let total = 0;
             dicePool.forEach(dice => {
                 let result;
                 if (dice.type === 'd10x10') {
@@ -985,42 +1249,172 @@
                 });
                 total += result;
             });
-            
-            // 更新骰子池中的骰子显示实际点数并添加动画
-            const poolItems = document.querySelectorAll('.dice-pool-item');
-            poolItems.forEach((item, i) => {
-                if (results[i]) {
-                    const diceEl = item.querySelector('.dice-flat');
-                    const labelEl = item.querySelector('.dice-label');
-                    if (diceEl && labelEl) {
-                        // 添加投掷动画
-                        diceEl.classList.add('rolling');
-                        
-                        // 动画结束后更新点数显示
-                        setTimeout(() => {
-                            diceEl.classList.remove('rolling');
+
+            const finalTotal = total + modifier;
+
+            if (quickMode) {
+                // ===== 快速模式：跳过动画，直接出结果 =====
+                // 更新骰子池显示最终点数
+                const poolItems = document.querySelectorAll('.dice-pool-item');
+                poolItems.forEach((item, i) => {
+                    if (results[i]) {
+                        const labelEl = item.querySelector('.dice-label');
+                        if (labelEl) {
                             const displayResult = results[i].isPercent ? 
                                 (results[i].result === 0 ? '00' : results[i].result) : 
                                 results[i].result;
                             labelEl.textContent = displayResult;
-                        }, 1000);
+                        }
                     }
-                }
-            });
-            
-            // 等动画完成后显示结果
-            setTimeout(() => {
-                playHitSound();
-                const finalTotal = total + modifier;
-                displayRollResults(results, total, finalTotal);
+                });
+
+                // 快速模式大数字结果
+                displayQuickResults(results, total, finalTotal);
                 addToHistory(results, total, finalTotal);
                 updateColorStats(results);
-                createParticles();
-                
+
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa fa-play-circle mr-2"></i>投掷骰子';
                 updateRollButtonState();
-            }, 1200);
+            } else {
+                // ===== 动画模式：物理感三阶段投掷 =====
+                const poolEl = document.getElementById('dice-pool');
+                const poolCard = poolEl.parentElement;
+                poolCard.style.overflow = 'visible';
+                poolEl.classList.add('is-rolling');
+
+                const THROW_DURATION = 1300;
+                const PRE_DURATION  = 350;
+
+                // === Phase 1: 预投掷摇晃 (0-350ms) ===
+                playRollSound();
+                const poolItems = document.querySelectorAll('.dice-pool-item');
+                poolItems.forEach(item => {
+                    item.classList.add('pre-roll');
+                });
+
+                // === Phase 2: 抛物投掷 + 数字切换 (350ms-1650ms) ===
+                setTimeout(() => {
+                    playWhooshSound();
+                    poolItems.forEach((item, i) => {
+                        item.classList.remove('pre-roll');
+                        item.classList.add('rolling-3d');
+
+                        const innerDiv = item.querySelector('[style*="position:relative"]');
+                        if (innerDiv && !innerDiv.querySelector('.dice-shadow')) {
+                            const shadow = document.createElement('div');
+                            shadow.className = 'dice-shadow';
+                            innerDiv.appendChild(shadow);
+                        }
+
+                        const labelEl = item.querySelector('.dice-label');
+                        if (labelEl && results[i]) {
+                            labelEl.classList.add('cycling');
+                            const sides    = results[i].sides;
+                            const isPercent = results[i].isPercent;
+                            const cycleInterval = setInterval(() => {
+                                if (isPercent) {
+                                    const v = Math.floor(Math.random() * 10) * 10;
+                                    labelEl.textContent = v === 0 ? '00' : v;
+                                } else {
+                                    labelEl.textContent = Math.floor(Math.random() * sides) + 1;
+                                }
+                            }, 50);
+
+                            setTimeout(() => {
+                                clearInterval(cycleInterval);
+                                labelEl.classList.remove('cycling');
+                                const displayResult = isPercent
+                                    ? (results[i].result === 0 ? '00' : results[i].result)
+                                    : results[i].result;
+                                labelEl.textContent = displayResult;
+                            }, THROW_DURATION - 120);
+                        }
+                    });
+                }, PRE_DURATION);
+
+                // === Phase 3: 落地撞击 + 弹跳 + 显示结果 ===
+                setTimeout(() => {
+                    playHitSound();
+
+                    const main = document.querySelector('main');
+                    main.classList.add('screen-shake');
+                    setTimeout(() => main.classList.remove('screen-shake'), 700);
+
+                    poolItems.forEach(item => {
+                        item.classList.remove('rolling-3d', 'pre-roll');
+                        const shadow = item.querySelector('.dice-shadow');
+                        if (shadow) shadow.remove();
+                    });
+                    poolEl.classList.remove('is-rolling');
+                    poolCard.style.overflow = '';
+
+                    displayRollResults(results, total, finalTotal);
+                    addToHistory(results, total, finalTotal);
+                    updateColorStats(results);
+
+                    createBurstParticles();
+
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa fa-play-circle mr-2"></i>投掷骰子';
+                    updateRollButtonState();
+                }, PRE_DURATION + THROW_DURATION);
+            }
+        }
+
+        // ========== 快速模式大数字结果 ==========
+        function displayQuickResults(results, total, finalTotal) {
+            const container = document.getElementById('roll-results');
+            container.innerHTML = '';
+
+            const wrap = document.createElement('div');
+            wrap.className = 'quick-result text-center py-4';
+
+            // 超大总计
+            const totalDiv = document.createElement('div');
+            totalDiv.className = 'quick-total';
+            totalDiv.textContent = finalTotal;
+            wrap.appendChild(totalDiv);
+
+            // 修正值说明
+            if (modifier !== 0) {
+                const modNote = document.createElement('div');
+                modNote.className = 'text-sm text-gray-400 mt-1';
+                modNote.textContent = `${total} ${modifier >= 0 ? '+' : ''} ${modifier} = ${finalTotal}`;
+                wrap.appendChild(modNote);
+            }
+
+            // 各骰子大数字药丸
+            const detailDiv = document.createElement('div');
+            detailDiv.className = 'quick-detail';
+            results.forEach(r => {
+                const displayResult = r.isPercent ? 
+                    (r.result === 0 ? '00' : r.result) : r.result;
+                const chip = document.createElement('span');
+                chip.className = 'quick-dice-chip';
+                chip.style.background = `linear-gradient(135deg, ${r.color}, ${adjustColor(r.color, -25)})`;
+                chip.textContent = displayResult;
+                detailDiv.appendChild(chip);
+            });
+            wrap.appendChild(detailDiv);
+
+            container.appendChild(wrap);
+
+            // 同步更新 total-sum
+            document.getElementById('total-sum').textContent = finalTotal;
+            if (modifier !== 0) {
+                let detail = document.getElementById('total-detail');
+                if (!detail) {
+                    detail = document.createElement('div');
+                    detail.id = 'total-detail';
+                    detail.className = 'text-sm text-gray-500 mt-1';
+                    document.getElementById('total-sum').parentElement.appendChild(detail);
+                }
+                detail.textContent = `${total} ${modifier >= 0 ? '+' : ''} ${modifier} = ${finalTotal}`;
+            } else {
+                const detail = document.getElementById('total-detail');
+                if (detail) detail.remove();
+            }
         }
 
         // ========== 显示结果 ==========
@@ -1168,7 +1562,6 @@
         // ========== 粒子特效 ==========
         function createParticles() {
             const colors = ['#91A3B0', '#A3B18A', '#C9A9A6', '#D4A373', '#E74C3C', '#3498DB', '#F1C40F'];
-            
             for (let i = 0; i < 20; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'particle';
@@ -1179,10 +1572,33 @@
                 particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
                 particle.style.animationDelay = `${Math.random() * 0.5}s`;
                 document.body.appendChild(particle);
-                
-                setTimeout(() => {
-                    particle.remove();
-                }, 1500);
+                setTimeout(() => particle.remove(), 1500);
+            }
+        }
+
+        // ========== 增强粒子爆发 ==========
+        function createBurstParticles() {
+            const colors = ['#91A3B0', '#A3B18A', '#C9A9A6', '#D4A373', '#E74C3C', '#3498DB', '#F1C40F'];
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+            for (let i = 0; i < 32; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle burst';
+                const angle = (Math.PI * 2 * i) / 32 + (Math.random() - 0.5) * 0.5;
+                const distance = 60 + Math.random() * 140;
+                const dx = Math.cos(angle) * distance;
+                const dy = Math.sin(angle) * distance;
+                particle.style.left = `${centerX}px`;
+                particle.style.top = `${centerY}px`;
+                particle.style.setProperty('--dx', `${dx}px`);
+                particle.style.setProperty('--dy', `${dy}px`);
+                const size = Math.random() * 10 + 4;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.animationDelay = `${Math.random() * 0.12}s`;
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 1000);
             }
         }
 

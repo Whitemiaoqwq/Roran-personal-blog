@@ -92,7 +92,8 @@
             color: #91A3B0;
             font-weight: 600;
         }
-        .sidebar-nav a i { width: 2rem; text-align: center; font-size: 1.1rem; }
+        .sidebar-nav a i,
+        .sidebar-nav a .sidebar-icon { width: 2rem; text-align: center; font-size: 1.1rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .sidebar-footer {
             padding: 1rem;
             border-top: 1px solid rgba(0,0,0,0.06);
@@ -126,17 +127,25 @@
 
         /* ========== 工具卡片 ========== */
         .tool-card {
-            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: all 0.25s ease;
         }
         .tool-card:hover {
-            transform: translateY(-8px) scale(1.03);
-            box-shadow: 0 20px 40px rgba(145,163,176,0.25);
+            transform: translateX(4px);
+            box-shadow: 0 4px 16px rgba(145,163,176,0.12);
+            border-color: rgba(145,163,176,0.15) !important;
+        }
+        .tool-card:hover .fa-chevron-right {
+            color: #91A3B0;
+            transform: translateX(2px);
+        }
+        .tool-card .fa-chevron-right {
+            transition: all 0.25s ease;
         }
         .tool-card-icon {
-            transition: transform 0.3s ease;
+            transition: transform 0.25s ease;
         }
         .tool-card:hover .tool-card-icon {
-            transform: scale(1.15) rotate(-5deg);
+            transform: scale(1.08);
         }
 
         /* ========== d6 自定义骰子图标（莫兰迪色系） ========== */
@@ -232,13 +241,10 @@
                 <i class="fa fa-microchip"></i><span>Verilog 速查</span>
             </a>
             <a href="fortune.html">
-                <span style="display:inline-flex;align-items:center;justify-content:center;width:1.5rem;height:1.5rem;font-size:0.9rem;color:#A3B18A;flex-shrink:0;">◆</span><span>今日运势</span>
+                <span class="sidebar-icon" style="color:#A3B18A; font-size:1rem;">◆</span><span>今日运势</span>
             </a>
             <a href="answer-book.html">
                 <i class="fa fa-book" style="color:#A3B18A;"></i><span>答案之书</span>
-            </a>
-            <a href="landlord.html">
-                <i class="fa fa-spade" style="color:#D4AF37;"></i><span>斗地主</span>
             </a>
         </div>
         <div class="sidebar-footer">
@@ -252,85 +258,79 @@
     </button>
 
     <!-- 主内容区 -->
-    <main class="min-h-screen md:ml-64 pb-20 px-4 md:px-8 pt-20">
-        <div class="max-w-3xl mx-auto">
+    <main class="min-h-screen md:ml-64 pb-16 px-4 md:px-8 pt-16">
+        <div class="max-w-2xl mx-auto">
 
             <!-- 标题区 -->
-            <div class="text-center mb-12 mt-4">
-                <h1 class="text-3xl md:text-4xl font-bold mb-3" style="color:#585858;">
-                    <i class="fa fa-wrench" style="color:#91A3B0; margin-right:10px;"></i>蘿岚工具箱
+            <div class="mb-8">
+                <h1 class="text-2xl md:text-3xl font-bold" style="color:#585858;">
+                    工具箱
                 </h1>
-                <p class="text-lg" style="color:#a0a0a0;">选择你要使用的工具</p>
+                <p class="mt-1 text-sm" style="color:#a0a0a0;">选择你要使用的工具</p>
             </div>
 
-            <!-- 工具卡片网格 -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto">
+            <!-- 工具列表 -->
+            <div class="space-y-3">
 
                 <!-- 骰子小游戏 -->
-                <a href="dice.html" class="tool-card block bg-white bg-opacity-90 rounded-3xl shadow-md overflow-hidden" style="backdrop-filter: blur(4px); text-decoration:none;">
-                    <div class="flex items-center justify-center h-48" style="background: linear-gradient(135deg, rgba(145,163,176,0.15), rgba(163,177,138,0.12));">
-                        <div class="tool-card-icon" style="width:4.5rem; height:4.5rem; background: linear-gradient(135deg, #91A3B0, #A3B18A); border-radius:1rem; display:flex; align-items:center; justify-content:center; box-shadow: 0 8px 24px rgba(145,163,176,0.3);">
-                            <span class="dice-icon-6-lg"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
-                        </div>
+                <a href="dice.html" class="tool-card group flex items-center gap-5 bg-white bg-opacity-90 rounded-2xl shadow-sm overflow-hidden px-5 py-4" style="backdrop-filter: blur(4px); text-decoration:none; border: 1px solid rgba(0,0,0,0.04);">
+                    <div class="tool-card-icon flex-shrink-0" style="width:3.2rem; height:3.2rem; background: linear-gradient(135deg, #91A3B0, #A3B18A); border-radius:0.75rem; display:flex; align-items:center; justify-content:center; box-shadow: 0 4px 12px rgba(145,163,176,0.25);">
+                        <span class="dice-icon-6-lg" style="width:1.6rem; height:1.6rem;"><span class="dot" style="width:0.3rem; height:0.3rem;"></span><span class="dot" style="width:0.3rem; height:0.3rem;"></span><span class="dot" style="width:0.3rem; height:0.3rem;"></span><span class="dot" style="width:0.3rem; height:0.3rem;"></span><span class="dot" style="width:0.3rem; height:0.3rem;"></span><span class="dot" style="width:0.3rem; height:0.3rem;"></span></span>
                     </div>
-                    <div class="p-6 text-center">
-                        <h3 class="text-xl font-bold mb-1" style="color:#585858;">骰子小游戏</h3>
-                        <p class="text-sm" style="color:#a0a0a0;">多种骰子 · 自定义颜色 · 投掷记录</p>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-base font-semibold" style="color:#585858;">骰子小游戏</h3>
+                        <p class="text-xs mt-0.5" style="color:#a0a0a0;">多种骰子 · 自定义颜色 · 投掷记录</p>
                     </div>
+                    <i class="fa fa-chevron-right text-xs" style="color:#c0c0c0;"></i>
                 </a>
 
                 <!-- 串口调试工具 -->
-                <a href="serial.html" class="tool-card block bg-white bg-opacity-90 rounded-3xl shadow-md overflow-hidden" style="backdrop-filter: blur(4px); text-decoration:none;">
-                    <div class="flex items-center justify-center h-48" style="background: linear-gradient(135deg, rgba(201,169,166,0.15), rgba(212,163,115,0.12));">
-                        <div class="tool-card-icon" style="width:4.5rem; height:4.5rem; background: linear-gradient(135deg, #C9A9A6, #D4A373); border-radius:1rem; display:flex; align-items:center; justify-content:center; box-shadow: 0 8px 24px rgba(201,169,166,0.3);">
-                            <i class="fa fa-plug text-white" style="font-size:1.8rem;"></i>
-                        </div>
+                <a href="serial.html" class="tool-card group flex items-center gap-5 bg-white bg-opacity-90 rounded-2xl shadow-sm overflow-hidden px-5 py-4" style="backdrop-filter: blur(4px); text-decoration:none; border: 1px solid rgba(0,0,0,0.04);">
+                    <div class="tool-card-icon flex-shrink-0" style="width:3.2rem; height:3.2rem; background: linear-gradient(135deg, #C9A9A6, #D4A373); border-radius:0.75rem; display:flex; align-items:center; justify-content:center; box-shadow: 0 4px 12px rgba(201,169,166,0.25);">
+                        <i class="fa fa-plug text-white" style="font-size:1.3rem;"></i>
                     </div>
-                    <div class="p-6 text-center">
-                        <h3 class="text-xl font-bold mb-1" style="color:#585858;">串口调试工具</h3>
-                        <p class="text-sm" style="color:#a0a0a0;">设备记忆 · 数据收发 · HEX/文本模式</p>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-base font-semibold" style="color:#585858;">串口调试工具</h3>
+                        <p class="text-xs mt-0.5" style="color:#a0a0a0;">设备记忆 · 数据收发 · HEX/文本模式</p>
                     </div>
+                    <i class="fa fa-chevron-right text-xs" style="color:#c0c0c0;"></i>
                 </a>
 
                 <!-- Verilog 语法速查 -->
-                <a href="verilog.html" class="tool-card block bg-white bg-opacity-90 rounded-3xl shadow-md overflow-hidden" style="backdrop-filter: blur(4px); text-decoration:none;">
-                    <div class="flex items-center justify-center h-48" style="background: linear-gradient(135deg, rgba(212,163,115,0.15), rgba(145,163,176,0.12));">
-                        <div class="tool-card-icon" style="width:4.5rem; height:4.5rem; background: linear-gradient(135deg, #D4A373, #91A3B0); border-radius:1rem; display:flex; align-items:center; justify-content:center; box-shadow: 0 8px 24px rgba(212,163,115,0.3);">
-                            <i class="fa fa-microchip text-white" style="font-size:1.8rem;"></i>
-                        </div>
+                <a href="verilog.html" class="tool-card group flex items-center gap-5 bg-white bg-opacity-90 rounded-2xl shadow-sm overflow-hidden px-5 py-4" style="backdrop-filter: blur(4px); text-decoration:none; border: 1px solid rgba(0,0,0,0.04);">
+                    <div class="tool-card-icon flex-shrink-0" style="width:3.2rem; height:3.2rem; background: linear-gradient(135deg, #D4A373, #91A3B0); border-radius:0.75rem; display:flex; align-items:center; justify-content:center; box-shadow: 0 4px 12px rgba(212,163,115,0.25);">
+                        <i class="fa fa-microchip text-white" style="font-size:1.3rem;"></i>
                     </div>
-                    <div class="p-6 text-center">
-                        <h3 class="text-xl font-bold mb-1" style="color:#585858;">Verilog 语法速查</h3>
-                        <p class="text-sm" style="color:#a0a0a0;">模块声明 · 数据类型 · 运算符 · 流程控制</p>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-base font-semibold" style="color:#585858;">Verilog 语法速查</h3>
+                        <p class="text-xs mt-0.5" style="color:#a0a0a0;">模块声明 · 数据类型 · 运算符 · 流程控制</p>
                     </div>
+                    <i class="fa fa-chevron-right text-xs" style="color:#c0c0c0;"></i>
                 </a>
 
                 <!-- 今日运势 -->
-                <a href="fortune.html" class="tool-card block bg-white bg-opacity-90 rounded-3xl shadow-md overflow-hidden" style="backdrop-filter: blur(4px); text-decoration:none;">
-                    <div class="flex items-center justify-center h-48" style="background: linear-gradient(135deg, rgba(168,85,247,0.12), rgba(99,102,241,0.12));">
-                        <div class="tool-card-icon" style="width:4.5rem; height:4.5rem; background: linear-gradient(135deg, #a855f7, #6366f1); border-radius:1rem; display:flex; align-items:center; justify-content:center; box-shadow: 0 8px 24px rgba(168,85,247,0.3);">
-                            <span style="font-size:1.8rem; color:rgba(255,255,255,0.9); filter:drop-shadow(0 0 8px rgba(255,255,255,0.5));">◆</span>
-                        </div>
+                <a href="fortune.html" class="tool-card group flex items-center gap-5 bg-white bg-opacity-90 rounded-2xl shadow-sm overflow-hidden px-5 py-4" style="backdrop-filter: blur(4px); text-decoration:none; border: 1px solid rgba(0,0,0,0.04);">
+                    <div class="tool-card-icon flex-shrink-0" style="width:3.2rem; height:3.2rem; background: linear-gradient(135deg, #A3B18A, #C9A9A6); border-radius:0.75rem; display:flex; align-items:center; justify-content:center; box-shadow: 0 4px 12px rgba(163,177,138,0.25);">
+                        <span style="font-size:1.3rem; color:rgba(255,255,255,0.9);">◆</span>
                     </div>
-                    <div class="p-6 text-center">
-                        <h3 class="text-xl font-bold mb-1" style="color:#585858;">今日运势</h3>
-                        <p class="text-sm" style="color:#a0a0a0;">塔罗一牌 · 幸运元素 · 每日限抽</p>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-base font-semibold" style="color:#585858;">今日运势</h3>
+                        <p class="text-xs mt-0.5" style="color:#a0a0a0;">塔罗一牌 · 幸运元素 · 每日限抽</p>
                     </div>
+                    <i class="fa fa-chevron-right text-xs" style="color:#c0c0c0;"></i>
                 </a>
 
                 <!-- 答案之书 -->
-                <a href="answer-book.html" class="tool-card block bg-white bg-opacity-90 rounded-3xl shadow-md overflow-hidden" style="backdrop-filter: blur(4px); text-decoration:none;">
-                    <div class="flex items-center justify-center h-48" style="background: linear-gradient(135deg, rgba(163,177,138,0.12), rgba(212,163,115,0.12));">
-                        <div class="tool-card-icon" style="width:4.5rem; height:4.5rem; background: linear-gradient(135deg, #A3B18A, #D4A373); border-radius:1rem; display:flex; align-items:center; justify-content:center; box-shadow: 0 8px 24px rgba(163,177,138,0.3);">
-                            <i class="fa fa-book text-white" style="font-size:1.8rem;"></i>
-                        </div>
+                <a href="answer-book.html" class="tool-card group flex items-center gap-5 bg-white bg-opacity-90 rounded-2xl shadow-sm overflow-hidden px-5 py-4" style="backdrop-filter: blur(4px); text-decoration:none; border: 1px solid rgba(0,0,0,0.04);">
+                    <div class="tool-card-icon flex-shrink-0" style="width:3.2rem; height:3.2rem; background: linear-gradient(135deg, #A3B18A, #D4A373); border-radius:0.75rem; display:flex; align-items:center; justify-content:center; box-shadow: 0 4px 12px rgba(163,177,138,0.25);">
+                        <i class="fa fa-book text-white" style="font-size:1.3rem;"></i>
                     </div>
-                    <div class="p-6 text-center">
-                        <h3 class="text-xl font-bold mb-1" style="color:#585858;">答案之书</h3>
-                        <p class="text-sm" style="color:#a0a0a0;">心中默念 · 翻开书页 · 获得答案</p>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-base font-semibold" style="color:#585858;">答案之书</h3>
+                        <p class="text-xs mt-0.5" style="color:#a0a0a0;">心中默念 · 翻开书页 · 获得答案</p>
                     </div>
+                    <i class="fa fa-chevron-right text-xs" style="color:#c0c0c0;"></i>
                 </a>
-
 
             </div>
         </div>
