@@ -35,12 +35,14 @@
         * { box-sizing: border-box; }
 
         body {
-            background-color: #91A3B0;
-            background-image: 
-                radial-gradient(#ffffff22 5px, transparent 5px),
-                radial-gradient(#ffffff22 5px, transparent 5px);
-            background-size: 48px 48px;
-            background-position: 0 0, 24px 24px;
+            background-color: #EEF1F0;
+            background-image:
+                radial-gradient(rgba(145,163,176,0.13) 1.5px, transparent 1.5px),
+                radial-gradient(rgba(145,163,176,0.13) 1.5px, transparent 1.5px),
+                linear-gradient(160deg, #E5EBEE 0%, #EDF0E6 48%, #F5EDE7 100%);
+            background-size: 42px 42px, 42px 42px, 100% 100%;
+            background-position: 0 0, 21px 21px, 0 0;
+            background-attachment: fixed;
             overflow-x: hidden;
             opacity: 0;
             transition: opacity 0.8s ease;
@@ -59,7 +61,7 @@
             align-items: center;
             justify-content: center;
             gap: 20px;
-            transition: opacity 0.6s ease, visibility 0.6s ease;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
         }
 
         #page-loader.hide {
@@ -118,7 +120,7 @@
             position: fixed;
             border-radius: 50%;
             filter: blur(60px);
-            opacity: 0.35;
+            opacity: 0.28;
             pointer-events: none;
             z-index: 0;
             animation: orbFloat 8s ease-in-out infinite alternate;
@@ -189,131 +191,112 @@
 
         /* ========== 个人信息卡片 ========== */
         .profile-card {
-            transition: all 0.5s cubic-bezier(0.23,1,0.32,1);
-            transform-origin: center;
+            transition: transform 0.4s cubic-bezier(0.23,1,0.32,1), box-shadow 0.4s ease;
         }
         .profile-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 24px 48px rgba(0,0,0,0.12);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 44px rgba(91,111,125,0.14);
         }
 
         /* ========== 头像区 ========== */
         .avatar-wrap {
             position: relative;
-            width: 192px;
-            height: 192px;
+            width: 160px;
+            height: 160px;
             margin: auto;
         }
 
-        /* 双层旋转光环 */
-        .avatar-ring-outer {
+        /* 静态柔光 */
+        .avatar-glow {
             position: absolute;
-            inset: -14px;
+            inset: -26px;
             border-radius: 50%;
-            background: conic-gradient(
-                #C9A9A6, #A3B18A, #91A3B0, #D4A373, #C9A9A6
-            );
-            animation: ringRotate 6s linear infinite;
-            opacity: 0.75;
-        }
-        .avatar-ring-outer::before {
-            content: '';
-            position: absolute;
-            inset: 3px;
-            border-radius: 50%;
-            background: #d6e0e7;
+            background: radial-gradient(circle, rgba(163,177,138,0.22), transparent 65%);
         }
 
-        .avatar-ring-inner {
+        /* 缓慢旋转的虚线细环 */
+        .avatar-ring {
             position: absolute;
-            inset: -6px;
+            inset: -12px;
             border-radius: 50%;
-            background: conic-gradient(
-                #A3B18A, #C9A9A6, #D4A373, #91A3B0, #A3B18A
-            );
-            animation: ringRotate 4s linear infinite reverse;
-            opacity: 0.5;
-        }
-        .avatar-ring-inner::before {
-            content: '';
-            position: absolute;
-            inset: 3px;
-            border-radius: 50%;
-            background: #d6e0e7;
+            border: 2.5px dashed rgba(163,177,138,0.55);
+            animation: ringRotate 26s linear infinite;
         }
 
         @keyframes ringRotate { to { transform: rotate(360deg); } }
 
-        /* 头像光晕 */
-        .avatar-glow {
-            position: absolute;
-            inset: -20px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 50%, #C9A9A655, #A3B18A33, transparent 70%);
-            animation: glowPulse 3s ease-in-out infinite alternate;
-        }
-        @keyframes glowPulse {
-            0% { opacity: 0.5; transform: scale(1); }
-            100% { opacity: 1; transform: scale(1.1); }
-        }
-
         .avatar-img {
             position: relative;
             z-index: 10;
-            width: 192px;
-            height: 192px;
+            width: 160px;
+            height: 160px;
             border-radius: 50%;
             object-fit: cover;
             border: 4px solid #fff;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+            box-shadow: 0 6px 18px rgba(91,111,125,0.18);
             transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
         }
         .avatar-wrap:hover .avatar-img {
-            transform: scale(1.05);
+            transform: scale(1.04) rotate(2deg);
         }
 
         /* ========== 板块卡片 ========== */
         .section-card {
-            transition: all 0.4s cubic-bezier(0.23,1,0.32,1);
+            transition: transform 0.35s cubic-bezier(0.23,1,0.32,1), box-shadow 0.35s ease;
             position: relative;
             overflow: hidden;
         }
-        .section-card::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
         .section-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.13);
+            transform: translateY(-5px);
+            box-shadow: 0 18px 36px rgba(91,111,125,0.16);
         }
-        .section-card:hover::after { opacity: 1; }
 
-        /* 卡片顶部图标区光效 */
+        /* 卡片图标区 */
         .card-icon-area {
             position: relative;
             overflow: hidden;
         }
-        .card-icon-area::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at 60% 40%, rgba(255,255,255,0.3), transparent 60%);
-            opacity: 0;
-            transition: opacity 0.4s ease;
-        }
-        .section-card:hover .card-icon-area::before { opacity: 1; }
 
-        .card-icon {
+        /* 白色圆角图标容器 */
+        .icon-chip {
+            width: 72px;
+            height: 72px;
+            background: #fff;
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(91,111,125,0.15);
+            position: relative;
+            z-index: 2;
             transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
         }
-        .section-card:hover .card-icon { transform: scale(1.2) rotate(-5deg); }
+        .section-card:hover .icon-chip { transform: scale(1.1) rotate(-5deg); }
+
+        /* 右下角超大水印图标 */
+        .watermark-icon {
+            position: absolute;
+            right: -12px;
+            bottom: -20px;
+            font-size: 108px;
+            line-height: 1;
+            transform: rotate(-10deg);
+            opacity: 0.12;
+            pointer-events: none;
+            z-index: 1;
+            transition: transform 0.4s ease;
+        }
+        .section-card:hover .watermark-icon { transform: rotate(-6deg) translate(-2px, -2px); }
+
+        /* 前往箭头 */
+        .go-arrow {
+            color: #C2CCD2;
+            transition: all 0.3s ease;
+        }
+        .section-card:hover .go-arrow {
+            color: #91A3B0;
+            transform: translateX(4px);
+        }
 
         /* ========== 标题区入场动画 ========== */
         .fade-in-up {
@@ -344,48 +327,17 @@
             opacity: 0.8;
         }
 
-        /* ========== 闪烁星星装饰 ========== */
+        /* ========== 闪烁小圆点装饰 ========== */
         .star {
             position: fixed;
-            width: 4px;
-            height: 4px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.85);
             pointer-events: none;
             z-index: 1;
             animation: starTwinkle var(--dur, 3s) ease-in-out infinite var(--delay, 0s);
         }
         @keyframes starTwinkle {
-            0%, 100% { opacity: 0.1; transform: scale(0.8); }
-            50% { opacity: 1; transform: scale(1.3); }
-        }
-
-        /* 星星扩散动画 */
-        .star-burst {
-            position: fixed;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.95);
-            pointer-events: none;
-            z-index: 100;
-            animation: starBurst 1.2s ease-out forwards;
-        }
-        @keyframes starBurst {
-            0% {
-                transform: scale(1);
-                opacity: 1;
-                box-shadow: 0 0 0 0 rgba(255,255,255,0.7), 0 0 8px 2px rgba(255,255,255,0.3);
-            }
-            50% {
-                opacity: 0.7;
-                box-shadow: 0 0 0 20px rgba(255,255,255,0.3), 0 0 30px 10px rgba(200,220,255,0.2);
-            }
-            100% {
-                transform: scale(4);
-                opacity: 0;
-                box-shadow: 0 0 0 60px rgba(255,255,255,0), 0 0 80px 30px rgba(200,220,255,0);
-            }
+            0%, 100% { opacity: 0.12; transform: scale(0.8); }
+            50% { opacity: 0.85; transform: scale(1.25); }
         }
 
         /* ========== 页脚 ========== */
@@ -477,40 +429,44 @@
     <!-- 主内容区 -->
     <main class="min-h-screen md:ml-64 pb-20 px-4 md:px-8 lg:px-16">
 
+        <!-- 顶部欢迎语 -->
+        <div class="max-w-4xl mx-auto pt-10 pb-6 fade-in-up">
+            <p class="text-sm tracking-[0.3em]" style="color:#93A3AD;">✦ WELCOME TO RORAN'S WORLD ✦</p>
+        </div>
+
         <!-- 个人信息卡片 -->
-        <div class="profile-card max-w-4xl mx-auto bg-white bg-opacity-90 rounded-3xl shadow-lg overflow-hidden mb-14 fade-in-up" style="backdrop-filter: blur(6px); transition-delay: 0.1s;">
+        <div class="profile-card max-w-4xl mx-auto bg-white bg-opacity-90 rounded-3xl shadow-lg overflow-hidden mb-16 fade-in-up" style="backdrop-filter: blur(6px); transition-delay: 0.05s;">
             <div class="md:flex">
                 <!-- 头像区域 -->
-                <div class="md:w-1/3 p-10 flex justify-center items-center" style="background: linear-gradient(135deg, rgba(145,163,176,0.12), rgba(163,177,138,0.1));">
+                <div class="md:w-1/3 p-8 flex justify-center items-center" style="background: linear-gradient(135deg, rgba(145,163,176,0.10), rgba(163,177,138,0.10));">
                     <div class="avatar-wrap">
                         <div class="avatar-glow"></div>
-                        <div class="avatar-ring-outer"></div>
-                        <div class="avatar-ring-inner"></div>
+                        <div class="avatar-ring"></div>
                         <img src="static/imgs/owo.jpg" alt="蘿嵐的头像" class="avatar-img">
                     </div>
                 </div>
                 
                 <!-- 个人简介区域 -->
                 <div class="md:w-2/3 p-8 md:p-10 flex flex-col justify-center">
-                    <h1 class="text-3xl md:text-4xl font-bold text-primary mb-3 fade-in-up" style="transition-delay: 0.2s;">蘿嵐</h1>
+                    <h1 class="text-3xl md:text-4xl font-bold text-primary mb-3 fade-in-up" style="transition-delay: 0.15s;">蘿嵐</h1>
                     <div class="w-12 h-1 rounded-full mb-5" style="background: linear-gradient(90deg,#C9A9A6,#A3B18A);"></div>
-                    <p class="text-lg mb-6 leading-relaxed text-gray-600 fade-in-up" style="transition-delay: 0.3s;">
+                    <p class="text-lg mb-6 leading-relaxed text-gray-600 fade-in-up" style="transition-delay: 0.25s;">
                         是一只茗沐大地上的森林猫，目前是茗沐魔法学院大一新生喵~
                     </p>
                     
                     <!-- 标签装饰 -->
-                    <div class="flex flex-wrap gap-2 mb-6 fade-in-up" style="transition-delay: 0.4s;">
+                    <div class="flex flex-wrap gap-2 mb-6 fade-in-up" style="transition-delay: 0.35s;">
                         <span class="px-3 py-1 rounded-full text-sm bg-primary bg-opacity-15 text-primary">✦ 小说创作</span>
                         <span class="px-3 py-1 rounded-full text-sm bg-secondary bg-opacity-15 text-secondary">✦ 音乐制作</span>
                         <span class="px-3 py-1 rounded-full text-sm bg-accent bg-opacity-15 text-accent">✦ 摄影记录</span>
                     </div>
                     
                     <!-- 社交媒体链接 -->
-                    <div class="flex space-x-4 fade-in-up" style="transition-delay: 0.5s;">
+                    <div class="flex space-x-4 fade-in-up" style="transition-delay: 0.45s;">
                         <a href="https://space.bilibili.com/3546633423816937?spm_id_from=333.1369.opus.module_author_avatar.click" target="_blank" class="social-icon bg-[#FB7299] text-white w-12 h-12 rounded-full shadow-md flex items-center justify-center">
                             <i class="fa fa-play-circle text-lg"></i>
                         </a>
-                        <a href="https://v.douyin.com/fASQmaFAqOY/ 9@9.com" target="_blank" class="social-icon bg-[#111] text-white w-12 h-12 rounded-full shadow-md flex items-center justify-center">
+                        <a href="https://v.douyin.com/fASQmaFAqOY/" target="_blank" class="social-icon bg-[#111] text-white w-12 h-12 rounded-full shadow-md flex items-center justify-center">
                             <i class="fa fa-music text-lg"></i>
                         </a>
                     </div>
@@ -519,61 +475,102 @@
         </div>
         
         <!-- 板块导航卡片 -->
-        <div class="max-w-5xl mx-auto fade-in-up" style="transition-delay: 0.35s;">
-            <h2 class="text-2xl font-bold text-center mb-10 text-white section-title">探索我的小世界</h2>
+        <div class="max-w-4xl mx-auto fade-in-up" style="transition-delay: 0.3s;">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-dark section-title">探索我的小世界</h2>
+                <p class="text-sm mt-5 mb-10" style="color:#97A4AC;">四个小房间，装着不同的喜欢喵</p>
+            </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-7 max-w-3xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-7">
                 <!-- 茗沐大陆记事簿 -->
-                <a href="passage.html" class="section-card block bg-white bg-opacity-90 rounded-3xl shadow-md overflow-hidden fade-in-up" style="transition-delay:0.45s; backdrop-filter:blur(4px);">
-                    <div class="card-icon-area h-48 flex items-center justify-center" style="background: linear-gradient(135deg, rgba(145,163,176,0.18), rgba(145,163,176,0.08));">
-                        <i class="fa fa-book text-6xl text-primary card-icon"></i>
+                <a href="passage.html" class="section-card block bg-white bg-opacity-90 rounded-3xl shadow-md overflow-hidden fade-in-up" style="transition-delay:0.4s; backdrop-filter:blur(4px);">
+                    <div class="card-icon-area h-36 flex items-center justify-center" style="background: linear-gradient(135deg, rgba(145,163,176,0.16), rgba(145,163,176,0.04));">
+                        <i class="fa fa-book watermark-icon" style="color:#91A3B0;"></i>
+                        <div class="icon-chip">
+                            <i class="fa fa-book text-3xl text-primary"></i>
+                        </div>
                     </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold mb-1 text-dark">茗沐大陆记事簿</h3>
-                        <p class="text-gray-500 text-sm">探索茗沐大陆的奇妙故事与传说</p>
+                    <div class="p-5">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <h3 class="text-lg font-bold text-dark">茗沐大陆记事簿</h3>
+                            <span class="go-arrow"><i class="fa fa-arrow-right"></i></span>
+                        </div>
+                        <p class="text-gray-500 text-sm leading-relaxed">探索茗沐大陆的奇妙故事与传说</p>
                     </div>
                 </a>
                 
                 <!-- 蘿嵐随记簿 -->
-                <a href="note.html" class="section-card block bg-white bg-opacity-90 rounded-3xl shadow-md overflow-hidden fade-in-up" style="transition-delay:0.55s; backdrop-filter:blur(4px);">
-                    <div class="card-icon-area h-48 flex items-center justify-center" style="background: linear-gradient(135deg, rgba(163,177,138,0.18), rgba(163,177,138,0.08));">
-                        <i class="fa fa-sticky-note text-6xl text-secondary card-icon"></i>
+                <a href="note.html" class="section-card block bg-white bg-opacity-90 rounded-3xl shadow-md overflow-hidden fade-in-up" style="transition-delay:0.5s; backdrop-filter:blur(4px);">
+                    <div class="card-icon-area h-36 flex items-center justify-center" style="background: linear-gradient(135deg, rgba(163,177,138,0.16), rgba(163,177,138,0.04));">
+                        <i class="fa fa-sticky-note watermark-icon" style="color:#A3B18A;"></i>
+                        <div class="icon-chip">
+                            <i class="fa fa-sticky-note text-3xl text-secondary"></i>
+                        </div>
                     </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold mb-1 text-dark">蘿嵐随记簿</h3>
-                        <p class="text-gray-500 text-sm">记录日常的点滴思绪与感悟</p>
+                    <div class="p-5">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <h3 class="text-lg font-bold text-dark">蘿嵐随记簿</h3>
+                            <span class="go-arrow"><i class="fa fa-arrow-right"></i></span>
+                        </div>
+                        <p class="text-gray-500 text-sm leading-relaxed">记录日常的点滴思绪与感悟</p>
                     </div>
                 </a>
                 
                 <!-- 猫之都音乐馆 -->
-                <a href="music.html" class="section-card block bg-white bg-opacity-90 rounded-3xl shadow-md overflow-hidden fade-in-up" style="transition-delay:0.65s; backdrop-filter:blur(4px);">
-                    <div class="card-icon-area h-48 flex items-center justify-center" style="background: linear-gradient(135deg, rgba(201,169,166,0.18), rgba(201,169,166,0.08));">
-                        <i class="fa fa-headphones text-6xl text-accent card-icon"></i>
+                <a href="music.html" class="section-card block bg-white bg-opacity-90 rounded-3xl shadow-md overflow-hidden fade-in-up" style="transition-delay:0.6s; backdrop-filter:blur(4px);">
+                    <div class="card-icon-area h-36 flex items-center justify-center" style="background: linear-gradient(135deg, rgba(201,169,166,0.16), rgba(201,169,166,0.04));">
+                        <i class="fa fa-headphones watermark-icon" style="color:#C9A9A6;"></i>
+                        <div class="icon-chip">
+                            <i class="fa fa-headphones text-3xl text-accent"></i>
+                        </div>
                     </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold mb-1 text-dark">猫之都音乐馆</h3>
-                        <p class="text-gray-500 text-sm">聆听来自猫之都的动人旋律</p>
+                    <div class="p-5">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <h3 class="text-lg font-bold text-dark">猫之都音乐馆</h3>
+                            <span class="go-arrow"><i class="fa fa-arrow-right"></i></span>
+                        </div>
+                        <p class="text-gray-500 text-sm leading-relaxed">聆听来自猫之都的动人旋律</p>
                     </div>
                 </a>
                 
                 <!-- 蘿嵐摄影集 -->
-                <a href="photos.html" class="section-card block bg-white bg-opacity-90 rounded-3xl shadow-md overflow-hidden fade-in-up" style="transition-delay:0.75s; backdrop-filter:blur(4px);">
-                    <div class="card-icon-area h-48 flex items-center justify-center" style="background: linear-gradient(135deg, rgba(212,163,115,0.18), rgba(212,163,115,0.08));">
-                        <i class="fa fa-camera text-6xl text-tertiary card-icon"></i>
+                <a href="photos.html" class="section-card block bg-white bg-opacity-90 rounded-3xl shadow-md overflow-hidden fade-in-up" style="transition-delay:0.7s; backdrop-filter:blur(4px);">
+                    <div class="card-icon-area h-36 flex items-center justify-center" style="background: linear-gradient(135deg, rgba(212,163,115,0.16), rgba(212,163,115,0.04));">
+                        <i class="fa fa-camera watermark-icon" style="color:#D4A373;"></i>
+                        <div class="icon-chip">
+                            <i class="fa fa-camera text-3xl text-tertiary"></i>
+                        </div>
                     </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold mb-1 text-dark">摄影集</h3>
-                        <p class="text-gray-500 text-sm">捕捉生活中美好的瞬间与风景</p>
+                    <div class="p-5">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <h3 class="text-lg font-bold text-dark">摄影集</h3>
+                            <span class="go-arrow"><i class="fa fa-arrow-right"></i></span>
+                        </div>
+                        <p class="text-gray-500 text-sm leading-relaxed">捕捉生活中美好的瞬间与风景</p>
                     </div>
                 </a>
             </div>
+
+            <!-- 工具箱横条入口 -->
+            <a href="toolbox.html" class="section-card mt-7 flex items-center gap-5 bg-white bg-opacity-90 rounded-2xl shadow-md px-6 py-4 fade-in-up" style="transition-delay:0.8s; backdrop-filter:blur(4px);">
+                <div class="icon-chip" style="width:56px; height:56px; border-radius:18px; flex-shrink:0;">
+                    <i class="fa fa-wrench text-xl text-tertiary"></i>
+                </div>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between mb-0.5">
+                        <h3 class="text-lg font-bold text-dark">小工具箱</h3>
+                        <span class="go-arrow"><i class="fa fa-arrow-right"></i></span>
+                    </div>
+                    <p class="text-gray-500 text-sm">骰子 · 点灯谜题 · 答案之书 · 串口调试 · Verilog 手册</p>
+                </div>
+            </a>
         </div>
     </main>
     
     <!-- 页脚 -->
     <footer class="bg-white bg-opacity-75 py-6 rounded-t-3xl shadow-inner" style="backdrop-filter: blur(6px);">
         <div class="text-center text-gray-400 text-sm">
-            <p>© 2025 蘿嵐的个人博客 &nbsp;·&nbsp; 用爱心制作 🐾</p>
+            <p>© 2024 蘿嵐的个人博客 &nbsp;·&nbsp; 用爱心制作 🐾</p>
         </div>
     </footer>
 
@@ -586,7 +583,7 @@
             document.body.classList.add('loaded');
             // 触发入场动画
             triggerFadeIn();
-        }, 900);
+        }, 450);
     });
 
     // ========== 入场动画（Intersection Observer） ==========
@@ -656,7 +653,7 @@
         }
     }
 
-    for (let i = 0; i < 55; i++) particles.push(new Particle());
+    for (let i = 0; i < 30; i++) particles.push(new Particle());
 
     function animateParticles() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -665,69 +662,27 @@
     }
     animateParticles();
 
-    // ========== 随机闪烁小星星 ==========
+    // ========== 若隐若现的小圆点（莫兰迪色） ==========
+    const STAR_COLORS = [
+        'rgba(145,163,176,0.75)',
+        'rgba(163,177,138,0.75)',
+        'rgba(201,169,166,0.75)',
+        'rgba(212,163,115,0.75)'
+    ];
     function createStar() {
         const star = document.createElement('div');
         star.className = 'star';
         star.style.left = Math.random() * 100 + 'vw';
         star.style.top = Math.random() * 100 + 'vh';
-        star.style.setProperty('--dur', (Math.random() * 3 + 2) + 's');
+        star.style.setProperty('--dur', (Math.random() * 3 + 2.5) + 's');
         star.style.setProperty('--delay', '-' + (Math.random() * 5) + 's');
-        star.style.width = star.style.height = (Math.random() * 3 + 2) + 'px';
+        const s = (Math.random() * 3 + 2).toFixed(1);
+        star.style.width = s + 'px';
+        star.style.height = s + 'px';
+        star.style.background = STAR_COLORS[Math.floor(Math.random() * STAR_COLORS.length)];
         document.body.appendChild(star);
     }
-    for (let i = 0; i < 30; i++) createStar();
-
-    // ========== 星星扩散动效（10秒最多1个） ==========
-    let burstTimeout;
-    function scheduleBurst() {
-        // 随机等待 8~12 秒
-        const delay = 8000 + Math.random() * 4000;
-        burstTimeout = setTimeout(() => {
-            triggerStarBurst();
-            scheduleBurst();
-        }, delay);
-    }
-
-    function triggerStarBurst() {
-        const stars = document.querySelectorAll('.star');
-        if (stars.length === 0) return;
-
-        // 随机选一个在可视范围内的星星
-        const visibleStars = Array.from(stars).filter(star => {
-            const rect = star.getBoundingClientRect();
-            return rect.top >= 0 && rect.bottom <= window.innerHeight &&
-                   rect.left >= 0 && rect.right <= window.innerWidth;
-        });
-
-        if (visibleStars.length === 0) return;
-
-        const targetStar = visibleStars[Math.floor(Math.random() * visibleStars.length)];
-        const rect = targetStar.getBoundingClientRect();
-
-        // 创建扩散元素
-        const burst = document.createElement('div');
-        burst.className = 'star-burst';
-        burst.style.left = rect.left + rect.width / 2 + 'px';
-        burst.style.top = rect.top + rect.height / 2 + 'px';
-        burst.style.width = rect.width + 'px';
-        burst.style.height = rect.height + 'px';
-        document.body.appendChild(burst);
-
-        // 动画结束后移除
-        setTimeout(() => burst.remove(), 800);
-    }
-
-    scheduleBurst();
-
-    // 页面隐藏时暂停，节省性能
-    document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-            clearTimeout(burstTimeout);
-        } else {
-            scheduleBurst();
-        }
-    });
+    for (let i = 0; i < 14; i++) createStar();
 
     // ========== 音乐控制 ==========
     const musicControl = document.getElementById('music-control');
